@@ -1,44 +1,47 @@
-# **Que Referral and Earn System - Frontend**
+# KAP Web Frontend
 
-## **Project Overview**
+This is the **React + Tailwind CSS** frontend for the **KAP Web App**, which connects to the backend via a REST API.
 
-This is the frontend part of the **Referral and Earn System**, built with **React**, **Vite**, and **Tailwind CSS**. The app allows users to add wallet addresses, generate unique referral links, track balances, and earn points based on referrals.
+## Live Demo
+
+[View Deployment](https://your-vercel-url.vercel.app)
+
+## Features
+
+- **Authentication**: Login system with session-based authentication.
+- **Tailwind CSS**: Responsive and modern UI design.
+- **API Integration**: Seamless communication with the backend.
+- **Deployment**: Hosted on Vercel with automatic updates via GitHub.
 
 ---
 
-## **Tech Stack**
-
-- **React**: A JavaScript library for building user interfaces, used to develop dynamic components and a responsive single-page application (SPA).
-- **Vite**: A next-generation, fast build tool that provides an instant development environment for React, ensuring fast hot-reloading and efficient builds.
-- **Tailwind CSS**: A utility-first CSS framework for quickly building responsive and customizable UIs.
-
----
-
-## **Installation Instructions**
+## Installation & Setup
 
 ### 1. Clone the Repository
 
-To get started with the frontend project, first clone the repository:
-
 ```bash
-git clone https://github.com/your-username/Refer-Earn-System-Que.git
-cd Frontend
+git clone https://github.com/your-username/kap-frontend.git
+cd kap-frontend
 ```
-Once inside the project directory, install all necessary dependencies using npm or yarn:
-# If using npm
+
+### 2. Install Dependencies
+
 ```bash
 npm install
-# Or, if using yarn
-yarn install
 ```
- Start the Development Server
- ```bash
- # Using npm
-npm run dev
-# Or, using yarn
-yarn dev
+
+### 3. Set Up Environment Variables
+
+Create a .env file in the root directory and add the following:
+
+```bash
+REACT_APP_API_URL=https://yourbackend.railway.app
 ```
-#Additional Notes
-First Make sure you backend is running
 
+### 4. Start the Development Server
 
+```bash
+npm start
+```
+
+The application will run on http://localhost:3000.

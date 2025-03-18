@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 import {
   LoginPage,
   AdminUpdatePage,
@@ -16,28 +16,21 @@ import {
   IntegrationEmployeeHomePage,
 } from "./pages";
 
-/* ---------------------------------------------
-   Role-Based Protected Route Component
---------------------------------------------- */
-const ProtectedRoute = ({ role, allowedRoles, children }) => {
-  return allowedRoles.includes(role) ? children : <Navigate to="/login" />;
+const ProtectedRoute = ({ allowedRoles, children }) => {
+  const { user } = useSelector((state) => state.auth);
+  if (!user) return <Navigate to="/login" />;
+  return allowedRoles.includes(user.role) ? children : <Navigate to="/login" />;
 };
 
 const App = () => {
-  // This will later be replaced by Redux
-  const [role, setRole] = useState("admin");
-
   return (
     <Router>
       <Routes>
-        {/* Public Route */}
-        <Route path="/login" element={<LoginPage setRole={setRole} />} />
-
-        {/* Role-Based Protected Routes */}
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="/admin-home"
           element={
-            <ProtectedRoute role={role} allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <AdminHomePage />
             </ProtectedRoute>
           }
@@ -45,7 +38,7 @@ const App = () => {
         <Route
           path="/admin-update"
           element={
-            <ProtectedRoute role={role} allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <AdminUpdatePage />
             </ProtectedRoute>
           }
@@ -53,7 +46,7 @@ const App = () => {
         <Route
           path="/kap-employee-home"
           element={
-            <ProtectedRoute role={role} allowedRoles={["kap_employee"]}>
+            <ProtectedRoute allowedRoles={["kap_employee"]}>
               <KAPEmployeeHomePage />
             </ProtectedRoute>
           }
@@ -61,7 +54,7 @@ const App = () => {
         <Route
           path="/government-employee-home"
           element={
-            <ProtectedRoute role={role} allowedRoles={["government_employee"]}>
+            <ProtectedRoute allowedRoles={["government_employee"]}>
               <GovernmentEmployeeHomePage />
             </ProtectedRoute>
           }
@@ -69,7 +62,7 @@ const App = () => {
         <Route
           path="/company-employee-home"
           element={
-            <ProtectedRoute role={role} allowedRoles={["company_employee"]}>
+            <ProtectedRoute allowedRoles={["company_employee"]}>
               <CompanyEmployeeHomePage />
             </ProtectedRoute>
           }
@@ -77,13 +70,11 @@ const App = () => {
         <Route
           path="/integration-employee-home"
           element={
-            <ProtectedRoute role={role} allowedRoles={["integration_employee"]}>
+            <ProtectedRoute allowedRoles={["integration_employee"]}>
               <IntegrationEmployeeHomePage />
             </ProtectedRoute>
           }
         />
-
-        {/* Default Redirect: If no valid role, go to login */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

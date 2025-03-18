@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { updateAdmin } from "../../redux/authSlice";
 import { Button, InputField } from "../../components";
-import Logo from "../../assets/logo.png"; // Ensure the correct path
+import Logo from "../../assets/logo.png";
 
 const AdminUpdatePage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user, status, error } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
-    username: "",
+    username: user?.username || "",
     password: "",
-    email: "",
-    mobile: "",
+    email: user?.email || "",
+    mobile: user?.mobile || "",
   });
 
   const handleChange = (e) => {
@@ -18,18 +23,36 @@ const AdminUpdatePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Updated Admin Info:", formData);
-    navigate("/admin-home");
+    dispatch(updateAdmin(formData));
   };
 
   const handleSkip = () => {
-    navigate("/admin-home");
+    if (user) {
+      switch (user.role) {
+        case "admin":
+          navigate("/admin-home");
+          break;
+        case "kap_employee":
+          navigate("/kap-employee-home");
+          break;
+        case "government_employee":
+          navigate("/government-employee-home");
+          break;
+        case "company_employee":
+          navigate("/company-employee-home");
+          break;
+        case "integration_employee":
+          navigate("/integration-employee-home");
+          break;
+        default:
+          navigate("/login");
+      }
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-4">
           <img src={Logo} alt="Company Logo" className="h-20 w-20" />
         </div>
@@ -38,10 +61,11 @@ const AdminUpdatePage = () => {
           Update Information
         </h2>
 
-        {/* Form */}
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <form onSubmit={handleSubmit}>
           <InputField
-            label={"Username:"}
+            label="Username:"
             name="username"
             placeholder="Enter new user name"
             value={formData.username}
@@ -49,7 +73,7 @@ const AdminUpdatePage = () => {
             className="mb-4"
           />
           <InputField
-            label={"Password:"}
+            label="Password:"
             name="password"
             type="password"
             placeholder="Enter New Password"
@@ -58,7 +82,7 @@ const AdminUpdatePage = () => {
             className="mb-4"
           />
           <InputField
-            label={"Email:"}
+            label="Email:"
             name="email"
             type="email"
             placeholder="Enter new email ID"
@@ -67,7 +91,7 @@ const AdminUpdatePage = () => {
             className="mb-4"
           />
           <InputField
-            label={"Mobile:"}
+            label="Mobile:"
             name="mobile"
             type="tel"
             placeholder="Enter new phone number"
@@ -76,7 +100,6 @@ const AdminUpdatePage = () => {
             className="mb-4"
           />
 
-          {/* Buttons */}
           <div className="flex justify-between">
             <Button
               text="Skip"
@@ -84,9 +107,10 @@ const AdminUpdatePage = () => {
               className="w-1/2 bg-gray-500 hover:bg-gray-700 mr-2"
             />
             <Button
-              text="Save"
+              text={status === "loading" ? "Saving..." : "Save"}
               type="submit"
               className="w-1/2 bg-green-600 hover:bg-green-700"
+              disabled={status === "loading"}
             />
           </div>
         </form>
