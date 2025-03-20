@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { checkSession, logout } from "./redux/authSlice";
 import {
   LoginPage,
   AdminUpdatePage,
@@ -20,13 +21,32 @@ import Header from "./components/Header";
 
 /* Protected Route */
 const ProtectedRoute = ({ allowedRoles, children }) => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, status } = useSelector((state) => state.auth);
+
+  // Show loading screen while checking session
+  if (status === "loading") return <div>Loading...</div>;
+
+  // Redirect to login if no user
   if (!user) return <Navigate to="/login" />;
+
+  // Check if user role is allowed
   return allowedRoles.includes(user.role) ? children : <Navigate to="/login" />;
 };
 
 /* App Component */
 const App = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  // Check session when app loads
+  useEffect(() => {
+    dispatch(checkSession())
+      .unwrap()
+      .catch(() => {
+        dispatch(logout()); // Auto logout if session is invalid
+      });
+  }, [dispatch]);
+
   return (
     <Router>
       <div className="flex flex-col">
