@@ -7,6 +7,8 @@ import GovernmentEmployeeHomePage from "./Home/GovernmentEmployee";
 import CompanyEmployeeHomePage from "./Home/CompanyEmployee";
 import IntegrationEmployeeHomePage from "./Home/IntegrationEmployee";
 
+import AddKapPage from "./Admin/Addkap";
+
 export {
   LoginPage,
   AdminUpdatePage,
@@ -15,4 +17,5 @@ export {
   GovernmentEmployeeHomePage,
   CompanyEmployeeHomePage,
   IntegrationEmployeeHomePage,
+  AddKapPage,
 };

@@ -11,7 +11,7 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, status, error } = useSelector((state) => state.auth);
-
+  const [Error, setError] = useState(error);
   useEffect(() => {
     if (user) {
       switch (user.role) {
@@ -35,6 +35,11 @@ const LoginPage = () => {
       }
     }
   }, [user, navigate]);
+  useEffect(() => {
+    if (error) {
+      setError(error);
+    }
+  }, [error]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,11 +47,20 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formData.username.length < 1) {
+      setError("username cannot be empty");
+      return;
+    }
+    if (formData.password.length < 1) {
+      setError("Password cannot be empty");
+      return;
+    }
+
     dispatch(loginUser(formData));
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Company Logo" className="h-40 w-40" />
@@ -56,7 +70,7 @@ const LoginPage = () => {
           Login to Your Account
         </h2>
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {Error && <p className="text-red-500 text-center mb-4">{Error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField

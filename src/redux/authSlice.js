@@ -3,7 +3,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const storedUser = JSON.parse(localStorage.getItem("user")) || null;
-
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ username, password }, { rejectWithValue }) => {
@@ -21,7 +20,9 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem("user", JSON.stringify(data.user));
       return data.user;
     } catch (error) {
-      return rejectWithValue("unable to connect");
+      return rejectWithValue(
+        error.message || "Unable to connect. Try again later."
+      );
     }
   }
 );
@@ -43,6 +44,7 @@ export const updateAdmin = createAsyncThunk(
       localStorage.setItem("user", JSON.stringify(data.user));
       return data.user;
     } catch (error) {
+      console.log(error);
       return rejectWithValue("unable to connect try again later");
     }
   }

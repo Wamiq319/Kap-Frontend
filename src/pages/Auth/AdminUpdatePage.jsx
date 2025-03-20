@@ -51,7 +51,7 @@ const AdminUpdatePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="flex items-center justify-center bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-4">
           <img src={Logo} alt="Company Logo" className="h-20 w-20" />
