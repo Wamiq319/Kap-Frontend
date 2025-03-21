@@ -91,7 +91,7 @@ export const updateAdmin = createAsyncThunk(
       localStorage.setItem("user", JSON.stringify(data.user));
       return data.user;
     } catch (error) {
-      return rejectWithValue("Unable to connect, try again later.");
+      return rejectWithValue("Try again");
     }
   }
 );

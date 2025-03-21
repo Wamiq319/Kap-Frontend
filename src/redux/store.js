@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
-import kapReducer from "./kapSlice";
+import govReducer from "./govSlice";
+import adminCrudReducer from "./adminCrudSlice";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    kap: kapReducer,
+    gov: govReducer,
+    adminCrud: adminCrudReducer,
   },
 });
 

@@ -1,4 +1,4 @@
-import { Button, InputField } from "./FormComponents";
+import { Button, InputField, Dropdown } from "./FormComponents";
 import DataTable from "./Datatable";
 import Header from "./Header";
 import Modal from "./Modal";
@@ -9,6 +9,7 @@ import ConfirmationModal from "./ConfirmationModal";
 export {
   Button,
   InputField,
+  Dropdown,
   DataTable,
   Header,
   Modal,

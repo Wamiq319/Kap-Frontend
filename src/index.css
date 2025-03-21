@@ -2,11 +2,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-.Side-bar::-webkit-scrollbar {
+-webkit-scrollbar {
   width: 3px;
 }
 
-.Side-bar::-webkit-scrollbar-thumb {
+-webkit-scrollbar-thumb {
   background-color: #4a5568;
   border-radius: 3px;
+}
+
+.body {
+  background-color: #4a5568;
 }

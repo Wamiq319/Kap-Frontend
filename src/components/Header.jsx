@@ -26,12 +26,11 @@ const Header = () => {
         />
       </button>
 
-      <h1 className="text-lg font-semibold text-center flex-grow">
-        KAP Control Panel
+      <h1 className="md:text-lg text-base font-semibold text-center flex-grow">
+        {user.username} Control Panel
       </h1>
 
       <div className="flex items-center gap-4">
-        <span className="text-md font-semibold">{user.username}</span>
         <button
           onClick={handleLogout}
           className="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-md"

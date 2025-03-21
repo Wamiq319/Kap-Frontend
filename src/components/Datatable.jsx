@@ -7,8 +7,10 @@ const DataTable = ({
   buttons,
   rowsPerPage = 5,
   headerBgColor = "bg-gray-200",
+  bulkActions = [],
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   // Calculate Total Pages
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
@@ -25,15 +27,52 @@ const DataTable = ({
       setCurrentPage(newPage);
     }
   };
+  const handleRowSelection = (rowId) => {
+    if (selectedRows.includes(rowId)) {
+      setSelectedRows(selectedRows.filter((id) => id !== rowId));
+    } else {
+      setSelectedRows([...selectedRows, rowId]);
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRows.length === paginatedData.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(paginatedData.map((row) => row.id));
+    }
+  };
 
   return (
     <div className="overflow-hidden rounded-lg shadow-lg border border-gray-300 bg-white p-4">
       <div className="overflow-x-auto">
-        <h2 className="text-left font-bold">{heading}</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-left font-bold">{heading}</h2>
+          {bulkActions.length > 0 && (
+            <div className="flex gap-2">
+              {bulkActions.map((action, index) => (
+                <button
+                  key={index}
+                  onClick={() => action.onClick(selectedRows)}
+                  className={`${action.className} flex items-center justify-center p-2 rounded-md shadow`}
+                >
+                  {action.icon}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <table className="min-w-full border-collapse border border-gray-300">
           {/* Table Headings */}
           <thead className={`${headerBgColor} text-gray-700`}>
             <tr>
+              <th className="py-1 px-2 text-left border border-gray-300">
+                <input
+                  type="checkbox"
+                  checked={selectedRows.length === paginatedData.length}
+                  onChange={handleSelectAll}
+                />
+              </th>
               {tableHeader.map((header, index) => (
                 <th
                   key={index}
@@ -64,6 +103,13 @@ const DataTable = ({
                 key={row.id}
                 className="border border-gray-300 even:bg-gray-50 odd:bg-white"
               >
+                <td className="py-1 px-2 border border-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.includes(row.id)}
+                    onChange={() => handleRowSelection(row.id)}
+                  />
+                </td>
                 {tableHeader.map((col, colIndex) => (
                   <td
                     key={colIndex}

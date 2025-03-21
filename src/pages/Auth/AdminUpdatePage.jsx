@@ -51,7 +51,7 @@ const AdminUpdatePage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100">
+    <div className="flex items-center align-middle h-full  justify-center mt-20">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-4">
           <img src={Logo} alt="Company Logo" className="h-20 w-20" />
@@ -78,24 +78,6 @@ const AdminUpdatePage = () => {
             type="password"
             placeholder="Enter New Password"
             value={formData.password}
-            onChange={handleChange}
-            className="mb-4"
-          />
-          <InputField
-            label="Email:"
-            name="email"
-            type="email"
-            placeholder="Enter new email ID"
-            value={formData.email}
-            onChange={handleChange}
-            className="mb-4"
-          />
-          <InputField
-            label="Mobile:"
-            name="mobile"
-            type="tel"
-            placeholder="Enter new phone number"
-            value={formData.mobile}
             onChange={handleChange}
             className="mb-4"
           />

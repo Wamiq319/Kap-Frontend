@@ -60,7 +60,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 px-4">
+    <div className="flex items-center justify-center bg-gray-100 px-4 mt-5">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Company Logo" className="h-40 w-40" />

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchKapCompanies,
-  addKapCompany,
-  updateKapCompany,
-  deleteKapCompany,
-} from "../../redux/kapSlice";
+  fetchEntities,
+  addEntity,
+  updateEntity,
+  deleteEntity,
+} from "../../redux/adminCrudSlice";
 
 import {
   DataTable,
@@ -18,13 +18,13 @@ import {
 } from "../../components";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-const AddKapPage = () => {
+const AddOperatingCompanyPage = () => {
   const dispatch = useDispatch();
-  const { kapCompanies, loading, error } = useSelector((state) => state.kap);
+  const { entities, loading, error } = useSelector((state) => state.adminCrud);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    governmentIntegration: "",
+    operatingCompanies: "",
     logoImage: null,
     adminName: "",
     mobile: "",
@@ -33,74 +33,99 @@ const AddKapPage = () => {
   });
 
   const [editMode, setEditMode] = useState(false);
-  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [selectedEntityId, setSelectedEntityId] = useState(null);
   const [toast, setToast] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Fetch companies on mount
+  // Fetch entities on mount
   useEffect(() => {
-    dispatch(fetchKapCompanies());
+    dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Hardcoded endpoint
   }, [dispatch]);
 
   // Table Headers
   const tableHeader = [
     { key: "index", label: "#" },
-    { key: "governmentIntegration", label: "Government Integration" },
+    { key: "operatingCompanies", label: "Government Integration" },
     { key: "image", label: "Logo Image" },
     { key: "adminName", label: "Admin Name" },
     { key: "mobile", label: "Mobile No" },
-
     { key: "username", label: "Username" },
-    { key: "password", label: "password" },
+    { key: "password", label: "Password" },
   ];
 
   // Convert raw backend data to table format
-  const tableData = kapCompanies.map((item, index) => ({
-    index: index + 1,
-    id: item._id,
-    governmentIntegration: item.governmentIntegration,
-    image: item.logoImage, // Assuming logoImage is the URL
-    mobile: item.mobile,
-    adminName: item.adminName,
-    username: item.username,
-    password: item.password,
-  }));
+  const tableData = entities?.length
+    ? entities.map((item, index) => ({
+        index: index + 1,
+        id: item._id,
+        operatingCompanies: item.operatingCompanies,
+        image: item.logoImage,
+        mobile: item.mobile,
+        adminName: item.adminName,
+        username: item.username,
+        password: item.password,
+      }))
+    : [];
 
   // Handle Edit
-  const handleEdit = (company) => {
+  const handleEdit = (entity) => {
     setEditMode(true);
-    setSelectedCompanyId(company.id);
+    setSelectedEntityId(entity.id);
     setFormData({
-      governmentIntegration: company.governmentIntegration,
+      operatingCompanies: entity.operatingCompanies,
       logoImage: null,
-      adminName: company.adminName,
-      mobile: company.mobile,
-      username: company.username,
+      adminName: entity.adminName,
+      mobile: entity.mobile,
+      username: entity.username,
       password: "",
     });
-
     setIsModalOpen(true);
   };
 
   // Handle Delete
-  const handleDelete = (company) => {
-    setConfirmDelete(company);
+  const handleDelete = (entity) => {
+    setConfirmDelete(entity);
   };
 
   // Confirm Delete
   const confirmDeleteAction = async () => {
     try {
-      await dispatch(deleteKapCompany(confirmDelete.id)).unwrap();
-      setToast({ message: "Company deleted successfully!", type: "success" });
-      dispatch(fetchKapCompanies()); // Refresh Data
+      await dispatch(
+        deleteEntity({ endpoint: "kap", id: confirmDelete.id }) // Pass full endpoint
+      ).unwrap();
+      setToast({ message: "Entity deleted successfully!", type: "success" });
+      dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Refresh Data
     } catch (error) {
       setToast({
-        message: error || "Failed to delete company.",
+        message: error || "Failed to delete entity.",
         type: "error",
       });
     }
     setConfirmDelete(null);
+  };
+
+  // Handle Bulk Delete
+  const handleBulkDelete = async (selectedIds) => {
+    try {
+      await Promise.all(
+        selectedIds.map((id) =>
+          dispatch(
+            deleteEntity({ endpoint: "kap", id }) // Hardcoded endpoint
+          ).unwrap()
+        )
+      );
+      setToast({
+        message: "Selected entities deleted successfully!",
+        type: "success",
+      });
+      dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Refresh Data
+    } catch (error) {
+      setToast({
+        message: error || "Failed to delete selected entities.",
+        type: "error",
+      });
+    }
   };
 
   // Handle Input Change
@@ -120,7 +145,7 @@ const AddKapPage = () => {
     e.preventDefault();
 
     if (
-      !formData.governmentIntegration ||
+      !formData.operatingCompanies ||
       !formData.adminName ||
       !formData.mobile ||
       !formData.username ||
@@ -133,10 +158,7 @@ const AddKapPage = () => {
     setErrorMessage("");
 
     const formDataToSend = new FormData();
-    formDataToSend.append(
-      "governmentIntegration",
-      formData.governmentIntegration
-    );
+    formDataToSend.append("operatingCompanies", formData.operatingCompanies);
     formDataToSend.append("adminName", formData.adminName);
     formDataToSend.append("mobile", formData.mobile);
     formDataToSend.append("username", formData.username);
@@ -145,17 +167,15 @@ const AddKapPage = () => {
     try {
       if (editMode) {
         const updatedData = {};
-        const selectedCompany = kapCompanies.find(
-          (c) => c._id === selectedCompanyId
-        );
+        const selectedEntity = entities.find((e) => e._id === selectedEntityId);
 
-        if (!selectedCompany) {
-          setToast({ message: "Error: Company not found.", type: "error" });
+        if (!selectedEntity) {
+          setToast({ message: "Error: Entity not found.", type: "error" });
           return;
         }
 
         Object.keys(formData).forEach((key) => {
-          if (formData[key] !== selectedCompany[key]) {
+          if (formData[key] !== selectedEntity[key]) {
             updatedData[key] = formData[key];
           }
         });
@@ -171,17 +191,23 @@ const AddKapPage = () => {
         });
 
         await dispatch(
-          updateKapCompany({
-            id: selectedCompanyId,
+          updateEntity({
+            endpoint: "kap",
+            id: selectedEntityId,
             formData: editFormDataToSend,
           })
         ).unwrap();
-        setToast({ message: "Company updated successfully!", type: "success" });
+        setToast({ message: "Entity updated successfully!", type: "success" });
       } else {
-        await dispatch(addKapCompany(formDataToSend)).unwrap();
-        setToast({ message: "Company added successfully!", type: "success" });
+        await dispatch(
+          addEntity({
+            endpoint: "kap/create-Company",
+            formData: formDataToSend,
+          }) // Hardcoded endpoint
+        ).unwrap();
+        setToast({ message: "Entity added successfully!", type: "success" });
       }
-      dispatch(fetchKapCompanies()); // Refresh Data
+      dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Refresh Data
     } catch (error) {
       console.error("API Error:", error);
       setToast({ message: error || "Unable to connect", type: "error" });
@@ -190,7 +216,7 @@ const AddKapPage = () => {
     setIsModalOpen(false);
     setEditMode(false);
     setFormData({
-      governmentIntegration: "",
+      operatingCompanies: "",
       logoImage: null,
       adminName: "",
       mobile: "",
@@ -220,9 +246,9 @@ const AddKapPage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add KAP Company"
+          text="Add Operating Companies"
           onClick={() => setIsModalOpen(true)}
-          className="bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 mb-2 shadow"
+          className="bg-blue-600 hover:bg-blue-700 text-lg font-semibold py-3 mb-2 shadow"
         />
       </div>
 
@@ -234,17 +260,17 @@ const AddKapPage = () => {
             setFormData("");
             setIsModalOpen(false);
           }}
-          title={editMode ? "Edit KAP Company" : "Add KAP Company"}
+          title={editMode ? "Edit Entity" : "Add Entity"}
         >
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className=" md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
             <InputField
               label="Government Integration"
-              name="governmentIntegration"
+              name="operatingCompanies"
               placeholder="Enter integration details"
-              value={formData.governmentIntegration}
+              value={formData.operatingCompanies}
               onChange={handleChange}
             />
             <ImageInput
@@ -308,16 +334,18 @@ const AddKapPage = () => {
       )}
 
       <DataTable
-        heading="KAP COMPANIES"
+        heading="ADD COMPANIES"
         tableHeader={tableHeader}
         tableData={tableData}
-        buttons={[
+        headerBgColor="bg-blue-200"
+        bulkActions={[
           {
-            text: "Edit",
-            icon: <FaEdit />,
-            className: "bg-blue-500",
-            onClick: handleEdit,
+            icon: <FaTrash />,
+            className: "bg-red-500",
+            onClick: handleBulkDelete, // Pass the handleBulkDelete function
           },
+        ]}
+        buttons={[
           {
             text: "Delete",
             icon: <FaTrash />,
@@ -330,4 +358,4 @@ const AddKapPage = () => {
   );
 };
 
-export default AddKapPage;
+export default AddOperatingCompanyPage;
