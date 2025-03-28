@@ -7,9 +7,9 @@ import { logout } from "../redux/authSlice"; // Import logout action
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { data } = useSelector((state) => state.auth);
 
-  if (!user) return null; // Hide header if not logged in
+  if (!data) return null;
 
   // Handle Logout
   const handleLogout = () => {
@@ -27,7 +27,7 @@ const Header = () => {
       </button>
 
       <h1 className="md:text-lg text-base font-semibold text-center flex-grow">
-        {user.username} Control Panel
+        {data.username} Control Panel
       </h1>
 
       <div className="flex items-center gap-4">

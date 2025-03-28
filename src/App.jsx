@@ -1,12 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { checkSession, logout } from "./redux/authSlice";
+import { useSelector } from "react-redux";
 import {
   LoginPage,
   AdminUpdatePage,
@@ -15,11 +14,9 @@ import {
   GovernmentEmployeeHomePage,
   CompanyEmployeeHomePage,
   IntegrationEmployeeHomePage,
-  // ##################
   AddKapCompanyPage,
   AddGovSectorPage,
   AddOperatingCompanyPage,
-  // #################
   ManageEmployeePage,
   AddKapEmloyeePage,
   AddGovManagerPage,
@@ -27,42 +24,47 @@ import {
 } from "./pages";
 import Header from "./components/Header";
 
-/* Protected Route */
 const ProtectedRoute = ({ allowedRoles, children }) => {
-  const { user, status } = useSelector((state) => state.auth);
+  const user =
+    useSelector((state) => state.auth.data) ||
+    JSON.parse(localStorage.getItem("user"));
 
-  // Show loading screen while checking session
-  if (status === "loading") return <div>Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!allowedRoles.includes(user.role))
+    return <Navigate to="/admin-update" replace />;
 
-  // Redirect to login if no user
-  if (!user) return <Navigate to="/login" />;
-
-  // Check if user role is allowed
-  return allowedRoles.includes(user.role) ? children : <Navigate to="/login" />;
+  return children;
 };
 
-/* App Component */
 const App = () => {
-  const dispatch = useDispatch();
-
-  // Check session when app loads
-  // useEffect(() => {
-  //   dispatch(checkSession())
-  //     .unwrap()
-  //     .catch(() => {
-  //       // dispatch(logout()); // Auto logout if session is invalid
-  //     });
-  // }, [dispatch]);
+  const user =
+    useSelector((state) => state.auth.data) ||
+    JSON.parse(localStorage.getItem("user"));
 
   return (
-    <div className="h-svh  bg-gray-100">
+    <div className="h-screen bg-gray-100">
       <Router>
         <div className="flex flex-col align-middle">
-          <Header />
-
-          <div className="flex-grow p-1 ">
+          {user && <Header />}
+          <div className="flex-grow p-1">
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/login"
+                element={
+                  user ? <Navigate to="/admin-update" replace /> : <LoginPage />
+                }
+              />
+
+              <Route
+                path="/"
+                element={
+                  user ? (
+                    <Navigate to="/admin-update" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
 
               <Route
                 path="/admin-update"
@@ -104,7 +106,6 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/manage-employees"
                 element={
@@ -113,7 +114,6 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/add-kapEmployee"
                 element={
@@ -130,16 +130,14 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
               <Route
-                path="//add-companyManager"
+                path="/add-companyManager"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <AddCompanyManagerPage />
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/kap-employee-home"
                 element={
@@ -172,7 +170,17 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-              <Route path="*" element={<Navigate to="/login" />} />
+
+              <Route
+                path="*"
+                element={
+                  user ? (
+                    <Navigate to="/admin-update" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
             </Routes>
           </div>
         </div>

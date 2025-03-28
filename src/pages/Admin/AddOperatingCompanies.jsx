@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchEntities,
   addEntity,
-  updateEntity,
   deleteEntity,
 } from "../../redux/adminCrudSlice";
-
 import {
   DataTable,
   Button,
@@ -16,15 +14,15 @@ import {
   ConfirmationModal,
   Modal,
 } from "../../components";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 
 const AddOperatingCompanyPage = () => {
   const dispatch = useDispatch();
-  const { entities, loading, error } = useSelector((state) => state.adminCrud);
+  const { entities } = useSelector((state) => state.adminCrud);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    operatingCompanies: "",
+    opCompany: "",
     logoImage: null,
     adminName: "",
     mobile: "",
@@ -32,21 +30,19 @@ const AddOperatingCompanyPage = () => {
     password: "",
   });
 
-  const [editMode, setEditMode] = useState(false);
   const [selectedEntityId, setSelectedEntityId] = useState(null);
   const [toast, setToast] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Fetch entities on mount
+  // Fetch entities on component mount
   useEffect(() => {
-    dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Hardcoded endpoint
+    dispatch(fetchEntities({ endpoint: "op/companies" }));
   }, [dispatch]);
 
-  // Table Headers
   const tableHeader = [
     { key: "index", label: "#" },
-    { key: "operatingCompanies", label: "Government Integration" },
+    { key: "opCompany", label: "Operating Companies" },
     { key: "image", label: "Logo Image" },
     { key: "adminName", label: "Admin Name" },
     { key: "mobile", label: "Mobile No" },
@@ -54,72 +50,46 @@ const AddOperatingCompanyPage = () => {
     { key: "password", label: "Password" },
   ];
 
-  // Convert raw backend data to table format
-  const tableData = entities?.length
-    ? entities.map((item, index) => ({
-        index: index + 1,
-        id: item._id,
-        operatingCompanies: item.operatingCompanies,
-        image: item.logoImage,
-        mobile: item.mobile,
-        adminName: item.adminName,
-        username: item.username,
-        password: item.password,
-      }))
-    : [];
+  const tableData = entities?.map((item, index) => ({
+    index: index + 1,
+    id: item._id,
+    opCompany: item.opCompany,
+    image: item.logoImage,
+    mobile: item.mobile,
+    adminName: item.adminName,
+    username: item.username,
+    password: item.password,
+  }));
 
-  // Handle Edit
-  const handleEdit = (entity) => {
-    setEditMode(true);
-    setSelectedEntityId(entity.id);
-    setFormData({
-      operatingCompanies: entity.operatingCompanies,
-      logoImage: null,
-      adminName: entity.adminName,
-      mobile: entity.mobile,
-      username: entity.username,
-      password: "",
-    });
-    setIsModalOpen(true);
-  };
-
-  // Handle Delete
   const handleDelete = (entity) => {
     setConfirmDelete(entity);
   };
 
-  // Confirm Delete
   const confirmDeleteAction = async () => {
     try {
       await dispatch(
-        deleteEntity({ endpoint: "kap", id: confirmDelete.id }) // Pass full endpoint
+        deleteEntity({ endpoint: "op", id: confirmDelete.id })
       ).unwrap();
       setToast({ message: "Entity deleted successfully!", type: "success" });
-      dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Refresh Data
+      dispatch(fetchEntities({ endpoint: "op/companies" }));
     } catch (error) {
-      setToast({
-        message: error || "Failed to delete entity.",
-        type: "error",
-      });
+      setToast({ message: error || "Failed to delete entity.", type: "error" });
     }
     setConfirmDelete(null);
   };
 
-  // Handle Bulk Delete
   const handleBulkDelete = async (selectedIds) => {
     try {
       await Promise.all(
         selectedIds.map((id) =>
-          dispatch(
-            deleteEntity({ endpoint: "kap", id }) // Hardcoded endpoint
-          ).unwrap()
+          dispatch(deleteEntity({ endpoint: "kap", id })).unwrap()
         )
       );
       setToast({
         message: "Selected entities deleted successfully!",
         type: "success",
       });
-      dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Refresh Data
+      dispatch(fetchEntities({ endpoint: "kap/get-Companies" }));
     } catch (error) {
       setToast({
         message: error || "Failed to delete selected entities.",
@@ -128,28 +98,24 @@ const AddOperatingCompanyPage = () => {
     }
   };
 
-  // Handle Input Change
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
-  // Handle Image Upload
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFormData({ ...formData, logoImage: e.target.files[0] });
     }
   };
 
-  // Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
-      !formData.operatingCompanies ||
+      !formData.opCompany ||
       !formData.adminName ||
       !formData.mobile ||
       !formData.username ||
-      (!editMode && !formData.password)
+      !formData.password
     ) {
       setErrorMessage("Please complete all fields.");
       return;
@@ -158,63 +124,33 @@ const AddOperatingCompanyPage = () => {
     setErrorMessage("");
 
     const formDataToSend = new FormData();
-    formDataToSend.append("operatingCompanies", formData.operatingCompanies);
+    formDataToSend.append("opCompany", formData.opCompany);
     formDataToSend.append("adminName", formData.adminName);
     formDataToSend.append("mobile", formData.mobile);
     formDataToSend.append("username", formData.username);
-    if (!editMode) formDataToSend.append("password", formData.password);
+    formDataToSend.append("password", formData.password);
 
     try {
-      if (editMode) {
-        const updatedData = {};
-        const selectedEntity = entities.find((e) => e._id === selectedEntityId);
+      const result = await dispatch(
+        addEntity({
+          endpoint: "op/create-Company",
+          formData: formDataToSend,
+        })
+      ).unwrap();
 
-        if (!selectedEntity) {
-          setToast({ message: "Error: Entity not found.", type: "error" });
-          return;
-        }
-
-        Object.keys(formData).forEach((key) => {
-          if (formData[key] !== selectedEntity[key]) {
-            updatedData[key] = formData[key];
-          }
-        });
-
-        if (Object.keys(updatedData).length === 0) {
-          setToast({ message: "No changes detected", type: "info" });
-          return;
-        }
-
-        var editFormDataToSend = new FormData();
-        Object.entries(updatedData).forEach(([key, value]) => {
-          editFormDataToSend.append(key, value);
-        });
-
-        await dispatch(
-          updateEntity({
-            endpoint: "kap",
-            id: selectedEntityId,
-            formData: editFormDataToSend,
-          })
-        ).unwrap();
-        setToast({ message: "Entity updated successfully!", type: "success" });
+      if (result.success) {
+        setToast({ message: "Company added successfully!", type: "success" });
       } else {
-        await dispatch(
-          addEntity({
-            endpoint: "kap/create-Company",
-            formData: formDataToSend,
-          }) // Hardcoded endpoint
-        ).unwrap();
-        setToast({ message: "Entity added successfully!", type: "success" });
+        setErrorMessage(result.message);
+        return;
       }
-      dispatch(fetchEntities({ endpoint: "kap/get-Companies" })); // Refresh Data
+
+      dispatch(fetchEntities({ endpoint: "op/companies" }));
     } catch (error) {
-      console.error("API Error:", error);
       setToast({ message: error || "Unable to connect", type: "error" });
     }
 
     setIsModalOpen(false);
-    setEditMode(false);
     setFormData({
       operatingCompanies: "",
       logoImage: null,
@@ -257,19 +193,26 @@ const AddOperatingCompanyPage = () => {
           isOpen={isModalOpen}
           onClose={() => {
             setEditMode(false);
-            setFormData("");
+            setFormData({
+              operatingCompanies: "",
+              logoImage: null,
+              adminName: "",
+              mobile: "",
+              username: "",
+              password: "",
+            });
             setIsModalOpen(false);
           }}
-          title={editMode ? "Edit Entity" : "Add Entity"}
+          title="Add Operating Companies"
         >
           <form
             onSubmit={handleSubmit}
-            className=" md:grid md:grid-cols-2 flex flex-wrap gap-4"
+            className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
             <InputField
-              label="Government Integration"
-              name="operatingCompanies"
-              placeholder="Enter integration details"
+              label="Operating Companies"
+              name="opCompany"
+              placeholder="Enter operating companies"
               value={formData.operatingCompanies}
               onChange={handleChange}
             />
@@ -300,7 +243,6 @@ const AddOperatingCompanyPage = () => {
               value={formData.username}
               onChange={handleChange}
             />
-
             <InputField
               label="Password"
               name="password"
@@ -316,11 +258,7 @@ const AddOperatingCompanyPage = () => {
             <div className="col-span-2 flex justify-end gap-2">
               <Button
                 text="Cancel"
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setEditMode(false);
-                  setFormData("");
-                }}
+                onClick={() => setIsModalOpen(false)}
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
@@ -342,7 +280,7 @@ const AddOperatingCompanyPage = () => {
           {
             icon: <FaTrash />,
             className: "bg-red-500",
-            onClick: handleBulkDelete, // Pass the handleBulkDelete function
+            onClick: handleBulkDelete,
           },
         ]}
         buttons={[

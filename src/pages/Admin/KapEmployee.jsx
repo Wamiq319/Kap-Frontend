@@ -2,183 +2,138 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaHome, FaEdit, FaTrash } from "react-icons/fa";
-import {
-  fetchEntities,
-  addEntity,
-  updateEntity,
-  deleteEntity,
-} from "../../redux/adminCrudSlice";
+import { createUser, getUsers } from "../../redux/authSlice";
 import {
   DataTable,
   Button,
   InputField,
   Dropdown,
-  ToastNotification,
   ConfirmationModal,
   Modal,
 } from "../../components";
 
-const addKapEmployeePage = () => {
+const AddKapEmployeePagee = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { entities } = useSelector((state) => state.adminCrud);
+  const { users } = useSelector((state) => state.auth);
 
-  // State for form data, including sectorId
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
     username: "",
+    jobTitle: "",
     password: "",
-    sectorId: "",
   });
 
   const [editPassword, setEditPassword] = useState(false);
-  const [selectedEntityId, setSelectedEntityId] = useState(null);
-  const [toast, setToast] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(null);
 
-  // Dropdown options (array of objects with sectorName and sectorId)
-  const options = [
-    { sectorName: "Sector 1", sectorId: "1" },
-    { sectorName: "Sector 2", sectorId: "2" },
-    { sectorName: "Sector 3", sectorId: "3" },
-    { sectorName: "Sector 4", sectorId: "4" },
-    { sectorName: "Sector 5", sectorId: "5" },
-  ];
-
-  // Fetch entities on component mount
-  useEffect(() => {
-    dispatch(fetchEntities({ endpoint: "Gov/get-Employees" }));
-  }, [dispatch]);
-
-  // Table headers
   const tableHeader = [
     { key: "index", label: "#" },
-    { key: "name", label: "Name" },
+    { key: "name", label: "Employee Name" },
+    { key: "jobTitle", label: "Job Title" },
     { key: "mobile", label: "Mobile No" },
     { key: "username", label: "Username" },
     { key: "password", label: "Password" },
-    { key: "sector", label: "Gov Sector" },
   ];
 
-  // Convert entities to table data format
-  const tableData = entities?.map((item, index) => ({
+  useEffect(() => {
+    dispatch(getUsers("kap-employees"));
+  }, [dispatch]);
+
+  const jobTitleOptions = [
+    { value: "Affair-officer", label: "Affair Officer" },
+    { value: "Data-Entry", label: "Data Entry" },
+    { value: "Ticket-Supervisor", label: "Ticket Supervisor" },
+  ];
+
+  const tableData = users?.map((item, index) => ({
     index: index + 1,
-    id: item._id,
+    id: item.id,
     name: item.name,
+    jobTitle: item.jobTitle,
     mobile: item.mobile,
     username: item.username,
     password: item.password,
-    sector: item.sector,
   }));
 
   const handleEditPassword = (entity) => {
     setEditPassword(true);
-    setSelectedEntityId(entity.id);
     setFormData({ oldPassword: "", password: "" });
     setIsModalOpen(true);
   };
 
-  // Handle delete action
   const handleDelete = (entity) => setConfirmDelete(entity);
 
-  // Confirm delete action
   const confirmDeleteAction = async () => {
     try {
       await dispatch(
-        deleteEntity({ endpoint: "Gov", id: confirmDelete.id })
-      ).unwrap();
-      setToast({ message: "Entity deleted successfully!", type: "success" });
-      dispatch(fetchEntities({ endpoint: "Gov/get-Companies" }));
+        deleteEntity({ endpoint: "govManager", id: confirmDelete.id })
+      );
+      dispatch(fetchEntities({ endpoint: "gov/get-Managers" }));
     } catch (error) {
-      setToast({ message: error || "Failed to delete entity.", type: "error" });
+      console.error("Delete error:", error);
     }
     setConfirmDelete(null);
   };
 
-  // Handle bulk delete
   const handleBulkDelete = async (selectedIds) => {
     try {
       await Promise.all(
         selectedIds.map((id) =>
-          dispatch(deleteEntity({ endpoint: "Gov", id })).unwrap()
+          dispatch(deleteEntity({ endpoint: "govManager", id }))
         )
       );
-      setToast({
-        message: "Selected entities deleted successfully!",
-        type: "success",
-      });
-      dispatch(fetchEntities({ endpoint: "Gov/get-Companies" }));
+      dispatch(fetchEntities({ endpoint: "gov/get-Managers" }));
     } catch (error) {
-      setToast({
-        message: error || "Failed to delete selected entities.",
-        type: "error",
-      });
+      console.error("Bulk delete error:", error);
     }
   };
 
-  // Handle input change for form fields
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle dropdown change
-  const handleDropdownChange = (value) => {
-    setFormData({ ...formData, sectorId: value }); // Update sectorId in formData
-  };
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
-    try {
-      if (editPassword) {
-        if (!formData.oldPassword || !formData.password) {
-          setErrorMessage("Please enter both passwords");
-          return;
-        }
-        await dispatch(
-          updateEntity({ endpoint: "Gov", id: selectedEntityId, formData })
-        ).unwrap();
-        setToast({
-          message: "Password updated successfully!",
-          type: "success",
-        });
-      } else {
-        if (
-          !formData.employeeName ||
-          !formData.jobTitle ||
-          !formData.mobile ||
-          !formData.username ||
-          !formData.password ||
-          !formData.sectorId
-        ) {
-          setErrorMessage("Please complete all fields.");
-          return;
-        }
-        await dispatch(
-          addEntity({ endpoint: "Gov/create-GovEmployee", formData })
-        ).unwrap();
-        setToast({ message: "Entity added successfully!", type: "success" });
-      }
-      dispatch(fetchEntities({ endpoint: "Gov/get-Companies" }));
-    } catch (error) {
-      setToast({ message: error || "Unable to connect", type: "error" });
+    if (
+      !formData.name ||
+      !formData.mobile ||
+      !formData.username ||
+      !formData.password ||
+      !formData.jobTitle
+    ) {
+      setErrorMessage("Please complete all fields.");
+      return;
     }
 
-    setIsModalOpen(false);
-    setEditPassword(false);
-    setFormData({
-      employeeName: "",
-      jobTitle: "",
-      mobile: "",
-      username: "",
-      password: "",
-      sectorId: "",
-    });
+    try {
+      const formDataToSend = {
+        name: formData.name,
+        mobile: formData.mobile,
+        username: formData.username,
+        password: formData.password,
+        jobTitle: formData.jobTitle,
+        role: "kap_employee",
+      };
+
+      await dispatch(createUser(formDataToSend));
+      setIsModalOpen(false);
+      setFormData({
+        name: "",
+        jobTitle: "",
+        mobile: "",
+        username: "",
+        password: "",
+      });
+      dispatch(getUsers("kap-employees"));
+    } catch (error) {
+      setErrorMessage(error.message || "Unable to connect to the server.");
+    }
   };
 
   return (
@@ -189,13 +144,7 @@ const addKapEmployeePage = () => {
           className="text-gray-500 hover:text-gray-700 transition"
         />
       </button>
-      {toast && (
-        <ToastNotification
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+
       {confirmDelete && (
         <ConfirmationModal
           isOpen={true}
@@ -220,12 +169,11 @@ const addKapEmployeePage = () => {
           onClose={() => {
             setEditPassword(false);
             setFormData({
-              employeeName: "",
-              jobTitle: "",
+              name: "",
               mobile: "",
               username: "",
               password: "",
-              sectorId: "",
+              jobTitle: "",
             });
             setIsModalOpen(false);
           }}
@@ -239,9 +187,9 @@ const addKapEmployeePage = () => {
               <>
                 <InputField
                   label="Name"
-                  name="employeeName"
-                  placeholder="Enter integration details"
-                  value={formData.employeeName}
+                  name="name"
+                  placeholder="Enter name"
+                  value={formData.name}
                   onChange={handleChange}
                 />
                 <InputField
@@ -260,13 +208,12 @@ const addKapEmployeePage = () => {
                   onChange={handleChange}
                 />
                 <Dropdown
-                  label="Choose Sector"
-                  options={options.map((option) => ({
-                    value: option.sectorId, // Use sectorId as value
-                    label: option.sectorName, // Use sectorName as label
-                  }))}
-                  selectedValue={formData.sectorId} // Use formData.sectorId
-                  onChange={handleDropdownChange} // Handle dropdown change
+                  label="Choose Job Role"
+                  options={jobTitleOptions}
+                  selectedValue={formData.jobTitle}
+                  onChange={(value) =>
+                    setFormData({ ...formData, jobTitle: value })
+                  }
                 />
                 <InputField
                   label="Password"
@@ -280,7 +227,7 @@ const addKapEmployeePage = () => {
             ) : (
               <>
                 <InputField
-                  label="Old-Password"
+                  label="Old Password"
                   name="oldPassword"
                   placeholder="Enter old password"
                   type="password"
@@ -317,9 +264,10 @@ const addKapEmployeePage = () => {
       )}
 
       <DataTable
-        heading="Gov COMPANIES"
+        heading="Kap Employees"
         tableHeader={tableHeader}
         tableData={tableData}
+        headerBgColor="bg-gray-200"
         bulkActions={[
           {
             icon: <FaTrash />,
@@ -335,9 +283,9 @@ const addKapEmployeePage = () => {
             onClick: handleDelete,
           },
           {
-            text: "Reset-Password",
+            text: "Reset Password",
             icon: <FaEdit />,
-            className: "bg-red-500",
+            className: "bg-blue-500",
             onClick: handleEditPassword,
           },
         ]}
@@ -346,4 +294,4 @@ const addKapEmployeePage = () => {
   );
 };
 
-export default addKapEmployeePage;
+export default AddKapEmployeePagee;

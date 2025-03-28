@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { updateAdmin } from "../../redux/authSlice";
@@ -8,13 +8,13 @@ import Logo from "../../assets/logo.png";
 const AdminUpdatePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, status, error } = useSelector((state) => state.auth);
+  const { data, status, error } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    username: user?.username || "",
+    username: data?.username || "",
     password: "",
-    email: user?.email || "",
-    mobile: user?.mobile || "",
+    email: data?.email || "",
+    mobile: data?.mobile || "",
   });
 
   const handleChange = (e) => {
@@ -23,12 +23,12 @@ const AdminUpdatePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateAdmin(formData));
+    const response = dispatch(updateAdmin(formData));
   };
 
   const handleSkip = () => {
-    if (user) {
-      switch (user.role) {
+    if (data) {
+      switch (data.role) {
         case "admin":
           navigate("/admin-home");
           break;
@@ -51,7 +51,7 @@ const AdminUpdatePage = () => {
   };
 
   return (
-    <div className="flex items-center align-middle h-full  justify-center mt-20">
+    <div className="flex items-center align-middle h-full justify-center mt-5 ">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-4">
           <img src={Logo} alt="Company Logo" className="h-20 w-20" />
@@ -72,9 +72,39 @@ const AdminUpdatePage = () => {
             onChange={handleChange}
             className="mb-4"
           />
+
+          {data?.role == "admin" && (
+            <InputField
+              label="Email:"
+              name="email"
+              placeholder="Enter new user name"
+              value={formData.email}
+              onChange={handleChange}
+              className="mb-4"
+            />
+          )}
+          {data?.role == "admin" && (
+            <InputField
+              label="Mibile Number:"
+              name="mobil"
+              placeholder="Enter new user name"
+              value={formData.mobile}
+              onChange={handleChange}
+              className="mb-4"
+            />
+          )}
           <InputField
-            label="Password:"
-            name="password"
+            label="Old Password:"
+            name="oldPassword"
+            type="password"
+            placeholder="Enter New Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="mb-4"
+          />
+          <InputField
+            label="NewPassword:"
+            name="newPassword"
             type="password"
             placeholder="Enter New Password"
             value={formData.password}

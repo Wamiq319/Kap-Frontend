@@ -2,12 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaHome, FaEdit, FaTrash } from "react-icons/fa";
-import {
-  fetchEntities,
-  addEntity,
-  updateEntity,
-  deleteEntity,
-} from "../../redux/adminCrudSlice";
+import { createUser, getUsers } from "../../redux/authSlice";
+import { fetchNames } from "../../redux/adminCrudSlice";
+
 import {
   DataTable,
   Button,
@@ -21,10 +18,12 @@ import {
 const AddGovManagerPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { entities } = useSelector((state) => state.adminCrud);
+  const { names } = useSelector((state) => state.adminCrud);
+  const { users, success, message } = useSelector((state) => state.auth);
 
   // State for form data, including sectorId
   const [formData, setFormData] = useState({
+    sectorId: "",
     name: "",
     mobile: "",
     username: "",
@@ -38,34 +37,32 @@ const AddGovManagerPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(null);
 
-  // Dropdown options (array of objects with sectorName and sectorId)
-  const options = [
-    { sectorName: "Sector 1", sectorId: "1" },
-    { sectorName: "Sector 2", sectorId: "2" },
-    { sectorName: "Sector 3", sectorId: "3" },
-    { sectorName: "Sector 4", sectorId: "4" },
-    { sectorName: "Sector 5", sectorId: "5" },
-  ];
-
-  // Fetch entities on component mount
-  useEffect(() => {
-    dispatch(fetchEntities({ endpoint: "Gov/get-Employees" }));
-  }, [dispatch]);
-
   // Table headers
   const tableHeader = [
     { key: "index", label: "#" },
-    { key: "name", label: "Name" },
+    { key: "name", label: "Manager Name" },
     { key: "mobile", label: "Mobile No" },
     { key: "username", label: "Username" },
     { key: "sector", label: "Gov Sector" },
     { key: "password", label: "Password" },
   ];
 
+  // Fetch entities on component mount
+  useEffect(() => {
+    dispatch(fetchNames({ endpoint: "gov/sector-names" }));
+    dispatch(getUsers("gov-managers"));
+  }, [dispatch]);
+
+  // Dropdown options (array of objects with sectorName and sectorId)
+  const options = names?.map((name) => ({
+    sectorName: name.sectorName,
+    sectorId: name.id,
+  }));
+
   // Convert entities to table data format
-  const tableData = entities?.map((item, index) => ({
+  const tableData = users?.map((item, index) => ({
     index: index + 1,
-    id: item._id,
+    id: item.id,
     name: item.name,
     mobile: item.mobile,
     username: item.username,
@@ -73,6 +70,7 @@ const AddGovManagerPage = () => {
     sector: item.sector,
   }));
 
+  // Handle password editing
   const handleEditPassword = (entity) => {
     setEditPassword(true);
     setSelectedEntityId(entity.id);
@@ -89,10 +87,10 @@ const AddGovManagerPage = () => {
       await dispatch(
         deleteEntity({ endpoint: "govManager", id: confirmDelete.id })
       ).unwrap();
-      setToast({ message: "Manager deleted successfully!", type: "success" });
+      // setToast({ message: "Manager deleted successfully!", type: "success" });
       dispatch(fetchEntities({ endpoint: "gov/get-Managers" }));
     } catch (error) {
-      setToast({ message: error || "Failed to delete entity.", type: "error" });
+      // setToast({ message: error || "Failed to delete entity.", type: "error" });
     }
     setConfirmDelete(null);
   };
@@ -105,16 +103,16 @@ const AddGovManagerPage = () => {
           dispatch(deleteEntity({ endpoint: "govManager", id })).unwrap()
         )
       );
-      setToast({
-        message: "Selected entities deleted successfully!",
-        type: "success",
-      });
+      // setToast({
+      //   message: "Selected entities deleted successfully!",
+      //   type: "success",
+      // });
       dispatch(fetchEntities({ endpoint: "gov/get-Managers" }));
     } catch (error) {
-      setToast({
-        message: error || "Failed to delete selected entities.",
-        type: "error",
-      });
+      // setToast({
+      //   message: error || "Failed to delete selected entities.",
+      //   type: "error",
+      // });
     }
   };
 
@@ -125,7 +123,7 @@ const AddGovManagerPage = () => {
 
   // Handle dropdown change
   const handleDropdownChange = (value) => {
-    setFormData({ ...formData, sectorId: value }); // Update sectorId in formData
+    setFormData({ ...formData, sectorId: value });
   };
 
   // Handle form submission
@@ -134,67 +132,77 @@ const AddGovManagerPage = () => {
     setErrorMessage("");
 
     try {
-      if (editPassword) {
-        if (!formData.oldPassword || !formData.password) {
-          setErrorMessage("Please enter both passwords");
-          return;
-        }
-        await dispatch(
-          updateEntity({ endpoint: "Gov", id: selectedEntityId, formData })
-        ).unwrap();
+      // Validate the form fields
+      if (
+        !formData.name ||
+        !formData.mobile ||
+        !formData.username ||
+        !formData.password ||
+        !formData.sectorId
+      ) {
+        setErrorMessage("Please complete all fields.");
+        return;
+      }
+
+      // Prepare the data to send in the form
+      const formDataToSend = {
+        name: formData.name,
+        mobile: formData.mobile,
+        username: formData.username,
+        password: formData.password,
+        sectorId: formData.sectorId,
+        role: "gov_manager",
+      };
+
+      // Dispatch createUser action
+      const response = await dispatch(createUser(formDataToSend)).unwrap();
+
+      // Handle success
+      if (response.success) {
         setToast({
-          message: "Password updated successfully!",
+          message: response.message || "Government Manager added successfully!",
           type: "success",
         });
+        setIsModalOpen(false);
+        setFormData({
+          name: "",
+          mobile: "",
+          username: "",
+          password: "",
+          sectorId: "",
+        });
+        dispatch(getUsers("managers"));
       } else {
-        if (
-          !formData.employeeName ||
-          !formData.jobTitle ||
-          !formData.mobile ||
-          !formData.username ||
-          !formData.password ||
-          !formData.sectorId
-        ) {
-          setErrorMessage("Please complete all fields.");
-          return;
-        }
-        await dispatch(
-          addEntity({ endpoint: "Gov/create-GovEmployee", formData })
-        ).unwrap();
-        setToast({ message: "Entity added successfully!", type: "success" });
+        setErrorMessage(response.message);
       }
-      dispatch(fetchEntities({ endpoint: "Gov/get-Companies" }));
     } catch (error) {
-      setToast({ message: error || "Unable to connect", type: "error" });
+      setToast({
+        message: error.message || "Unable to connect to the server.",
+        type: "error",
+      });
     }
-
-    setIsModalOpen(false);
-    setEditPassword(false);
-    setFormData({
-      employeeName: "",
-      jobTitle: "",
-      mobile: "",
-      username: "",
-      password: "",
-      sectorId: "",
-    });
   };
 
   return (
     <div className="p-4">
+      {/* Navigation button */}
       <button onClick={() => navigate("/manage-employees")} className="ml-4">
         <FaHome
           size={24}
           className="text-green-500 hover:text-green-700 transition"
         />
       </button>
-      {toast && (
+
+      {/* Toast Notification */}
+      {/* {toast && (
         <ToastNotification
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
         />
-      )}
+      )} */}
+
+      {/* Confirmation Modal for Delete */}
       {confirmDelete && (
         <ConfirmationModal
           isOpen={true}
@@ -205,6 +213,7 @@ const AddGovManagerPage = () => {
         />
       )}
 
+      {/* Add Government Manager Button */}
       <div className="flex justify-center">
         <Button
           text="Add Government Manager"
@@ -213,14 +222,14 @@ const AddGovManagerPage = () => {
         />
       </div>
 
+      {/* Modal for Add/Reset Password */}
       {isModalOpen && (
         <Modal
           isOpen={isModalOpen}
           onClose={() => {
             setEditPassword(false);
             setFormData({
-              employeeName: "",
-              jobTitle: "",
+              name: "",
               mobile: "",
               username: "",
               password: "",
@@ -238,9 +247,9 @@ const AddGovManagerPage = () => {
               <>
                 <InputField
                   label="Name"
-                  name="employeeName"
+                  name="name"
                   placeholder="Enter integration details"
-                  value={formData.employeeName}
+                  value={formData.name}
                   onChange={handleChange}
                 />
                 <InputField
@@ -261,11 +270,11 @@ const AddGovManagerPage = () => {
                 <Dropdown
                   label="Choose Sector"
                   options={options.map((option) => ({
-                    value: option.sectorId, // Use sectorId as value
-                    label: option.sectorName, // Use sectorName as label
+                    value: option.sectorId,
+                    label: option.sectorName,
                   }))}
-                  selectedValue={formData.sectorId} // Use formData.sectorId
-                  onChange={handleDropdownChange} // Handle dropdown change
+                  selectedValue={formData.sectorId}
+                  onChange={handleDropdownChange} // Ensure this correctly updates sectorId
                 />
                 <InputField
                   label="Password"
@@ -315,8 +324,9 @@ const AddGovManagerPage = () => {
         </Modal>
       )}
 
+      {/* DataTable Component */}
       <DataTable
-        heading="Gov COMPANIES"
+        heading="Gov Managers"
         tableHeader={tableHeader}
         tableData={tableData}
         headerBgColor="bg-green-200"

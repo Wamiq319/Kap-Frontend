@@ -10,37 +10,18 @@ const LoginPage = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, status, error } = useSelector((state) => state.auth);
-  const [Error, setError] = useState(error);
-  useEffect(() => {
-    if (user) {
-      switch (user.role) {
-        case "admin":
-          navigate("/admin-update");
-          break;
-        case "kap_employee":
-          navigate("/kap-employee-home");
-          break;
-        case "government_employee":
-          navigate("/government-employee-home");
-          break;
-        case "company_employee":
-          navigate("/company-employee-home");
-          break;
-        case "integration_employee":
-          navigate("/integration-employee-home");
-          break;
-        default:
-          navigate("/login");
-      }
-    }
-  }, [user, navigate]);
-  useEffect(() => {
-    if (error) {
-      setError(error);
-    }
-  }, [error]);
+  const { data, success, message } = useSelector((state) => state.auth);
+  const [Error, setError] = useState(message);
 
+  // Effect to navigate based on login success and role
+
+  // Effect to handle error message updates
+  useEffect(() => {
+    if (!success) {
+      setError(message);
+    }
+  }, [message, success]);
+  console.log(message, success, data);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -48,7 +29,7 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.username.length < 1) {
-      setError("username cannot be empty");
+      setError("Username cannot be empty");
       return;
     }
     if (formData.password.length < 1) {
@@ -56,7 +37,11 @@ const LoginPage = () => {
       return;
     }
 
-    dispatch(loginUser(formData));
+    if (!data) {
+      const response = dispatch(loginUser(formData));
+      console.log(response);
+      navigate("/admin-update");
+    }
   };
 
   return (
@@ -70,7 +55,8 @@ const LoginPage = () => {
           Login to Your Account
         </h2>
 
-        {Error && <p className="text-red-500 text-center mb-4">{Error}</p>}
+        {/* Show error if not successful */}
+        {!success && <p className="text-red-500 text-center mb-4">{Error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField
@@ -92,10 +78,10 @@ const LoginPage = () => {
           />
 
           <Button
-            text={status === "loading" ? "Logging in..." : "Login"}
+            text="Login"
             type="submit"
             className="w-full bg-green-600 hover:bg-green-700 transition text-white font-bold py-2 rounded-md"
-            disabled={status === "loading"}
+            disabled={success === false} // Disable if login failed
           />
         </form>
 

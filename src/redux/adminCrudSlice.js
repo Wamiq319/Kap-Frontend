@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Utility function to handle API failures
+// Helper function to fetch data
 const handleApiError = async (response) => {
   if (!response.ok) {
     const errorMessage = await response.text();
@@ -11,7 +11,7 @@ const handleApiError = async (response) => {
   return response.json();
 };
 
-// Generic CRUD operations
+// Fetch entities
 export const fetchEntities = createAsyncThunk(
   "adminCrud/fetchEntities",
   async ({ endpoint }, { rejectWithValue }) => {
@@ -20,7 +20,27 @@ export const fetchEntities = createAsyncThunk(
         method: "GET",
         credentials: "include",
       });
-      return await handleApiError(response);
+
+      const { data, message, success } = await handleApiError(response);
+      console.log(data);
+      return { data, message, success };
+    } catch (error) {
+      return rejectWithValue("Unable to connect");
+    }
+  }
+);
+
+export const fetchNames = createAsyncThunk(
+  "adminCrud/fetchNames",
+  async ({ endpoint }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/protected/${endpoint}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const { data, message, success } = await handleApiError(response);
+      return { names: data, message, success };
     } catch (error) {
       return rejectWithValue("Unable to connect");
     }
@@ -36,25 +56,12 @@ export const addEntity = createAsyncThunk(
         body: formData,
         credentials: "include",
       });
-      return await handleApiError(response);
+      const { data, message, success } = await handleApiError(response);
+
+      console.log(data, message, success);
+      return { data, message, success };
     } catch (error) {
       return rejectWithValue(error.message || "Failed to add entity.");
-    }
-  }
-);
-
-export const updateEntity = createAsyncThunk(
-  "adminCrud/updateEntity",
-  async ({ endpoint, id, formData }, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${API_URL}/protected/${endpoint}/${id}`, {
-        method: "PUT",
-        body: formData,
-        credentials: "include",
-      });
-      return await handleApiError(response);
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to update entity.");
     }
   }
 );
@@ -65,11 +72,14 @@ export const deleteEntity = createAsyncThunk(
     try {
       const response = await fetch(`${API_URL}/protected/${endpoint}/${id}`, {
         method: "DELETE",
+
         credentials: "include",
       });
-      return await handleApiError(response);
+      const { data, message, success } = await handleApiError(response);
+      console.log(data, message, success);
+      return { data, message, success };
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to delete entity.");
+      return rejectWithValue(error.message || "Failed to add entity.");
     }
   }
 );
@@ -77,72 +87,58 @@ export const deleteEntity = createAsyncThunk(
 const adminCrudSlice = createSlice({
   name: "adminCrud",
   initialState: {
+    names: [],
     entities: [],
-    loading: false,
-    error: null,
+    success: false,
+    message: "",
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch entities
-      .addCase(fetchEntities.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      // Fetch Entities
       .addCase(fetchEntities.fulfilled, (state, action) => {
-        state.loading = false;
-        state.entities = action.payload;
+        state.entities = action.payload.data;
+        state.success = action.payload.success;
+        state.message = action.payload.message;
       })
       .addCase(fetchEntities.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to fetch data.";
+        state.success = false;
+        state.message = action.error.message || "Failed to fetch entities";
       })
 
-      // Add entity
-      .addCase(addEntity.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      // Fetch Names
+      .addCase(fetchNames.fulfilled, (state, action) => {
+        state.names = action.payload.names; // Store 'names'
+        state.success = action.payload.success;
+        state.message = action.payload.message;
       })
+      .addCase(fetchNames.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.error.message || "Failed to fetch names";
+      })
+
+      // Add Entity
       .addCase(addEntity.fulfilled, (state, action) => {
-        state.loading = false;
-        state.entities.push(action.payload);
+        state.entities.push(action.payload.data);
+        state.success = action.payload.success;
+        state.message = action.payload.message;
       })
       .addCase(addEntity.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to add entity.";
+        state.success = false;
+        state.message = action.error.message || "Failed to add entity";
       })
 
-      // Update entity
-      .addCase(updateEntity.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateEntity.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.entities.findIndex(
-          (e) => e.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.entities[index] = action.payload;
-        }
-      })
-      .addCase(updateEntity.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to update entity.";
-      })
-
-      // Delete entity
-      .addCase(deleteEntity.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      // Delete Entity
       .addCase(deleteEntity.fulfilled, (state, action) => {
-        state.loading = false;
-        state.entities = state.entities.filter((e) => e.id !== action.payload);
+        state.entities = state.entities.filter(
+          (entity) => entity.id !== action.payload.data.id
+        );
+        state.success = action.payload.success;
+        state.message = action.payload.message;
       })
       .addCase(deleteEntity.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to delete entity.";
+        state.success = false;
+        state.message = action.error.message || "Failed to delete entity";
       });
   },
 });

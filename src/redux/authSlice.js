@@ -5,159 +5,249 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Get user from localStorage
 const storedUser = JSON.parse(localStorage.getItem("user")) || null;
 
-/**
- * 🔹 Login User (Sends credentials to backend)
- */
+// Helper function to fetch data
+const handleApiError = async (response) => {
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+// Login User
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ username, password }, { rejectWithValue }) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        credentials: "include", // Sends session cookie
+        body: JSON.stringify(credentials),
+        credentials: "include",
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Login failed");
-      document.cookie
-        .split(";")
-        .forEach((cookie) => console.log("Cookie:", cookie));
+      const { data, message, success } = await handleApiError(response);
 
-      // Store user in localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
-      return data.user;
-    } catch (error) {
-      return rejectWithValue(error.message || "Unable to connect.");
-    }
-  }
-);
-
-/**
- * 🔹 Check Session Validity (Ensures user is logged in)
- */
-export const checkSession = createAsyncThunk(
-  "auth/checkSession",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${API_URL}/auth/session`, {
-        method: "GET",
-        credentials: "include", // Ensures session cookies are sent
-      });
-
-      if (!response.ok) {
-        throw new Error("Session expired");
+      if (success) {
+        localStorage.setItem("user", JSON.stringify(data));
       }
-
-      const data = await response.json();
-      return data.user; // Return user if session is valid
+      return { success, message, data };
     } catch (error) {
-      return rejectWithValue("Session expired, please log in again.");
+      return rejectWithValue(error.message || "Login failed");
     }
   }
 );
 
-/**
- * 🔹 Logout User (Clears session & localStorage)
- */
-export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
-  await fetch(`${API_URL}/auth/logout`, {
-    method: "POST",
-    credentials: "include", // Removes session cookie from backend
-  });
+// Create User
+export const createUser = createAsyncThunk(
+  "auth/createUser",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/protected/user/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+        credentials: "include",
+      });
+      console.log(response);
 
-  // Clear localStorage after logout
-  localStorage.removeItem("user");
-});
+      const { message, success } = await handleApiError(response);
 
-/**
- * 🔹 Update User Profile
- */
+      return { success, message };
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.message || "User creation failed");
+    }
+  }
+);
+
+// Update Admin
 export const updateAdmin = createAsyncThunk(
   "auth/updateAdmin",
-  async (updatedData, { rejectWithValue }) => {
+  async ({ adminId, updatedData }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/auth/update-admin`, {
+      const response = await fetch(`${API_URL}/auth/update-admin/${adminId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
         credentials: "include",
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Update failed");
-
-      localStorage.setItem("user", JSON.stringify(data.user));
-      return data.user;
+      const { data, message, success } = await handleApiError(response);
+      return { success, message, data };
     } catch (error) {
-      return rejectWithValue("Try again");
+      return rejectWithValue(error.message || "Failed to update admin");
     }
   }
 );
 
+// Update Password
+export const updatePassword = createAsyncThunk(
+  "auth/updatePassword",
+  async ({ userId, newPassword, oldPassword }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/auth/update-password/${userId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newPassword, oldPassword }),
+          credentials: "include",
+        }
+      );
+
+      const { data, message, success } = await handleApiError(response);
+      return { success, message, data };
+    } catch (error) {
+      return rejectWithValue(error.message || "Password update failed");
+    }
+  }
+);
+
+// Delete User
+export const deleteUser = createAsyncThunk(
+  "auth/deleteUser",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/delete-user/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const { message, success } = await handleApiError(response);
+      return { success, message, data: null };
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to delete user");
+    }
+  }
+);
+
+// Logout User
+export const logout = createAsyncThunk("auth/logout", async () => {
+  await fetch(`${API_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+  localStorage.removeItem("user");
+  localStorage.removeItem("data");
+});
+
+// Get Users
+export const getUsers = createAsyncThunk(
+  "auth/getUsers",
+  async (endpoint = "", { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/protected/user/${endpoint}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const { data, message, success } = await handleApiError(response);
+      console.log(data);
+      return { success, message, data };
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to fetch users");
+    }
+  }
+);
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: storedUser,
-    status: "idle",
-    error: null,
+    data: storedUser,
+    users: [],
+    success: false,
+    message: "",
   },
   reducers: {
-    /**
-     * 🔹 Logout Reducer (Clears state & localStorage)
-     */
     logout: (state) => {
-      state.user = null;
+      state.data = null;
+      state.success = false;
+      state.message = "";
       localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
     builder
-      // Handle Login
-      .addCase(loginUser.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
+      // Login User
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload;
+        if (action.payload.success) {
+          state.data = action.payload.data;
+          state.success = action.payload.success;
+          state.message = action.payload.message;
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
+        state.success = false;
+        state.message = action.payload || "Login failed";
       })
 
-      // Handle Session Check
-      .addCase(checkSession.fulfilled, (state, action) => {
-        state.user = action.payload; // Keep user logged in
+      // Create User
+      .addCase(createUser.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          state.data = action.payload.data;
+          state.success = action.payload.success;
+          state.message = action.payload.message;
+        }
       })
-      .addCase(checkSession.rejected, (state) => {
-        state.user = null;
-        localStorage.removeItem("user"); // Auto logout if session is invalid
+      .addCase(createUser.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.payload || "User creation failed";
+      })
+
+      // Update Admin
+      .addCase(updateAdmin.fulfilled, (state, action) => {
+        state.data = action.payload.data;
+        state.success = action.payload.success;
+        state.message = action.payload.message;
+      })
+      .addCase(updateAdmin.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.payload || "Failed to update admin";
+      })
+
+      // Update Password
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.data = action.payload.data;
+        state.success = action.payload.success;
+        state.message = action.payload.message;
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.payload || "Password update failed";
+      })
+
+      // Delete User
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.data = action.payload.data;
+        state.success = action.payload.success;
+        state.message = action.payload.message;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.payload || "Delete failed";
+      })
+      //Get Users
+      .addCase(getUsers.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          state.users = action.payload.data; // Add users array to state
+          state.success = action.payload.success;
+          state.message = action.payload.message;
+        }
+      })
+      .addCase(getUsers.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.payload || "Failed to fetch users";
       })
 
       // Handle Logout
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        localStorage.removeItem("user");
-      })
-
-      // Handle Profile Update
-      .addCase(updateAdmin.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(updateAdmin.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload;
-      })
-      .addCase(updateAdmin.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
+      .addCase(logout.fulfilled, (state) => {
+        state.data = null;
+        state.success = false;
+        state.message = "";
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout: logoutAction } = authSlice.actions;
 export default authSlice.reducer;
