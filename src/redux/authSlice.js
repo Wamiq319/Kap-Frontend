@@ -50,7 +50,6 @@ export const createUser = createAsyncThunk(
         body: JSON.stringify(credentials),
         credentials: "include",
       });
-      console.log(response);
 
       const { message, success } = await handleApiError(response);
 
@@ -110,19 +109,23 @@ export const deleteUser = createAsyncThunk(
   "auth/deleteUser",
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/auth/delete-user/${userId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_URL}/protected/user/delete/${userId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       const { message, success } = await handleApiError(response);
-      return { success, message, data: null };
+
+      return { success, message };
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to delete user");
+      console.log(error);
+      return rejectWithValue(error.message || "User creation failed");
     }
   }
 );
-
 // Logout User
 export const logout = createAsyncThunk("auth/logout", async () => {
   await fetch(`${API_URL}/auth/logout`, {

@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import { ImageInput } from "./FormComponents";
 import ToastNotification from "./ToastNotification";
 import ConfirmationModal from "./ConfirmationModal";
+import Loader from "./Loader";
 
 export {
   Button,
@@ -16,4 +17,5 @@ export {
   ImageInput,
   ConfirmationModal,
   ToastNotification,
+  Loader,
 };

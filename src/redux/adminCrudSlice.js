@@ -72,7 +72,6 @@ export const deleteEntity = createAsyncThunk(
     try {
       const response = await fetch(`${API_URL}/protected/${endpoint}/${id}`, {
         method: "DELETE",
-
         credentials: "include",
       });
       const { data, message, success } = await handleApiError(response);

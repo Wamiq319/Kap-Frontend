@@ -45,7 +45,7 @@ const App = () => {
     <div className="h-screen bg-gray-100">
       <Router>
         <div className="flex flex-col align-middle">
-          {user && <Header />}
+          <Header />
           <div className="flex-grow p-1">
             <Routes>
               <Route

@@ -7,9 +7,6 @@ import { logout } from "../redux/authSlice"; // Import logout action
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { data } = useSelector((state) => state.auth);
-
-  if (!data) return null;
 
   // Handle Logout
   const handleLogout = () => {
@@ -27,7 +24,7 @@ const Header = () => {
       </button>
 
       <h1 className="md:text-lg text-base font-semibold text-center flex-grow">
-        {data.username} Control Panel
+        Kap Control Panel
       </h1>
 
       <div className="flex items-center gap-4">

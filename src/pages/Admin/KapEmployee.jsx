@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaHome, FaEdit, FaTrash } from "react-icons/fa";
-import { createUser, getUsers } from "../../redux/authSlice";
+import {
+  createUser,
+  getUsers,
+  deleteUser,
+  updatePassword,
+} from "../../redux/authSlice";
 import {
   DataTable,
   Button,
@@ -10,9 +15,11 @@ import {
   Dropdown,
   ConfirmationModal,
   Modal,
+  Loader,
+  ToastNotification,
 } from "../../components";
 
-const AddKapEmployeePagee = () => {
+const AddKapEmployeePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { users } = useSelector((state) => state.auth);
@@ -25,10 +32,34 @@ const AddKapEmployeePagee = () => {
     password: "",
   });
 
-  const [editPassword, setEditPassword] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(null);
+  const [passwordEditData, setPasswordEditData] = useState({
+    userId: null,
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [uiState, setUiState] = useState({
+    showToast: false,
+    toastMessage: "",
+    toastType: "success",
+    errorMessage: "",
+    isModalOpen: false,
+    isLoading: true,
+    isEditingPassword: false,
+  });
+
+  const [confirmDelete, setConfirmDelete] = useState({
+    ids: [],
+    isBulk: false,
+    name: "",
+  });
+
+  const jobTitleOptions = [
+    { value: "Affair-officer", label: "Affair Officer" },
+    { value: "Data-Entry", label: "Data Entry" },
+    { value: "Ticket-Supervisor", label: "Ticket Supervisor" },
+  ];
 
   const tableHeader = [
     { key: "index", label: "#" },
@@ -39,19 +70,22 @@ const AddKapEmployeePagee = () => {
     { key: "password", label: "Password" },
   ];
 
-  useEffect(() => {
-    dispatch(getUsers("kap-employees"));
-  }, [dispatch]);
+  const fetchUsers = async () => {
+    try {
+      setUiState((prev) => ({ ...prev, isLoading: true }));
+      await dispatch(getUsers("kap-employees"));
+    } finally {
+      setUiState((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
 
-  const jobTitleOptions = [
-    { value: "Affair-officer", label: "Affair Officer" },
-    { value: "Data-Entry", label: "Data Entry" },
-    { value: "Ticket-Supervisor", label: "Ticket Supervisor" },
-  ];
+  useEffect(() => {
+    fetchUsers();
+  }, [dispatch]);
 
   const tableData = users?.map((item, index) => ({
     index: index + 1,
-    id: item.id,
+    id: item._id,
     name: item.name,
     jobTitle: item.jobTitle,
     mobile: item.mobile,
@@ -59,46 +93,95 @@ const AddKapEmployeePagee = () => {
     password: item.password,
   }));
 
-  const handleEditPassword = (entity) => {
-    setEditPassword(true);
-    setFormData({ oldPassword: "", password: "" });
-    setIsModalOpen(true);
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+
+    if (passwordEditData.newPassword !== passwordEditData.confirmPassword) {
+      showToast("Passwords don't match", "error");
+      return;
+    }
+
+    try {
+      setUiState((prev) => ({ ...prev, isLoading: true }));
+      const response = await dispatch(
+        updatePassword({
+          userId: passwordEditData.userId,
+          oldPassword: passwordEditData.oldPassword,
+          newPassword: passwordEditData.newPassword,
+        })
+      ).unwrap();
+
+      if (response.success) {
+        showToast("Password updated successfully", "success");
+        resetPasswordEdit();
+        setUiState((prev) => ({ ...prev, isModalOpen: false }));
+        fetchUsers();
+      }
+    } catch (error) {
+      showToast(error.message || "Failed to update password", "error");
+    } finally {
+      setUiState((prev) => ({ ...prev, isLoading: false }));
+    }
   };
 
-  const handleDelete = (entity) => setConfirmDelete(entity);
+  const handleEditPassword = (user) => {
+    setPasswordEditData({
+      userId: user.id,
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setUiState((prev) => ({
+      ...prev,
+      isModalOpen: true,
+      isEditingPassword: true,
+    }));
+  };
+
+  const handleDelete = (entity) => {
+    setConfirmDelete({
+      ids: [entity.id],
+      isBulk: false,
+      name: entity.name,
+    });
+  };
+
+  const handleBulkDelete = (selectedIds) => {
+    setConfirmDelete({
+      ids: selectedIds,
+      isBulk: true,
+      name: "",
+    });
+  };
 
   const confirmDeleteAction = async () => {
-    try {
-      await dispatch(
-        deleteEntity({ endpoint: "govManager", id: confirmDelete.id })
-      );
-      dispatch(fetchEntities({ endpoint: "gov/get-Managers" }));
-    } catch (error) {
-      console.error("Delete error:", error);
-    }
-    setConfirmDelete(null);
-  };
+    if (!confirmDelete.ids.length) return;
 
-  const handleBulkDelete = async (selectedIds) => {
     try {
+      setUiState((prev) => ({ ...prev, isLoading: true }));
       await Promise.all(
-        selectedIds.map((id) =>
-          dispatch(deleteEntity({ endpoint: "govManager", id }))
-        )
+        confirmDelete.ids.map((id) => dispatch(deleteUser(id)))
       );
-      dispatch(fetchEntities({ endpoint: "gov/get-Managers" }));
-    } catch (error) {
-      console.error("Bulk delete error:", error);
-    }
-  };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+      const message = confirmDelete.isBulk
+        ? `Deleted ${confirmDelete.ids.length} employees`
+        : `Deleted ${confirmDelete.name}`;
+
+      showToast(message, "success");
+      fetchUsers();
+    } catch (error) {
+      showToast(
+        confirmDelete.isBulk ? "Bulk delete failed" : "Delete failed",
+        "error"
+      );
+    } finally {
+      setConfirmDelete({ ids: [], isBulk: false, name: "" });
+      setUiState((prev) => ({ ...prev, isLoading: false }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
 
     if (
       !formData.name ||
@@ -107,33 +190,63 @@ const AddKapEmployeePagee = () => {
       !formData.password ||
       !formData.jobTitle
     ) {
-      setErrorMessage("Please complete all fields.");
+      setUiState((prev) => ({
+        ...prev,
+        errorMessage: "Please complete all fields.",
+      }));
       return;
     }
 
     try {
-      const formDataToSend = {
-        name: formData.name,
-        mobile: formData.mobile,
-        username: formData.username,
-        password: formData.password,
-        jobTitle: formData.jobTitle,
-        role: "kap_employee",
-      };
+      setUiState((prev) => ({ ...prev, isLoading: true }));
+      const response = await dispatch(
+        createUser({
+          ...formData,
+          role: "kap_employee",
+        })
+      ).unwrap();
 
-      await dispatch(createUser(formDataToSend));
-      setIsModalOpen(false);
-      setFormData({
-        name: "",
-        jobTitle: "",
-        mobile: "",
-        username: "",
-        password: "",
-      });
-      dispatch(getUsers("kap-employees"));
+      if (response?.success) {
+        showToast(response.message, "success");
+        resetForm();
+        fetchUsers();
+      }
     } catch (error) {
-      setErrorMessage(error.message || "Unable to connect to the server.");
+      setUiState((prev) => ({
+        ...prev,
+        errorMessage: error.message || "Server error",
+      }));
+    } finally {
+      setUiState((prev) => ({ ...prev, isLoading: false, isModalOpen: false }));
     }
+  };
+
+  const showToast = (message, type) => {
+    setUiState((prev) => ({
+      ...prev,
+      toastMessage: message,
+      toastType: type,
+      showToast: true,
+    }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      mobile: "",
+      username: "",
+      jobTitle: "",
+      password: "",
+    });
+  };
+
+  const resetPasswordEdit = () => {
+    setPasswordEditData({
+      userId: null,
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
   };
 
   return (
@@ -145,153 +258,219 @@ const AddKapEmployeePagee = () => {
         />
       </button>
 
-      {confirmDelete && (
-        <ConfirmationModal
-          isOpen={true}
-          onClose={() => setConfirmDelete(null)}
-          onConfirm={confirmDeleteAction}
-          title="Confirm Deletion"
-          message={`Are you sure you want to delete ${confirmDelete.jobTitle}?`}
+      <ConfirmationModal
+        isOpen={confirmDelete.ids.length > 0}
+        onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
+        onConfirm={confirmDeleteAction}
+        title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
+        message={
+          confirmDelete.isBulk
+            ? `Delete ${confirmDelete.ids.length} selected employees?`
+            : `Delete ${confirmDelete.name}?`
+        }
+      />
+
+      {uiState.showToast && (
+        <ToastNotification
+          message={uiState.toastMessage}
+          type={uiState.toastType}
+          onClose={() => setUiState((prev) => ({ ...prev, showToast: false }))}
         />
       )}
 
       <div className="flex justify-center">
         <Button
-          text="Add Kap Employee"
-          onClick={() => setIsModalOpen(true)}
+          text="Add KAP Employee"
+          onClick={() =>
+            setUiState((prev) => ({
+              ...prev,
+              isModalOpen: true,
+              isEditingPassword: false,
+            }))
+          }
           className="bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 mb-2 shadow"
         />
       </div>
 
-      {isModalOpen && (
+      {uiState.isModalOpen && (
         <Modal
-          isOpen={isModalOpen}
+          isOpen={uiState.isModalOpen}
           onClose={() => {
-            setEditPassword(false);
-            setFormData({
-              name: "",
-              mobile: "",
-              username: "",
-              password: "",
-              jobTitle: "",
-            });
-            setIsModalOpen(false);
+            resetForm();
+            resetPasswordEdit();
+            setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
-          title={editPassword ? "Reset Password" : "Add Government Manager"}
+          title={
+            uiState.isEditingPassword ? "Reset Password" : "Add KAP Employee"
+          }
         >
           <form
-            onSubmit={handleSubmit}
+            onSubmit={
+              uiState.isEditingPassword ? handlePasswordUpdate : handleSubmit
+            }
             className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
-            {!editPassword ? (
+            {uiState.isEditingPassword ? (
               <>
                 <InputField
-                  label="Name"
-                  name="name"
-                  placeholder="Enter name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-                <InputField
-                  label="Mobile Number"
-                  name="mobile"
-                  placeholder="Enter mobile number"
-                  type="tel"
-                  value={formData.mobile}
-                  onChange={handleChange}
-                />
-                <InputField
-                  label="Username"
-                  name="username"
-                  placeholder="Enter username"
-                  value={formData.username}
-                  onChange={handleChange}
-                />
-                <Dropdown
-                  label="Choose Job Role"
-                  options={jobTitleOptions}
-                  selectedValue={formData.jobTitle}
-                  onChange={(value) =>
-                    setFormData({ ...formData, jobTitle: value })
-                  }
-                />
-                <InputField
-                  label="Password"
-                  name="password"
-                  placeholder="Enter password"
+                  label="Current Password"
+                  name="oldPassword"
                   type="password"
-                  value={formData.password}
-                  onChange={handleChange}
+                  placeholder="Enter current password"
+                  value={passwordEditData.oldPassword}
+                  onChange={(e) =>
+                    setPasswordEditData((prev) => ({
+                      ...prev,
+                      oldPassword: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <InputField
+                  label="New Password"
+                  name="newPassword"
+                  type="password"
+                  placeholder="Enter new password"
+                  value={passwordEditData.newPassword}
+                  onChange={(e) =>
+                    setPasswordEditData((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }))
+                  }
+                  required
+                />
+                <InputField
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={passwordEditData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordEditData((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
+                  required
                 />
               </>
             ) : (
               <>
                 <InputField
-                  label="Old Password"
-                  name="oldPassword"
-                  placeholder="Enter old password"
-                  type="password"
-                  value={formData.oldPassword}
-                  onChange={handleChange}
+                  label="Full Name"
+                  name="name"
+                  placeholder="Enter employee's full name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                 />
                 <InputField
-                  label="New Password"
+                  label="Mobile Number"
+                  name="mobile"
+                  type="tel"
+                  placeholder="Enter mobile number"
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                  }
+                />
+                <InputField
+                  label="Username"
+                  name="username"
+                  placeholder="Choose a username"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
+                  }
+                />
+                <Dropdown
+                  label="Job Title"
+                  options={jobTitleOptions}
+                  selectedValue={formData.jobTitle}
+                  placeholder="Select job title"
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, jobTitle: value }))
+                  }
+                />
+                <InputField
+                  label="Password"
                   name="password"
-                  placeholder="Enter new password"
                   type="password"
+                  placeholder="Set a password"
                   value={formData.password}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
                 />
               </>
             )}
-            {errorMessage && (
-              <p className="text-red-500 text-sm col-span-2">{errorMessage}</p>
+            {uiState.errorMessage && (
+              <p className="text-red-500 text-sm col-span-2">
+                {uiState.errorMessage}
+              </p>
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
                 text="Cancel"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() =>
+                  setUiState((prev) => ({ ...prev, isModalOpen: false }))
+                }
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
                 text="Save"
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
+                disabled={uiState.isLoading}
               />
             </div>
           </form>
         </Modal>
       )}
 
-      <DataTable
-        heading="Kap Employees"
-        tableHeader={tableHeader}
-        tableData={tableData}
-        headerBgColor="bg-gray-200"
-        bulkActions={[
-          {
-            icon: <FaTrash />,
-            className: "bg-red-500",
-            onClick: handleBulkDelete,
-          },
-        ]}
-        buttons={[
-          {
-            text: "Remove",
-            icon: <FaTrash />,
-            className: "bg-red-500",
-            onClick: handleDelete,
-          },
-          {
-            text: "Reset Password",
-            icon: <FaEdit />,
-            className: "bg-blue-500",
-            onClick: handleEditPassword,
-          },
-        ]}
-      />
+      {uiState.isLoading ? (
+        <div className="flex justify-center align-middle">
+          <Loader size={5} opacity={100} />
+        </div>
+      ) : (
+        <DataTable
+          heading="KAP Employees"
+          tableHeader={tableHeader}
+          tableData={tableData}
+          headerBgColor="bg-gray-200"
+          bulkActions={[
+            {
+              icon: <FaTrash />,
+              className: "bg-red-500",
+              onClick: handleBulkDelete,
+            },
+          ]}
+          buttons={[
+            {
+              text: "Remove",
+              icon: <FaTrash />,
+              className: "bg-red-500",
+              onClick: handleDelete,
+            },
+            {
+              text: "Reset Password",
+              icon: <FaEdit />,
+              className: "bg-blue-500",
+              onClick: handleEditPassword,
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
 
-export default AddKapEmployeePagee;
+export default AddKapEmployeePage;
