@@ -102,13 +102,13 @@ const AddKapCompanyPage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await Promise.all(
         confirmDelete.ids.map((id) =>
-          dispatch(deleteEntity({ endpoint: "kap/companies", id }))
+          dispatch(deleteEntity({ endpoint: "kap/delete", id }))
         )
       );
 
       const message = confirmDelete.isBulk
         ? `Deleted ${confirmDelete.ids.length} companies`
-        : `Deleted ${confirmDelete.name}`;
+        : `Deleted ${confirmDelete.governmentIntegration}`;
 
       showToast(message, "success");
       fetchData();
@@ -163,7 +163,7 @@ const AddKapCompanyPage = () => {
       ).unwrap();
 
       if (response.success) {
-        showToast("Company added successfully", "success");
+        showToast(response.message, "success");
         resetForm();
         fetchData();
       }

@@ -23,7 +23,7 @@ const AdminUpdatePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const response = dispatch(updateAdmin(formData));
+    dispatch(updateAdmin(formData));
   };
 
   const handleSkip = () => {
@@ -32,24 +32,19 @@ const AdminUpdatePage = () => {
         case "admin":
           navigate("/admin-home");
           break;
-        case "kap_employee":
-          navigate("/kap-employee-home");
+        case "gov_manager":
+          navigate("/govsector-manager-home");
           break;
-        case "government_employee":
-          navigate("/government-employee-home");
+        case "op_manager":
+          navigate("/op-manager-home");
           break;
-        case "company_employee":
-          navigate("/company-employee-home");
-          break;
-        case "integration_employee":
-          navigate("/integration-employee-home");
-          break;
+
         default:
           navigate("/login");
       }
     }
   };
-
+  console.log(data);
   return (
     <div className="flex items-center align-middle h-full justify-center mt-5 ">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
@@ -73,41 +68,43 @@ const AdminUpdatePage = () => {
             className="mb-4"
           />
 
-          {data?.role == "admin" && (
-            <InputField
-              label="Email:"
-              name="email"
-              placeholder="Enter new user name"
-              value={formData.email}
-              onChange={handleChange}
-              className="mb-4"
-            />
+          {data?.role === "admin" && (
+            <>
+              <InputField
+                label="Email:"
+                name="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleChange}
+                className="mb-4"
+              />
+              <InputField
+                label="Mobile Number:"
+                name="mobile" // Fixed typo from "mobil" to "mobile"
+                placeholder="Enter your mobile number"
+                value={formData.mobile}
+                onChange={handleChange}
+                className="mb-4"
+              />
+            </>
           )}
-          {data?.role == "admin" && (
-            <InputField
-              label="Mibile Number:"
-              name="mobil"
-              placeholder="Enter new user name"
-              value={formData.mobile}
-              onChange={handleChange}
-              className="mb-4"
-            />
-          )}
+
           <InputField
             label="Old Password:"
             name="oldPassword"
             type="password"
-            placeholder="Enter New Password"
-            value={formData.password}
+            placeholder="Enter old password"
+            value={formData.oldPassword || ""}
             onChange={handleChange}
             className="mb-4"
           />
+
           <InputField
-            label="NewPassword:"
+            label="New Password:"
             name="newPassword"
             type="password"
-            placeholder="Enter New Password"
-            value={formData.password}
+            placeholder="Enter new password"
+            value={formData.newPassword || ""}
             onChange={handleChange}
             className="mb-4"
           />

@@ -8,6 +8,7 @@ const handleApiError = async (response) => {
     const errorMessage = await response.text();
     throw new Error(errorMessage || "Something went wrong with the API.");
   }
+
   return response.json();
 };
 

@@ -363,6 +363,7 @@ const AddGovManagerPage = () => {
                 <InputField
                   label="Name"
                   name="name"
+                  placeholder="Enter Name"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
@@ -371,6 +372,7 @@ const AddGovManagerPage = () => {
                 <InputField
                   label="Mobile"
                   name="mobile"
+                  placeholder="Enter Mobile Number"
                   type="tel"
                   value={formData.mobile}
                   onChange={(e) =>
@@ -380,6 +382,7 @@ const AddGovManagerPage = () => {
                 <InputField
                   label="Username"
                   name="username"
+                  placeholder="Enter UserName"
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -399,6 +402,7 @@ const AddGovManagerPage = () => {
                 <InputField
                   label="Password"
                   name="password"
+                  placeholder="Enter Password"
                   type="password"
                   value={formData.password}
                   onChange={(e) =>

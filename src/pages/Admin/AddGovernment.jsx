@@ -100,15 +100,15 @@ const AddGovSectorPage = () => {
 
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
-      await Promise.all(
+      const response = await Promise.all(
         confirmDelete.ids.map((id) =>
-          dispatch(deleteEntity({ endpoint: "gov/sectors", id }))
+          dispatch(deleteEntity({ endpoint: "gov/delete", id }))
         )
       );
 
       const message = confirmDelete.isBulk
         ? `Deleted ${confirmDelete.ids.length} sectors`
-        : `Deleted ${confirmDelete.name}`;
+        : `Deleted ${confirmDelete.govSector}`;
 
       showToast(message, "success");
       fetchData();
@@ -163,7 +163,7 @@ const AddGovSectorPage = () => {
       ).unwrap();
 
       if (response.success) {
-        showToast("Sector added successfully", "success");
+        showToast(response.message, "success");
         resetForm();
         fetchData();
       }
