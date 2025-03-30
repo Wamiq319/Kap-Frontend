@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import { FaEye, FaEyeSlash, FaChevronDown } from "react-icons/fa"; // Import icons from React Icons
+import React, { useState, useEffect } from "react";
+import { FaEye, FaEyeSlash, FaChevronDown } from "react-icons/fa";
+import { FiCalendar } from "react-icons/fi";
+import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 /* ---------------------------------------------
    InputField Component
@@ -165,6 +168,54 @@ export const ImageInput = ({ label, name, onChange, className = "" }) => {
           className="mt-2 h-16 w-16 object-cover rounded-md border"
         />
       )}
+    </div>
+  );
+};
+export const DatePicker = ({
+  label,
+  name,
+  value,
+  onChange,
+  className = "",
+  required = false,
+  minDate = null,
+  maxDate = null,
+}) => {
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  useEffect(() => {
+    if (value) {
+      setSelectedDate(new Date(value));
+    }
+  }, [value]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    // Format the date to YYYY-MM-DD before sending to parent
+    const formattedDate = date ? date.toISOString().split("T")[0] : "";
+    onChange({ target: { name, value: formattedDate } });
+  };
+
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <label className="block text-sm font-medium mb-1">
+          {label}
+          {required && <span className="text-red-500"> *</span>}
+        </label>
+      )}
+      <div className="relative">
+        <ReactDatePicker
+          selected={selectedDate}
+          onChange={handleDateChange}
+          dateFormat="yyyy-MM-dd"
+          className="w-full p-2 border border-gray-300 rounded-md pl-10"
+          placeholderText="Select date"
+          minDate={minDate}
+          maxDate={maxDate}
+        />
+        <FiCalendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+      </div>
     </div>
   );
 };

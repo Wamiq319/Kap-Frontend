@@ -15,7 +15,7 @@ import {
   CompanyEmployeeHomePage,
   IntegrationEmployeeHomePage,
   GovSectorManagerHomePage,
-  OpCompanyManagerHomePage,
+  OperatingManagerHomePage,
   // ####################
   AddKapCompanyPage,
   AddGovSectorPage,
@@ -73,7 +73,12 @@ const App = () => {
                 path="/admin-update"
                 element={
                   <ProtectedRoute
-                    allowedRoles={["admin", "op_manager", "gov_manager"]}
+                    allowedRoles={[
+                      "admin",
+                      "op_manager",
+                      "gov_manager",
+                      "kap_employee",
+                    ]}
                   >
                     <AdminUpdatePage />
                   </ProtectedRoute>
@@ -190,7 +195,7 @@ const App = () => {
                 path="/op-manager-home"
                 element={
                   <ProtectedRoute allowedRoles={["op_manager"]}>
-                    <OpCompanyManagerHomePage />
+                    <OperatingManagerHomePage />
                   </ProtectedRoute>
                 }
               />

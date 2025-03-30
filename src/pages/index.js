@@ -6,7 +6,7 @@ import KAPEmployeeHomePage from "./Home/KapEmployee";
 import GovernmentEmployeeHomePage from "./Home/GovernmentEmployee";
 import CompanyEmployeeHomePage from "./Home/CompanyEmployee";
 import IntegrationEmployeeHomePage from "./Home/IntegrationEmployee";
-import OpCompanyManagerHomePage from "./Home/OPCompanyManager.jsx";
+import OperatingManagerHomePage from "./Home/OperatingManager.jsx";
 import GovSectorManagerHomePage from "./Home/GovSectorManager.jsx";
 // ##############
 import AddKapCompanyPage from "./Admin/AddkapCompany";
@@ -25,7 +25,7 @@ export {
   GovernmentEmployeeHomePage,
   CompanyEmployeeHomePage,
   IntegrationEmployeeHomePage,
-  OpCompanyManagerHomePage,
+  OperatingManagerHomePage,
   GovSectorManagerHomePage,
   AddKapCompanyPage,
   AddGovSectorPage,

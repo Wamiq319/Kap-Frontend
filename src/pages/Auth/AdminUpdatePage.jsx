@@ -38,6 +38,9 @@ const AdminUpdatePage = () => {
         case "op_manager":
           navigate("/op-manager-home");
           break;
+        case "kap_employee":
+          navigate("/kap-employee-home");
+          break;
 
         default:
           navigate("/login");

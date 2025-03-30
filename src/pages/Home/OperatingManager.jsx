@@ -1,11 +1,11 @@
 import React from "react";
 
-const OpCompanyManagerHomePage = () => {
+const OperatingManagerHomePage = () => {
   return (
     <div className="min-h-screen flex flex-col Home-Wrapper">
-      OpCompanyManagerHomePageP
+      OpCompanyManagerHomePage
     </div>
   );
 };
 
-export default OpCompanyManagerHomePage;
+export default OperatingManagerHomePage;

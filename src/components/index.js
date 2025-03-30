@@ -1,4 +1,4 @@
-import { Button, InputField, Dropdown } from "./FormComponents";
+import { Button, InputField, Dropdown, DatePicker } from "./FormComponents";
 import DataTable from "./Datatable";
 import Header from "./Header";
 import Modal from "./Modal";
@@ -12,6 +12,7 @@ export {
   InputField,
   Dropdown,
   DataTable,
+  DatePicker,
   Header,
   Modal,
   ImageInput,
