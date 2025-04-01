@@ -28,6 +28,7 @@ const AddGovSectorPage = () => {
     mobile: "",
     username: "",
     password: "",
+    logoImage: null,
   });
 
   const [uiState, setUiState] = useState({
@@ -127,10 +128,11 @@ const AddGovSectorPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files?.[0]) {
-      setFormData({ ...formData, logoImage: e.target.files[0] });
-    }
+  const handleImageChange = (file) => {
+    setFormData((prev) => ({
+      ...prev,
+      logoImage: file,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -248,6 +250,7 @@ const AddGovSectorPage = () => {
               label="Logo Image"
               name="logoImage"
               onChange={handleImageChange}
+              required={true}
             />
             <InputField
               label="Admin Name"

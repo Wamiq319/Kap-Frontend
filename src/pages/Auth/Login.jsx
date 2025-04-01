@@ -21,7 +21,7 @@ const LoginPage = () => {
       setError(message);
     }
   }, [message, success]);
-  console.log(message, success, data);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

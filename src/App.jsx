@@ -24,13 +24,12 @@ import {
   AddKapEmloyeePage,
   AddGovManagerPage,
   AddCompanyManagerPage,
+  AddCompanyEmployeePage,
 } from "./pages";
 import Header from "./components/Header";
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
-  const user =
-    useSelector((state) => state.auth.data) ||
-    JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user"));
 
   if (!user) return <Navigate to="/login" replace />;
   if (!allowedRoles.includes(user.role))
@@ -196,6 +195,14 @@ const App = () => {
                 element={
                   <ProtectedRoute allowedRoles={["op_manager"]}>
                     <OperatingManagerHomePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/add-op-employee"
+                element={
+                  <ProtectedRoute allowedRoles={["op_manager"]}>
+                    <AddCompanyEmployeePage />
                   </ProtectedRoute>
                 }
               />

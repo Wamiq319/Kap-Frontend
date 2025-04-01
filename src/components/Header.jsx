@@ -10,7 +10,9 @@ const Header = () => {
 
   // Handle Logout
   const handleLogout = () => {
-    dispatch(logout());
+    localStorage.removeItem("user");
+    localStorage.removeItem("data");
+    window.location.reload();
     navigate("/login");
   };
 

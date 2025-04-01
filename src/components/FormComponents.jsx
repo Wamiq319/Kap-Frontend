@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown } from "react-icons/fa";
 import { FiCalendar } from "react-icons/fi";
 import ReactDatePicker from "react-datepicker";
@@ -8,12 +8,15 @@ import "react-datepicker/dist/react-datepicker.css";
    InputField Component
 --------------------------------------------- */
 export const InputField = ({
+  required = true,
   label,
   name,
   placeholder,
   value,
   onChange,
   className = "",
+  type = "text", // Add type prop with default value "text"
+  rows = 4, // For textarea
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -28,24 +31,39 @@ export const InputField = ({
     setShowPassword(!showPassword);
   };
 
+  // Determine the input type (for password visibility toggle)
+  const resolvedInputType =
+    name === "password" && showPassword ? "text" : inputTypes[name] || type;
+
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium mb-1">{label}</label>
+        <label className="block text-sm font-medium mb-1">
+          {label}
+          {required && <span className="text-red-500"> *</span>}
+        </label>
       )}
+
       <div className="relative">
-        <input
-          type={
-            name === "password" && showPassword
-              ? "text"
-              : inputTypes[name] || "text"
-          }
-          name={name}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
+        {type === "textarea" ? (
+          <textarea
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            rows={rows}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+        ) : (
+          <input
+            type={resolvedInputType}
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+        )}
         {name === "password" && (
           <button
             type="button"
@@ -53,9 +71,9 @@ export const InputField = ({
             className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
           >
             {showPassword ? (
-              <FaEyeSlash className="h-5 w-5 text-gray-500" /> // Hide password icon
+              <FaEyeSlash className="h-5 w-5 text-gray-500" />
             ) : (
-              <FaEye className="h-5 w-5 text-gray-500" /> // Show password icon
+              <FaEye className="h-5 w-5 text-gray-500" />
             )}
           </button>
         )}
@@ -69,6 +87,7 @@ export const InputField = ({
 --------------------------------------------- */
 
 export const Dropdown = ({
+  required = true,
   label,
   options,
   selectedValue,
@@ -91,7 +110,10 @@ export const Dropdown = ({
   return (
     <div className={`w-full relative ${className}`}>
       {label && (
-        <label className="block text-sm font-medium mb-1">{label}</label>
+        <label className="block text-sm font-medium mb-1">
+          {label}
+          {required && <span className="text-red-500"> *</span>}
+        </label>
       )}
       <div
         className="w-full p-2 border border-gray-300 rounded-md cursor-pointer flex items-center justify-between"
@@ -136,41 +158,72 @@ export const Button = ({ text, onClick, color = "blue", className = "" }) => {
 /* ---------------------------------------------
    ImageInput Component
 --------------------------------------------- */
-export const ImageInput = ({ label, name, onChange, className = "" }) => {
+
+export const ImageInput = ({
+  label,
+  onChange,
+  className = "",
+  required = false,
+}) => {
   const [preview, setPreview] = useState(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    onChange(file); // Pass the file to parent component
+    if (!file) return;
 
-    // Generate preview URL
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(objectUrl);
+    // Basic image validation
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file (JPEG, PNG, etc.)");
+      return;
     }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setPreview(event.target.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Pass file to parent
+    onChange(file);
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium mb-1">{label}</label>
+        <label className="block text-sm font-medium text-gray-700">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
       )}
+
       <input
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="w-full p-2 border border-gray-300 rounded-md"
+        className="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-md file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100"
       />
+
       {preview && (
-        <img
-          src={preview}
-          alt="Preview"
-          className="mt-2 h-16 w-16 object-cover rounded-md border"
-        />
+        <div className="mt-2">
+          <img
+            src={preview}
+            alt="Preview"
+            className="h-32 object-contain border rounded-md"
+          />
+        </div>
       )}
     </div>
   );
 };
+/* ---------------------------------------------
+   DatePicker Component
+--------------------------------------------- */
 export const DatePicker = ({
   label,
   name,
@@ -215,6 +268,62 @@ export const DatePicker = ({
           maxDate={maxDate}
         />
         <FiCalendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+      </div>
+    </div>
+  );
+};
+
+/* ---------------------------------------------
+   FileInput Component
+--------------------------------------------- */
+
+export const FileInput = ({
+  required = true,
+  label,
+  name,
+  onChange,
+  className = "",
+  accept = "*",
+  multiple = false,
+}) => {
+  const [fileName, setFileName] = useState("");
+
+  const handleFileChange = (e) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      onChange(files); // Pass the FileList to parent component
+
+      // Set the file name(s)
+      if (files.length === 1) {
+        setFileName(files[0].name);
+      } else {
+        setFileName(`${files.length} files selected`);
+      }
+    }
+  };
+
+  return (
+    <div className={`w-full ${className}`}>
+      {label && (
+        <label className="block text-sm font-medium mb-1">
+          {label}
+          {required && <span className="text-red-500"> *</span>}
+        </label>
+      )}
+
+      <div className="flex items-center gap-4">
+        <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md border border-gray-300 transition">
+          Choose File
+          <input
+            type="file"
+            name={name}
+            accept={accept}
+            multiple={multiple}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
+        {fileName && <span className="text-sm text-gray-600">{fileName}</span>}
       </div>
     </div>
   );

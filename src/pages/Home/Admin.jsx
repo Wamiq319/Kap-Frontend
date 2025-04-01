@@ -23,25 +23,25 @@ const AdminHomePage = () => {
         </div>
 
         <Button
-          text="Add KAP companies"
+          text="Manage KAP companies"
           onClick={() => handleNavigation("/add-kapCompany")}
           className="w-full bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 shadow"
         />
 
         <Button
-          text="Add Government Sectors"
+          text="Manage Government Sectors"
           onClick={() => handleNavigation("/add-govSector")}
           className="w-full bg-green-600 hover:bg-green-700 text-lg py-3 shadow"
         />
 
         <Button
-          text="Add operating companies"
+          text="Manage operating companies"
           onClick={() => handleNavigation("/add-operatingCompany")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
 
         <Button
-          text="Add / remove employees"
+          text="Manage managers/employees"
           onClick={() => handleNavigation("/manage-employees")}
           className="w-full bg-orange-500 hover:bg-orange-600 text-lg py-3 shadow"
         />

@@ -71,7 +71,7 @@ const AddCompanyManagerPage = () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await dispatch(fetchNames({ endpoint: "op/company-names" }));
-      await dispatch(getUsers("op-managers"));
+      await dispatch(getUsers({ endpoint: "op-managers" }));
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -163,7 +163,7 @@ const AddCompanyManagerPage = () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await Promise.all(
-        confirmDelete.ids.map((id) => dispatch(deleteUser(id)))
+        confirmDelete.ids.map((id) => dispatch(deleteUser({ userId: id })))
       );
 
       const message = confirmDelete.isBulk
@@ -204,8 +204,10 @@ const AddCompanyManagerPage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         createUser({
-          ...formData,
-          role: "op_manager",
+          data: {
+            ...formData,
+            role: "op_manager",
+          },
         })
       ).unwrap();
 

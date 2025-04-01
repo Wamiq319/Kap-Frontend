@@ -13,7 +13,7 @@ import {
   Modal,
   Loader,
   Dropdown,
-  ImageInput,
+  FileInput,
   DatePicker,
 } from "../../components";
 
@@ -27,11 +27,10 @@ const KAPEmployeeHomePage = () => {
 
   const [formData, setFormData] = useState({
     requestType: "",
-    ticketNumber: "",
     location: locations[0],
     operator: "",
     requestor: "",
-    orderDate: "",
+    expectedCompletionDate: "",
     attachment: null,
   });
 
@@ -47,11 +46,13 @@ const KAPEmployeeHomePage = () => {
   const tableHeaders = [
     { key: "index", label: "#" },
     { key: "requestType", label: "Request Type" },
+
     { key: "ticketNumber", label: "Ticket Number" },
     { key: "location", label: "Location" },
     { key: "operator", label: "Operator" },
     { key: "requestor", label: "Requestor" },
-    { key: "orderDate", label: "Order Date" },
+    { key: "orderDate", label: "Order Creation " },
+    { key: "expectedCompletionDate", label: "Expected Completion" },
     { key: "attachment", label: "Attachment" },
   ];
 
@@ -72,14 +73,22 @@ const KAPEmployeeHomePage = () => {
       const requestorResponse = await dispatch(
         fetchNames({ endpoint: "gov/sector-names" })
       );
-      setRequestors(requestorResponse.payload.names);
+      setRequestors(requestorResponse.payload?.names || []);
 
       const operatorResponse = await dispatch(
         fetchNames({ endpoint: "op/company-names" })
       );
-      setOperators(operatorResponse.payload.names);
+      setOperators(operatorResponse.payload?.names || []);
 
-      await dispatch(fetchEntities({ endpoint: "tickets" }));
+      await dispatch(
+        fetchEntities({
+          endpoint: "tkt/tickets",
+          params: {
+            userRole: "kap_employee",
+            userId: "jkajkskksks",
+          },
+        })
+      );
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -97,7 +106,10 @@ const KAPEmployeeHomePage = () => {
     location: item.location,
     operator: item.operator,
     requestor: item.requestor,
-    orderDate: new Date(item.orderDate).toLocaleDateString(),
+
+    orderDate: item.orderDate
+      ? new Date(item.orderDate).toLocaleDateString()
+      : "",
     attachment: item.attachment ? "File Attached" : "No Attachment",
   }));
 
@@ -118,8 +130,10 @@ const KAPEmployeeHomePage = () => {
 
     if (
       !formData.requestType ||
-      !formData.ticketNumber ||
-      !formData.orderDate
+      !formData.requestor ||
+      !formData.operator ||
+      !formData.location ||
+      !formData.expectedCompletionDate
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -130,14 +144,16 @@ const KAPEmployeeHomePage = () => {
 
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
+      console.log(formData);
 
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) formDataToSend.append(key, value);
+        if (value !== null && value !== undefined)
+          formDataToSend.append(key, value);
       });
 
       const response = await dispatch(
-        addEntity({ endpoint: "tickets/create", formData: formDataToSend })
+        addEntity({ endpoint: "tkt/create", formData: formDataToSend })
       ).unwrap();
 
       if (response.success) {
@@ -208,22 +224,13 @@ const KAPEmployeeHomePage = () => {
       >
         <form
           onSubmit={handleSubmit}
-          className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
+          className="md:grid md:grid-cols-2 flex flex-wrap gap-4 max-h-[35rem] overflow-y-auto"
         >
           <InputField
             label="Request Type"
             name="requestType"
             placeholder="Enter request type"
             value={formData.requestType}
-            onChange={handleChange}
-            required
-          />
-
-          <InputField
-            label="Ticket Number"
-            name="ticketNumber"
-            placeholder="Enter ticket number"
-            value={formData.ticketNumber}
             onChange={handleChange}
             required
           />
@@ -256,16 +263,18 @@ const KAPEmployeeHomePage = () => {
           />
 
           <DatePicker
-            label="Order Date"
-            name="orderDate"
-            value={formData.orderDate}
+            label="Expected Completion"
+            name="expectedCompletionDate"
+            value={formData.expectedCompletionDate}
             onChange={handleChange}
             required
           />
-          <ImageInput
-            label="Attachment"
-            name="attachment"
-            onChange={handleFileChange}
+
+          <FileInput
+            required={false}
+            label="Attachments(optional)"
+            name="attachment" // Fixed name to match formData
+            onChange={handleFileChange} // Fixed to use handleFileChange
           />
 
           {uiState.errorMessage && (

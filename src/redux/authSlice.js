@@ -42,25 +42,27 @@ export const loginUser = createAsyncThunk(
 // Create User
 export const createUser = createAsyncThunk(
   "auth/createUser",
-  async (credentials, { rejectWithValue }) => {
+  async ({ data, resource = "user" }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/protected/user/create`, {
+      const response = await fetch(`${API_URL}/protected/${resource}/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(data),
         credentials: "include",
       });
 
-      const { message, success } = await handleApiError(response);
-
-      return { success, message };
+      const {
+        message,
+        success,
+        data: responseData,
+      } = await handleApiError(response);
+      return { success, message, data: responseData };
     } catch (error) {
       console.log(error);
       return rejectWithValue(error.message || "User creation failed");
     }
   }
 );
-
 // Update Admin
 export const updateAdmin = createAsyncThunk(
   "auth/updateAdmin",
@@ -107,10 +109,10 @@ export const updatePassword = createAsyncThunk(
 // Delete User
 export const deleteUser = createAsyncThunk(
   "auth/deleteUser",
-  async (userId, { rejectWithValue }) => {
+  async ({ userId, resource = "user" }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        `${API_URL}/protected/user/delete/${userId}`,
+        `${API_URL}/protected/${resource}/delete/${userId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -128,32 +130,45 @@ export const deleteUser = createAsyncThunk(
 );
 // Logout User
 export const logout = createAsyncThunk("auth/logout", async () => {
+  localStorage.removeItem("user");
+  localStorage.removeItem("data");
+
   await fetch(`${API_URL}/auth/logout`, {
     method: "POST",
     credentials: "include",
   });
-  localStorage.removeItem("user");
-  localStorage.removeItem("data");
 });
 
 // Get Users
 export const getUsers = createAsyncThunk(
   "auth/getUsers",
-  async (endpoint = "", { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/protected/user/${endpoint}`, {
+      const {
+        queryParams = {}, // Query params for filtering, if any
+        endpoint = "",
+        resource = "user",
+      } = typeof params === "object" ? params : { endpoint: params };
+
+      // If there are queryParams, add them to the URL as a query string
+      const queryString = new URLSearchParams(queryParams).toString();
+      const url = queryString
+        ? `${API_URL}/protected/${resource}/${endpoint}?${queryString}`
+        : `${API_URL}/protected/${resource}/${endpoint}`;
+
+      const response = await fetch(url, {
         method: "GET",
         credentials: "include",
       });
 
       const { data, message, success } = await handleApiError(response);
-      console.log(data);
       return { success, message, data };
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch users");
     }
   }
 );
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -188,7 +203,6 @@ const authSlice = createSlice({
       // Create User
       .addCase(createUser.fulfilled, (state, action) => {
         if (action.payload.success) {
-          state.data = action.payload.data;
           state.success = action.payload.success;
           state.message = action.payload.message;
         }

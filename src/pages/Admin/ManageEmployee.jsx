@@ -23,19 +23,19 @@ const ManageEmployeePage = () => {
         </div>
 
         <Button
-          text="Add KAP Employee"
+          text="Manage KAP Employees"
           onClick={() => handleNavigation("/add-kapEmployee")}
           className="w-full bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 shadow"
         />
 
         <Button
-          text="Add Government Manager"
+          text="Manage Government Managers"
           onClick={() => handleNavigation("/add-govManager")}
           className="w-full bg-green-600 hover:bg-green-700 text-lg py-3 shadow"
         />
 
         <Button
-          text="Add Company Manager"
+          text="Manage Company Managers"
           onClick={() => handleNavigation("/add-companyManager")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />

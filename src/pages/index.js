@@ -16,6 +16,7 @@ import ManageEmployeePage from "./Admin/ManageEmployee";
 import AddKapEmloyeePage from "./Admin/KapEmployee";
 import AddGovManagerPage from "./Admin/GovSectorManager";
 import AddCompanyManagerPage from "./Admin/CompanyManger.jsx";
+import AddCompanyEmployeePage from "./OperatingManagers/OpEmployee.jsx";
 
 export {
   LoginPage,
@@ -34,4 +35,5 @@ export {
   AddKapEmloyeePage,
   AddGovManagerPage,
   AddCompanyManagerPage,
+  AddCompanyEmployeePage,
 };

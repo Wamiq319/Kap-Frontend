@@ -15,15 +15,24 @@ const handleApiError = async (response) => {
 // Fetch entities
 export const fetchEntities = createAsyncThunk(
   "adminCrud/fetchEntities",
-  async ({ endpoint }, { rejectWithValue }) => {
+  async ({ endpoint, params = {} }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/protected/${endpoint}`, {
+      const queryString = Object.keys(params)
+        .map(
+          (key) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+        )
+        .join("&");
+      const url = `${API_URL}/protected/${endpoint}${
+        queryString ? `?${queryString}` : ""
+      }`;
+      const response = await fetch(url, {
         method: "GET",
         credentials: "include",
       });
 
       const { data, message, success } = await handleApiError(response);
-      console.log(data);
+      console.log(message, data);
       return { data, message, success };
     } catch (error) {
       return rejectWithValue("Unable to connect");
@@ -51,6 +60,7 @@ export const fetchNames = createAsyncThunk(
 export const addEntity = createAsyncThunk(
   "adminCrud/addEntity",
   async ({ endpoint, formData }, { rejectWithValue }) => {
+    console.log(formData);
     try {
       const response = await fetch(`${API_URL}/protected/${endpoint}`, {
         method: "POST",
