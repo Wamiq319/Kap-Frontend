@@ -100,7 +100,7 @@ const AddKapCompanyPage = () => {
 
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
-      await Promise.all(
+      const response = await Promise.all(
         confirmDelete.ids.map((id) =>
           dispatch(deleteEntity({ endpoint: "kap/delete", id }))
         )
@@ -127,10 +127,11 @@ const AddKapCompanyPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files?.[0]) {
-      setFormData({ ...formData, logoImage: e.target.files[0] });
-    }
+  const handleImageChange = (file) => {
+    setFormData((prev) => ({
+      ...prev,
+      logoImage: file,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -141,7 +142,8 @@ const AddKapCompanyPage = () => {
       !formData.adminName ||
       !formData.mobile ||
       !formData.username ||
-      !formData.password
+      !formData.password ||
+      !formData.logoImage
     ) {
       setUiState((prev) => ({
         ...prev,

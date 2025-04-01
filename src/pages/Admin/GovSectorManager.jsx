@@ -430,7 +430,7 @@ const AddGovManagerPage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text="Save"
+                text={uiState.isLoading ? "Saving...." : "Save"}
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
               />

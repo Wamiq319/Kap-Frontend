@@ -100,17 +100,13 @@ const AddOperatingCompanyPage = () => {
 
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
-      await Promise.all(
+      const response = await Promise.all(
         confirmDelete.ids.map((id) =>
-          dispatch(deleteEntity({ endpoint: "op/companies", id }))
+          dispatch(deleteEntity({ endpoint: "op/delete", id }))
         )
       );
 
-      const message = confirmDelete.isBulk
-        ? `Deleted ${confirmDelete.ids.length} companies`
-        : `Deleted ${confirmDelete.name}`;
-
-      showToast(message, "success");
+      showToast(response.message, "success");
       fetchData();
     } catch (error) {
       showToast(
@@ -127,10 +123,11 @@ const AddOperatingCompanyPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files?.[0]) {
-      setFormData({ ...formData, logoImage: e.target.files[0] });
-    }
+  const handleImageChange = (file) => {
+    setFormData((prev) => ({
+      ...prev,
+      logoImage: file,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -141,7 +138,8 @@ const AddOperatingCompanyPage = () => {
       !formData.adminName ||
       !formData.mobile ||
       !formData.username ||
-      !formData.password
+      !formData.password ||
+      !formData.logoImage
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -294,7 +292,7 @@ const AddOperatingCompanyPage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text="Save"
+                text={uiState.isLoading ? "Creating...." : "Create"}
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}

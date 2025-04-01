@@ -426,7 +426,7 @@ const AddKapEmployeePage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text="Save"
+                text={uiState.isLoading ? "Save" : "Saving...."}
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}

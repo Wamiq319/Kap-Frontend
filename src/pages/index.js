@@ -15,7 +15,7 @@ import AddOperatingCompanyPage from "./Admin/AddOperatingCompanies";
 import ManageEmployeePage from "./Admin/ManageEmployee";
 import AddKapEmloyeePage from "./Admin/KapEmployee";
 import AddGovManagerPage from "./Admin/GovSectorManager";
-import AddCompanyManagerPage from "./Admin/CompanyManger.jsx";
+import AddCompanyManagerPage from "./Admin/CompanyManager.jsx";
 import AddCompanyEmployeePage from "./OperatingManagers/OpEmployee.jsx";
 
 export {

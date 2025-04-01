@@ -28,7 +28,6 @@ const AddGovSectorPage = () => {
     mobile: "",
     username: "",
     password: "",
-    logoImage: null,
   });
 
   const [uiState, setUiState] = useState({
@@ -111,7 +110,7 @@ const AddGovSectorPage = () => {
         ? `Deleted ${confirmDelete.ids.length} sectors`
         : `Deleted ${confirmDelete.govSector}`;
 
-      showToast(message, "success");
+      showToast(response.message, "success");
       fetchData();
     } catch (error) {
       showToast(
@@ -143,7 +142,8 @@ const AddGovSectorPage = () => {
       !formData.adminName ||
       !formData.mobile ||
       !formData.username ||
-      !formData.password
+      !formData.password ||
+      !formData.logoImage
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -297,7 +297,7 @@ const AddGovSectorPage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text="Save"
+                text={uiState.isLoading ? "Creating...." : "Create"}
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}

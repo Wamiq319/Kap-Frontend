@@ -14,8 +14,6 @@ const OperatingManagerHomePage = () => {
     <div className="flex flex-col items-center justify-center bg-gray-100 p-4 ">
       {/* Control Panel Box */}
       <div className="bg-gray-300 p-6 rounded-lg shadow-lg  max-w-md md:max-w-lg lg:max-w-xl space-y-6">
-        {/* Buttons */}
-
         <div className="flex flex-col items-center gap-4 mb-8">
           <div className="flex justify-center  bg-white rounded-full shadow-lg">
             <img
@@ -31,7 +29,7 @@ const OperatingManagerHomePage = () => {
             </h4>
             {data?.role && (
               <p className="text-sm text-gray-500 mt-1">
-                Operating Manger Dashboard
+                Operating Manager Dashboard
               </p>
             )}
           </div>
