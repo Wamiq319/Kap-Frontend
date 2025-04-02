@@ -94,6 +94,31 @@ export const deleteEntity = createAsyncThunk(
   }
 );
 
+export const updateEntity = createAsyncThunk(
+  "adminCrud/updateEntity",
+  async ({ endpoint, id, data = {} }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/protected/${endpoint}/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+
+      const {
+        data: responseData,
+        message,
+        success,
+      } = await handleApiError(response);
+      return { data: responseData, message, success };
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to update entity");
+    }
+  }
+);
+
 const adminCrudSlice = createSlice({
   name: "adminCrud",
   initialState: {
@@ -149,6 +174,19 @@ const adminCrudSlice = createSlice({
       .addCase(deleteEntity.rejected, (state, action) => {
         state.success = false;
         state.message = action.error.message || "Failed to delete entity";
+      })
+      .addCase(updateEntity.fulfilled, (state, action) => {
+        state.entities = state.entities.map((entity) =>
+          entity.id === action.payload.data.id
+            ? { ...entity, ...action.payload.data }
+            : entity
+        );
+        state.success = action.payload.success;
+        state.message = action.payload.message;
+      })
+      .addCase(updateEntity.rejected, (state, action) => {
+        state.success = false;
+        state.message = action.error.message;
       });
   },
 });

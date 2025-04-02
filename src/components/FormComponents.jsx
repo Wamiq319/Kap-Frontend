@@ -15,8 +15,8 @@ export const InputField = ({
   value,
   onChange,
   className = "",
-  type = "text", // Add type prop with default value "text"
-  rows = 4, // For textarea
+  type = "text",
+  rows = 6,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 

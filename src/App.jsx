@@ -25,6 +25,8 @@ import {
   AddGovManagerPage,
   AddCompanyManagerPage,
   AddCompanyEmployeePage,
+  ManageOpTicketsPage,
+  ManageKapTicketPage,
 } from "./pages";
 import Header from "./components/Header";
 
@@ -77,6 +79,8 @@ const App = () => {
                       "op_manager",
                       "gov_manager",
                       "kap_employee",
+                      "op_employee",
+                      "gov_employee",
                     ]}
                   >
                     <AdminUpdatePage />
@@ -203,6 +207,22 @@ const App = () => {
                 element={
                   <ProtectedRoute allowedRoles={["op_manager"]}>
                     <AddCompanyEmployeePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-op-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={["op_manager"]}>
+                    <ManageOpTicketsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-kap-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={["kap_employee"]}>
+                    <ManageKapTicketPage />
                   </ProtectedRoute>
                 }
               />

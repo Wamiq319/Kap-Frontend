@@ -7,12 +7,11 @@ const storedUser = JSON.parse(localStorage.getItem("user")) || null;
 
 // Helper function to fetch data
 const handleApiError = async (response) => {
+  const errorResponse = await response.json();
   if (!response.ok) {
-    const errorMessage = await response.text();
-    throw new Error(errorMessage);
+    throw new Error(errorResponse.message || "An error occurred");
   }
-
-  return response.json();
+  return errorResponse;
 };
 
 // Login User
@@ -34,7 +33,7 @@ export const loginUser = createAsyncThunk(
       }
       return { success, message, data };
     } catch (error) {
-      return rejectWithValue(error.message || "Login failed");
+      return rejectWithValue(error.message); // Now correctly passing backend error message
     }
   }
 );
@@ -199,7 +198,6 @@ const authSlice = createSlice({
         state.success = false;
         state.message = action.payload || "Login failed";
       })
-
       // Create User
       .addCase(createUser.fulfilled, (state, action) => {
         if (action.payload.success) {

@@ -17,6 +17,8 @@ import AddKapEmloyeePage from "./Admin/KapEmployee";
 import AddGovManagerPage from "./Admin/GovSectorManager";
 import AddCompanyManagerPage from "./Admin/CompanyManager.jsx";
 import AddCompanyEmployeePage from "./OperatingManagers/OpEmployee.jsx";
+import ManageOpTicketsPage from "./OperatingManagers/opTickets.jsx";
+import ManageKapTicketPage from "./kapEmployee/KapTicket.jsx";
 
 export {
   LoginPage,
@@ -36,4 +38,6 @@ export {
   AddGovManagerPage,
   AddCompanyManagerPage,
   AddCompanyEmployeePage,
+  ManageOpTicketsPage,
+  ManageKapTicketPage,
 };

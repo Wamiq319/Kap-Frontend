@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../redux/authSlice";
@@ -7,40 +7,46 @@ import logo from "../../assets/logo.png";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const [error, setError] = useState(""); // State for error messages
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data, success, message } = useSelector((state) => state.auth);
-  const [Error, setError] = useState(message);
-
-  // Effect to navigate based on login success and role
-
-  // Effect to handle error message updates
-  useEffect(() => {
-    if (!success) {
-      setError(message);
-    }
-  }, [message, success]);
+  const { success } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.username.length < 1) {
+    setError(""); // Reset error before attempting login
+
+    if (!formData.username.trim()) {
       setError("Username cannot be empty");
       return;
     }
-    if (formData.password.length < 1) {
+    if (!formData.password.trim()) {
       setError("Password cannot be empty");
       return;
     }
 
-    if (!data) {
-      const response = dispatch(loginUser(formData));
-      console.log(response);
-      navigate("/admin-update");
+    try {
+      // Dispatch login action
+      const response = await dispatch(loginUser(formData));
+
+      // Check if login failed
+      if (response.payload && !response.payload.success) {
+        console.log("Login failed response:", response.payload);
+        setError(response.payload.message);
+
+        // Debugging: Check if state updates
+        setTimeout(() => console.log("Updated Error:", error), 0);
+      } else {
+        navigate("/admin-update");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -55,8 +61,8 @@ const LoginPage = () => {
           Login to Your Account
         </h2>
 
-        {/* Show error if not successful */}
-        {!success && <p className="text-red-500 text-center mb-4">{Error}</p>}
+        {/* Display error message */}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField

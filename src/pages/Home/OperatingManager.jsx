@@ -42,7 +42,7 @@ const OperatingManagerHomePage = () => {
 
         <Button
           text="Manage Tickets"
-          onClick={() => handleNavigation("/manage-gov-tickets")}
+          onClick={() => handleNavigation("/manage-op-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
       </div>
