@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { FaHome, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import { MdOutlineLockReset } from "react-icons/md";
 import {
   createUser,
@@ -13,7 +12,6 @@ import {
   DataTable,
   Button,
   InputField,
-  Dropdown,
   ToastNotification,
   ConfirmationModal,
   Modal,
@@ -22,13 +20,10 @@ import {
 
 const AddGovEmployeePage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { names } = useSelector((state) => state.adminCrud);
   const { users, data } = useSelector((state) => state.auth);
   console.log(data);
-
   const [formData, setFormData] = useState({
-    companyId: data?.company.id,
+    entityId: data?.sector.id,
     name: "",
     mobile: "",
     username: "",
@@ -69,9 +64,18 @@ const AddGovEmployeePage = () => {
   const fetchUsers = async () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
-      await dispatch(
-        getUsers({ endpoint: "op-employees", resource: "employee" })
+      const response = await dispatch(
+        getUsers({
+          resource: "employee",
+          endpoint: "get-employees",
+          queryParams: {
+            role: "gov_employee",
+            entityId: formData.entityId,
+          },
+        })
       );
+
+      showToast(response.payload.message, "info");
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -88,7 +92,6 @@ const AddGovEmployeePage = () => {
     mobile: item.mobile,
     username: item.username,
     password: item.password,
-    company: item.company,
   }));
 
   const handlePasswordUpdate = async (e) => {
@@ -187,8 +190,7 @@ const AddGovEmployeePage = () => {
       !formData.name ||
       !formData.mobile ||
       !formData.username ||
-      !formData.password ||
-      !formData.companyId
+      !formData.password
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -201,9 +203,10 @@ const AddGovEmployeePage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         createUser({
+          resource: "employee",
           data: {
             ...formData,
-            role: "op_employee",
+            role: "gov_employee",
           },
         })
       ).unwrap();
@@ -234,7 +237,7 @@ const AddGovEmployeePage = () => {
 
   const resetForm = () => {
     setFormData({
-      companyId: data?.company.id,
+      entityId: data?.sector.id,
       name: "",
       mobile: "",
       username: "",
@@ -275,7 +278,7 @@ const AddGovEmployeePage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Company Employee"
+          text="Add Government Employee"
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -283,7 +286,7 @@ const AddGovEmployeePage = () => {
               isEditingPassword: false,
             }))
           }
-          className="bg-blue-600 hover:bg-blue-700 text-lg font-semibold py-3 mb-2 shadow"
+          className="bg-green-600 hover:bg-green-700 text-lg font-semibold py-3 mb-2 shadow"
         />
       </div>
 
@@ -296,7 +299,7 @@ const AddGovEmployeePage = () => {
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
           title={
-            uiState.isEditingPassword ? "Reset Password" : "Add Company Manager"
+            uiState.isEditingPassword ? "Reset Password" : "Add eentity Manager"
           }
         >
           <form
@@ -355,7 +358,7 @@ const AddGovEmployeePage = () => {
                 <InputField
                   label="Full Name"
                   name="name"
-                  placeholder="Enter manager's full name"
+                  placeholder="Enter Employee's full name"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
@@ -429,10 +432,10 @@ const AddGovEmployeePage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Company Employees"
+          heading="Government Employees"
           tableHeader={tableHeader}
           tableData={tableData}
-          headerBgColor="bg-blue-200"
+          headerBgColor="bg-green-200"
           bulkActions={[
             {
               icon: <FaTrash />,

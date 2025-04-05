@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { FaHome, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import { MdOutlineLockReset } from "react-icons/md";
 import {
   createUser,
@@ -13,7 +12,6 @@ import {
   DataTable,
   Button,
   InputField,
-  Dropdown,
   ToastNotification,
   ConfirmationModal,
   Modal,
@@ -23,7 +21,6 @@ import {
 const AddCompanyEmployeePage = () => {
   const dispatch = useDispatch();
   const { users, data } = useSelector((state) => state.auth);
-
   const [formData, setFormData] = useState({
     entityId: data?.company.id,
     name: "",
@@ -77,6 +74,7 @@ const AddCompanyEmployeePage = () => {
           },
         })
       );
+      showToast(response.payload.message, "info");
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -93,7 +91,6 @@ const AddCompanyEmployeePage = () => {
     mobile: item.mobile,
     username: item.username,
     password: item.password,
-    company: item.company,
   }));
 
   const handlePasswordUpdate = async (e) => {

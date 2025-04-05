@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaEye, FaEdit, FaStickyNote } from "react-icons/fa";
+import { FaEye, FaStickyNote } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
 import {
   DataTable,
@@ -9,10 +9,9 @@ import {
   Modal,
   Loader,
   InputField,
-  ConfirmationModal,
 } from "../../components";
 
-const ManageTicketsEmployeePage = () => {
+const ManageGovTicketsEmployeePage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
@@ -27,19 +26,11 @@ const ManageTicketsEmployeePage = () => {
   const [modals, setModals] = useState({
     viewProgress: { isOpen: false, ticket: null },
     viewNotes: { isOpen: false, ticket: null },
-    updateProgress: {
+    addNote: {
       isOpen: false,
       ticket: null,
-      percentage: 0,
-      observation: "",
+      note: "",
     },
-  });
-
-  const [confirmAction, setConfirmAction] = useState({
-    isOpen: false,
-    message: "",
-    onConfirm: null,
-    data: null,
   });
 
   const tableHeaders = [
@@ -63,6 +54,7 @@ const ManageTicketsEmployeePage = () => {
     { key: "date", label: "Date" },
     { key: "addedBy", label: "Added By" },
     { key: "note", label: "Note" },
+    { key: "entityName", label: "Entity" },
   ];
 
   const fetchData = async () => {
@@ -72,7 +64,7 @@ const ManageTicketsEmployeePage = () => {
         fetchEntities({
           endpoint: "tkt/tickets",
           params: {
-            userRole: "op_employee",
+            userRole: "gov_employee",
             userId: user.id ?? null,
           },
         })
@@ -131,6 +123,7 @@ const ManageTicketsEmployeePage = () => {
       date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
       addedBy: item.addedBy?.name || "Unknown",
       note: item.note || "-",
+      entityName: item.entityName || "-",
     }));
   };
 
@@ -164,100 +157,62 @@ const ManageTicketsEmployeePage = () => {
     }));
   };
 
-  const handleUpdateProgress = (tableRow) => {
+  const handleAddNote = (tableRow) => {
     const ticket = entities.find((entity) => entity._id === tableRow.id);
     if (!ticket) {
       showToast("Ticket data not found", "error");
       return;
     }
-    if (ticket.status === "Completed") {
-      showToast("Cannot Add progress for Completed Ticket", "error");
-      return;
-    }
     setModals((prev) => ({
       ...prev,
-      updateProgress: {
+      addNote: {
         isOpen: true,
         ticket,
-        percentage: ticket.progress?.slice(-1)[0]?.percentage || 0,
-        observation: "",
+        note: "",
       },
     }));
   };
 
-  const handleProgressSubmit = async (e) => {
+  const handleNoteSubmit = async (e) => {
     e.preventDefault();
-    showConfirmation(
-      "Are you sure you want to add this progress update?",
-      async () => {
-        try {
-          setUiState((prev) => ({ ...prev, isLoading: true }));
 
-          const response = await dispatch(
-            updateEntity({
-              endpoint: "tkt/progress",
-              id: modals.updateProgress.ticket._id,
-              data: {
-                percentage: Number(modals.updateProgress.percentage),
-                observation: modals.updateProgress.observation,
-              },
-            })
-          ).unwrap();
+    if (!modals.addNote.note.trim()) {
+      showToast("Please enter a note", "error");
+      return;
+    }
 
-          if (response.success) {
-            showToast("Progress updated successfully", "success");
-            fetchData();
-            setModals((prev) => ({
-              ...prev,
-              updateProgress: {
-                ...prev.updateProgress,
-                isOpen: false,
-                percentage: 0,
-                observation: "",
-              },
-            }));
-          }
-        } catch (error) {
-          showToast(error.message || "Failed to update progress", "error");
-        } finally {
-          setUiState((prev) => ({ ...prev, isLoading: false }));
-        }
+    try {
+      setUiState((prev) => ({ ...prev, isLoading: true }));
+
+      const response = await dispatch(
+        updateEntity({
+          endpoint: "tkt/add-note",
+          id: modals.addNote.ticket._id,
+          data: {
+            note: modals.addNote.note,
+            addedBy: user.id,
+            entityName: user.sector?.name || "Unknown",
+          },
+        })
+      ).unwrap();
+
+      if (response.success) {
+        showToast("Note added successfully", "success");
+        fetchData();
+        setModals((prev) => ({
+          ...prev,
+          addNote: {
+            ...prev.addNote,
+            isOpen: false,
+            note: "",
+          },
+        }));
       }
-    );
-  };
-
-  const handleMarkComplete = async () => {
-    showConfirmation(
-      "Are you sure you want to mark this ticket as complete?",
-      async () => {
-        try {
-          setUiState((prev) => ({ ...prev, isLoading: true }));
-          await dispatch(
-            updateEntity({
-              endpoint: "tkt/status",
-              id: modals.updateProgress.ticket._id,
-              data: { status: "Completed" },
-            })
-          ).unwrap();
-
-          showToast("Ticket marked as complete", "success");
-          fetchData();
-          setModals((prev) => ({
-            ...prev,
-            updateProgress: {
-              ...prev.updateProgress,
-              isOpen: false,
-              percentage: 0,
-              observation: "",
-            },
-          }));
-        } catch (error) {
-          showToast(error.message || "Failed to mark as complete", "error");
-        } finally {
-          setUiState((prev) => ({ ...prev, isLoading: false }));
-        }
-      }
-    );
+    } catch (error) {
+      showToast(error.message || "Failed to add note", "error");
+    } finally {
+      setUiState((prev) => ({ ...prev, isLoading: false }));
+    }
   };
 
   const showToast = (message, type) => {
@@ -267,15 +222,6 @@ const ManageTicketsEmployeePage = () => {
       toastType: type,
       showToast: true,
     }));
-  };
-
-  const showConfirmation = (message, onConfirm, data = null) => {
-    setConfirmAction({
-      isOpen: true,
-      message,
-      onConfirm,
-      data,
-    });
   };
 
   return (
@@ -301,7 +247,7 @@ const ManageTicketsEmployeePage = () => {
               )}
               emptyMessage="No progress history available"
               className="shadow-sm"
-              headerBgColor="bg-blue-100"
+              headerBgColor="bg-gray-100"
               rowsPerPage={5}
             />
             <div className="flex justify-end">
@@ -339,7 +285,7 @@ const ManageTicketsEmployeePage = () => {
               tableData={formatNotesData(modals.viewNotes.ticket.notes)}
               emptyMessage="No notes available"
               className="shadow-sm"
-              headerBgColor="bg-blue-100"
+              headerBgColor="bg-gray-100"
               rowsPerPage={5}
             />
             <div className="flex justify-end">
@@ -358,102 +304,59 @@ const ManageTicketsEmployeePage = () => {
         )}
       </Modal>
 
-      {/* Update Progress Modal */}
+      {/* Add Note Modal */}
       <Modal
-        isOpen={modals.updateProgress.isOpen}
+        isOpen={modals.addNote.isOpen}
         onClose={() =>
           setModals((prev) => ({
             ...prev,
-            updateProgress: { ...prev.updateProgress, isOpen: false },
+            addNote: { ...prev.addNote, isOpen: false },
           }))
         }
-        title="Update Progress"
+        title="Add Note"
       >
-        {modals.updateProgress.ticket && (
-          <div>
-            <form onSubmit={handleProgressSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 gap-4">
-                <InputField
-                  label="Progress Percentage"
-                  name="percentage"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={modals.updateProgress.percentage}
-                  onChange={(e) =>
-                    setModals((prev) => ({
-                      ...prev,
-                      updateProgress: {
-                        ...prev.updateProgress,
-                        percentage: e.target.value,
-                      },
-                    }))
-                  }
-                  required
-                />
-                <InputField
-                  label="Observation Notes"
-                  name="observation"
-                  type="textarea"
-                  rows={3}
-                  value={modals.updateProgress.observation}
-                  onChange={(e) =>
-                    setModals((prev) => ({
-                      ...prev,
-                      updateProgress: {
-                        ...prev.updateProgress,
-                        observation: e.target.value,
-                      },
-                    }))
-                  }
-                  required
-                />
-              </div>
-
-              <div className="flex justify-between pt-4">
-                <Button
-                  type="button"
-                  onClick={() =>
-                    setModals((prev) => ({
-                      ...prev,
-                      updateProgress: { ...prev.updateProgress, isOpen: false },
-                    }))
-                  }
-                  text="Cancel"
-                  className="bg-gray-500 hover:bg-gray-600 px-6 py-2"
-                />
-                <div className="space-x-2">
-                  <Button
-                    type="submit"
-                    text={uiState.isLoading ? "Updating..." : "Update Progress"}
-                    className="bg-blue-600 hover:bg-blue-700 px-6 py-2"
-                    disabled={uiState.isLoading}
-                  />
-                </div>
-              </div>
-            </form>
-            <Button
-              type="button"
-              onClick={handleMarkComplete}
-              text={uiState.isLoading ? "Processing..." : "Mark Complete"}
-              className="bg-green-600 hover:bg-green-700 mt-2 px-6 py-2 w-full"
-              disabled={uiState.isLoading}
+        {modals.addNote.ticket && (
+          <form onSubmit={handleNoteSubmit} className="space-y-4">
+            <InputField
+              label="Note"
+              type="textarea"
+              rows={5}
+              value={modals.addNote.note}
+              onChange={(e) =>
+                setModals((prev) => ({
+                  ...prev,
+                  addNote: {
+                    ...prev.addNote,
+                    note: e.target.value,
+                  },
+                }))
+              }
+              placeholder="Enter your note here..."
+              required
             />
-          </div>
+
+            <div className="flex justify-between pt-4">
+              <Button
+                type="button"
+                onClick={() =>
+                  setModals((prev) => ({
+                    ...prev,
+                    addNote: { ...prev.addNote, isOpen: false },
+                  }))
+                }
+                text="Cancel"
+                className="bg-gray-500 hover:bg-gray-600 px-6 py-2"
+              />
+              <Button
+                type="submit"
+                text={uiState.isLoading ? "Saving..." : "Save Note"}
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-2"
+                disabled={uiState.isLoading}
+              />
+            </div>
+          </form>
         )}
       </Modal>
-
-      {/* Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={confirmAction.isOpen}
-        onClose={() => setConfirmAction({ ...confirmAction, isOpen: false })}
-        onConfirm={() => {
-          confirmAction.onConfirm();
-          setConfirmAction({ ...confirmAction, isOpen: false });
-        }}
-        title="Confirm Action"
-        message={confirmAction.message}
-      />
 
       {/* Toast Notification */}
       {uiState.showToast && (
@@ -474,7 +377,7 @@ const ManageTicketsEmployeePage = () => {
           heading="Your Assigned Tickets"
           tableHeader={tableHeaders}
           tableData={formatTableData()}
-          headerBgColor="bg-gray-200"
+          headerBgColor="bg-green-200"
           rowHoverEffect={true}
           buttons={[
             {
@@ -485,15 +388,15 @@ const ManageTicketsEmployeePage = () => {
             },
             {
               text: "View Notes",
-              icon: <FaStickyNote className="text-purple-500" />,
-              className: "bg-purple-100 hover:bg-purple-200",
+              icon: <FaStickyNote className="text-green-500" />,
+              className: "bg-green-100 hover:bg-green-200",
               onClick: handleViewNotes,
             },
             {
-              text: "Update",
-              icon: <FaEdit className="text-green-500" />,
-              className: "bg-green-100 hover:bg-green-200",
-              onClick: handleUpdateProgress,
+              text: "Add Note",
+              icon: <FaStickyNote className="text-purple-500" />,
+              className: "bg-purple-100 hover:bg-purple-200",
+              onClick: handleAddNote,
             },
           ]}
         />
@@ -502,4 +405,4 @@ const ManageTicketsEmployeePage = () => {
   );
 };
 
-export default ManageTicketsEmployeePage;
+export default ManageGovTicketsEmployeePage;

@@ -23,7 +23,7 @@ const AdminUpdatePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateAdmin(formData));
+    // dispatch(updateAdmin(formData));
   };
 
   const handleSkip = () => {
@@ -41,18 +41,29 @@ const AdminUpdatePage = () => {
         case "kap_employee":
           navigate("/kap-employee-home");
           break;
+        case "op_employee":
+          navigate("/op-employee-home");
+          break;
+
+        case "gov_employee":
+          navigate("/gov-employee-home");
+          break;
 
         default:
           navigate("/login");
       }
     }
   };
-  console.log(data);
+
   return (
     <div className="flex items-center align-middle h-full justify-center mt-5 ">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-4">
-          <img src={Logo} alt="Company Logo" className="h-20 w-20" />
+          <img
+            src={Logo}
+            alt="Company Logo"
+            className="h-20 w-20 rounded-full"
+          />
         </div>
 
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-4">

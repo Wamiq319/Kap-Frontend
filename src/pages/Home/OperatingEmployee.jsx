@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "../../components";
 import { useSelector } from "react-redux";
 
-const GovSectorManagerHomePage = () => {
+const OperatingEmployeeHomePage = () => {
   const navigate = useNavigate();
   const { data } = useSelector((state) => state.auth);
 
@@ -17,38 +17,36 @@ const GovSectorManagerHomePage = () => {
         <div className="flex flex-col items-center gap-4 mb-8">
           <div className="flex justify-center  bg-white rounded-full shadow-lg">
             <img
-              src={data?.sector?.logo}
-              alt="Company Logo"
+              src={data?.entity?.logo}
+              alt="entity Logo"
               className="h-32 w-32 rounded-full"
             />
           </div>
 
           <div className="text-center">
             <h4 className="text-2xl font-bold text-gray-800">
-              {data?.sector?.name || "Company"}
+              {data?.entity?.name || "entity"}
             </h4>
             {data?.role && (
               <p className="text-sm text-gray-500 mt-1">
-                Government Manager Dashboard
+                Operating Employee Dashboard
               </p>
             )}
           </div>
         </div>
-
-        <Button
-          text="Manage Employees"
-          onClick={() => handleNavigation("/add-gov-employee")}
-          className="w-full bg-orange-600 hover:bg-orange-700 text-lg font-semibold py-3 shadow"
-        />
-
         <Button
           text="Manage Tickets"
-          onClick={() => handleNavigation("/manage-gov-tickets")}
-          className="w-full bg-green-600 hover:bg-green-700 text-lg py-3 shadow"
+          onClick={() => handleNavigation("/manage-op-employee-tickets")}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
+        />
+        <Button
+          text="Manage Notification"
+          onClick={() => handleNavigation("/manage-employee-tickets")}
+          className="w-full bg-orange-600 hover:bg-orange-700 text-lg font-semibold py-3 shadow"
         />
       </div>
     </div>
   );
 };
 
-export default GovSectorManagerHomePage;
+export default OperatingEmployeeHomePage;

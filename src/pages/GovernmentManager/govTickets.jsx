@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaUserPlus, FaCheck } from "react-icons/fa";
+import { FaUserPlus } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
 import { getUsers } from "../../redux/authSlice";
 import {
@@ -13,7 +13,7 @@ import {
   ConfirmationModal,
 } from "../../components";
 
-const ManageOpTicketsPage = () => {
+const ManageTicketsGovPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
@@ -32,7 +32,6 @@ const ManageOpTicketsPage = () => {
       ticketId: null,
       employeeId: "",
       currentAssignee: null,
-      ticketStatus: null, // Added ticket status to modal state
     },
   });
 
@@ -49,7 +48,7 @@ const ManageOpTicketsPage = () => {
     { key: "requestType", label: "Request Type" },
     { key: "ticketNumber", label: "Ticket Number" },
     { key: "location", label: "Location" },
-    { key: "requestor", label: "Requestor" },
+    { key: "operator", label: "Operator" },
     { key: "expectedCompletionDate", label: "Expected Completion" },
     { key: "status", label: "Ticket Status" },
   ];
@@ -61,8 +60,8 @@ const ManageOpTicketsPage = () => {
         fetchEntities({
           endpoint: "tkt/tickets",
           params: {
-            userRole: "op_manager",
-            userId: user.company?.id ?? null,
+            userRole: "gov_manager",
+            userId: user.sector?.id ?? null,
           },
         })
       );
@@ -78,8 +77,8 @@ const ManageOpTicketsPage = () => {
           resource: "employee",
           endpoint: "get-employees",
           queryParams: {
-            role: "op_employee",
-            entityId: user.company?.id,
+            role: "gov_employee",
+            entityId: user.sector?.id,
           },
         })
       );
@@ -100,7 +99,7 @@ const ManageOpTicketsPage = () => {
       requestType: item.requestType,
       ticketNumber: item.ticketNumber,
       location: item.location,
-      requestor: item.requestor,
+      operator: item.operator,
       expectedCompletionDate: item.expectedCompletionDate
         ? new Date(item.expectedCompletionDate).toLocaleDateString()
         : "",
@@ -120,11 +119,10 @@ const ManageOpTicketsPage = () => {
   const handleAssign = (ticket) => {
     const fullTicket = entities.find((e) => e._id === ticket.id);
 
-    if (fullTicket.status === "Completed") {
-      showToast("Cannot assign completed ticket", "error");
+    if (fullTicket.status == "Completed") {
+      showToast("Cannot Asign Completed Ticket", "error");
       return;
     }
-
     setModals((prev) => ({
       ...prev,
       assign: {
@@ -132,47 +130,8 @@ const ManageOpTicketsPage = () => {
         ticketId: ticket.id,
         employeeId: fullTicket?.assignedTo?._id || "",
         currentAssignee: fullTicket?.assignedTo || null,
-        ticketStatus: fullTicket.status, // Store ticket status in modal state
       },
     }));
-  };
-
-  const handleAcceptTicket = async () => {
-    showConfirmation(
-      "Are you sure you want to accept this ticket?",
-      async () => {
-        try {
-          setUiState((prev) => ({ ...prev, isLoading: true }));
-
-          const response = await dispatch(
-            updateEntity({
-              endpoint: "tkt/status",
-              id: modals.assign.ticketId,
-              data: { status: "In Progress" },
-            })
-          ).unwrap();
-
-          if (response.success) {
-            showToast("Ticket accepted successfully", "success");
-            fetchData();
-            setModals((prev) => ({
-              ...prev,
-              assign: {
-                isOpen: false,
-                ticketId: null,
-                employeeId: "",
-                currentAssignee: null,
-                ticketStatus: null,
-              },
-            }));
-          }
-        } catch (error) {
-          showToast(error.message || "Failed to accept ticket", "error");
-        } finally {
-          setUiState((prev) => ({ ...prev, isLoading: false }));
-        }
-      }
-    );
   };
 
   const handleAssignSubmit = async (e) => {
@@ -187,6 +146,13 @@ const ManageOpTicketsPage = () => {
       "Are you sure you want to assign this ticket?",
       async () => {
         try {
+          setModals((prev) => ({
+            ...prev,
+            assign: {
+              ...prev.assign,
+              isOpen: false,
+            },
+          }));
           setUiState((prev) => ({ ...prev, isLoading: true }));
           const response = await dispatch(
             updateEntity({
@@ -194,7 +160,7 @@ const ManageOpTicketsPage = () => {
               id: modals.assign.ticketId,
               data: {
                 assignedToId: modals.assign.employeeId,
-                assigneeType: "opEmployee",
+                assigneeType: "govEmployee",
               },
             })
           ).unwrap();
@@ -209,7 +175,6 @@ const ManageOpTicketsPage = () => {
                 ticketId: null,
                 employeeId: "",
                 currentAssignee: null,
-                ticketStatus: null,
               },
             }));
           }
@@ -250,103 +215,57 @@ const ManageOpTicketsPage = () => {
               ticketId: null,
               employeeId: "",
               currentAssignee: null,
-              ticketStatus: null,
             },
           }))
         }
-        title={
-          modals.assign.ticketStatus === "Open"
-            ? "Accept Ticket"
-            : "Transfer Ticket"
-        }
+        title="Assign Ticket"
       >
-        {modals.assign.ticketStatus === "Open" ? (
-          <div className="space-y-4">
-            <p className="text-gray-600">
-              First, accept the ticket to mark it as 'In Progress,' then you can
-              assign it.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                text="Cancel"
-                type="button"
-                onClick={() =>
-                  setModals((prev) => ({
-                    ...prev,
-                    assign: {
-                      isOpen: false,
-                      ticketId: null,
-                      employeeId: "",
-                      currentAssignee: null,
-                      ticketStatus: null,
-                    },
-                  }))
-                }
-                className="bg-gray-500 hover:bg-gray-700"
-              />
-              <Button
-                text={uiState.isLoading ? "Processing..." : "Accept Ticket"}
-                type="button"
-                onClick={handleAcceptTicket}
-                className="bg-green-600 hover:bg-green-700"
-                disabled={uiState.isLoading}
-                icon={<FaCheck className="mr-2" />}
-              />
+        <form onSubmit={handleAssignSubmit} className="space-y-4 ">
+          {modals.assign.currentAssignee && (
+            <div className="mb-4 p-3 bg-gray-100 rounded">
+              <h3 className="font-semibold">
+                Currently Assigned: {modals.assign.currentAssignee}
+              </h3>
             </div>
-          </div>
-        ) : (
-          <form onSubmit={handleAssignSubmit} className="space-y-4">
-            {modals.assign.currentAssignee && (
-              <div className="mb-4 p-3 bg-gray-100 rounded">
-                <h3 className="font-semibold">
-                  Currently Assigned: {modals.assign.currentAssignee}
-                </h3>
-              </div>
-            )}
+          )}
 
-            <Dropdown
-              label={
-                modals.assign.currentAssignee ? "Reassign to" : "Assign to"
-              }
-              options={employeeOptions}
-              selectedValue={modals.assign.employeeId}
-              onChange={(value) =>
+          <Dropdown
+            label={modals.assign.currentAssignee ? "Reassign to" : "Assign to"}
+            options={employeeOptions}
+            selectedValue={modals.assign.employeeId}
+            onChange={(value) =>
+              setModals((prev) => ({
+                ...prev,
+                assign: { ...prev.assign, employeeId: value },
+              }))
+            }
+          />
+
+          <div className="flex justify-end gap-2">
+            <Button
+              text="Cancel"
+              type="button"
+              onClick={() =>
                 setModals((prev) => ({
                   ...prev,
-                  assign: { ...prev.assign, employeeId: value },
+                  assign: {
+                    isOpen: false,
+                    ticketId: null,
+                    employeeId: "",
+                    currentAssignee: null,
+                  },
                 }))
               }
+              className="bg-gray-500 hover:bg-gray-700"
             />
-
-            <div className="flex justify-end gap-2">
-              <Button
-                text="Cancel"
-                type="button"
-                onClick={() =>
-                  setModals((prev) => ({
-                    ...prev,
-                    assign: {
-                      isOpen: false,
-                      ticketId: null,
-                      employeeId: "",
-                      currentAssignee: null,
-                      ticketStatus: null,
-                    },
-                  }))
-                }
-                className="bg-gray-500 hover:bg-gray-700"
-              />
-              <Button
-                text={
-                  uiState.isLoading ? "Processing..." : "Confirm Assignment"
-                }
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700"
-                disabled={uiState.isLoading}
-              />
-            </div>
-          </form>
-        )}
+            <Button
+              text={uiState.isLoading ? "Processing..." : "Confirm Assignment"}
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={uiState.isLoading}
+            />
+          </div>
+        </form>
       </Modal>
 
       {/* Confirmation Modal */}
@@ -377,10 +296,10 @@ const ManageOpTicketsPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Tickets Assigned to your Company"
+          heading="Tickets Assigned to your Sector"
           tableHeader={tableHeaders}
           tableData={formatTableData()}
-          headerBgColor="bg-gray-200"
+          headerBgColor="bg-green-200"
           rowHoverEffect={true}
           buttons={[
             {
@@ -395,4 +314,4 @@ const ManageOpTicketsPage = () => {
   );
 };
 
-export default ManageOpTicketsPage;
+export default ManageTicketsGovPage;

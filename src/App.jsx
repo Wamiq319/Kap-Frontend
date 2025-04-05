@@ -11,12 +11,11 @@ import {
   AdminUpdatePage,
   AdminHomePage,
   KAPEmployeeHomePage,
-  GovernmentEmployeeHomePage,
   CompanyEmployeeHomePage,
   IntegrationEmployeeHomePage,
   GovSectorManagerHomePage,
   OperatingManagerHomePage,
-  // ####################
+  OperatingEmployeeHomePage,
   AddKapCompanyPage,
   AddGovSectorPage,
   AddOperatingCompanyPage,
@@ -25,11 +24,19 @@ import {
   AddGovManagerPage,
   AddCompanyManagerPage,
   AddCompanyEmployeePage,
+  AddGovEmployeePage,
   ManageOpTicketsPage,
   ManageKapTicketPage,
+  ManageTicketsEmployeePage,
+  ManageTicketsGovPage,
+  GovEmployeeHomePage,
+  ManageGovTicketsEmployeePage,
 } from "./pages";
 import Header from "./components/Header";
 
+// ======================
+// Route Protection Component
+// ======================
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -40,6 +47,23 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
   return children;
 };
 
+// ======================
+// Role Constants
+// ======================
+const ROLES = {
+  ADMIN: "admin",
+  OP_MANAGER: "op_manager",
+  GOV_MANAGER: "gov_manager",
+  KAP_EMPLOYEE: "kap_employee",
+  OP_EMPLOYEE: "op_employee",
+  GOV_EMPLOYEE: "gov_employee",
+  COMPANY_EMPLOYEE: "company_employee",
+  INTEGRATION_EMPLOYEE: "integration_employee",
+};
+
+// ======================
+// Main App Component
+// ======================
 const App = () => {
   const user =
     useSelector((state) => state.auth.data) ||
@@ -52,13 +76,13 @@ const App = () => {
           <Header />
           <div className="flex-grow p-1">
             <Routes>
+              {/* Authentication Routes */}
               <Route
                 path="/login"
                 element={
                   user ? <Navigate to="/admin-update" replace /> : <LoginPage />
                 }
               />
-
               <Route
                 path="/"
                 element={
@@ -70,28 +94,21 @@ const App = () => {
                 }
               />
 
+              {/* Common Route */}
               <Route
                 path="/admin-update"
                 element={
-                  <ProtectedRoute
-                    allowedRoles={[
-                      "admin",
-                      "op_manager",
-                      "gov_manager",
-                      "kap_employee",
-                      "op_employee",
-                      "gov_employee",
-                    ]}
-                  >
+                  <ProtectedRoute allowedRoles={Object.values(ROLES)}>
                     <AdminUpdatePage />
                   </ProtectedRoute>
                 }
               />
 
+              {/* Admin Routes */}
               <Route
                 path="/admin-home"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AdminHomePage />
                   </ProtectedRoute>
                 }
@@ -99,7 +116,7 @@ const App = () => {
               <Route
                 path="/add-kapCompany"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddKapCompanyPage />
                   </ProtectedRoute>
                 }
@@ -107,7 +124,7 @@ const App = () => {
               <Route
                 path="/add-govSector"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddGovSectorPage />
                   </ProtectedRoute>
                 }
@@ -115,7 +132,7 @@ const App = () => {
               <Route
                 path="/add-operatingCompany"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddOperatingCompanyPage />
                   </ProtectedRoute>
                 }
@@ -123,7 +140,7 @@ const App = () => {
               <Route
                 path="/manage-employees"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <ManageEmployeePage />
                   </ProtectedRoute>
                 }
@@ -131,7 +148,7 @@ const App = () => {
               <Route
                 path="/add-kapEmployee"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddKapEmloyeePage />
                   </ProtectedRoute>
                 }
@@ -139,7 +156,7 @@ const App = () => {
               <Route
                 path="/add-govManager"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddGovManagerPage />
                   </ProtectedRoute>
                 }
@@ -147,57 +164,99 @@ const App = () => {
               <Route
                 path="/add-companyManager"
                 element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddCompanyManagerPage />
                   </ProtectedRoute>
                 }
               />
+
+              {/* KAP Employee Routes */}
               <Route
                 path="/kap-employee-home"
                 element={
-                  <ProtectedRoute allowedRoles={["kap_employee"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.KAP_EMPLOYEE]}>
                     <KAPEmployeeHomePage />
                   </ProtectedRoute>
                 }
               />
               <Route
-                path="/government-employee-home"
+                path="/manage-kap-tickets"
                 element={
-                  <ProtectedRoute allowedRoles={["government_employee"]}>
-                    <GovernmentEmployeeHomePage />
+                  <ProtectedRoute allowedRoles={[ROLES.KAP_EMPLOYEE]}>
+                    <ManageKapTicketPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Government Employee Routes */}
+              <Route
+                path="/gov-employee-home"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.GOV_EMPLOYEE]}>
+                    <GovEmployeeHomePage />
                   </ProtectedRoute>
                 }
               />
               <Route
+                path="/manage-gov-employee-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.GOV_EMPLOYEE]}>
+                    <ManageGovTicketsEmployeePage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Company Employee Routes */}
+              <Route
                 path="/company-employee-home"
                 element={
-                  <ProtectedRoute allowedRoles={["company_employee"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.COMPANY_EMPLOYEE]}>
                     <CompanyEmployeeHomePage />
                   </ProtectedRoute>
                 }
               />
+
+              {/* Integration Employee Routes */}
               <Route
                 path="/integration-employee-home"
                 element={
-                  <ProtectedRoute allowedRoles={["integration_employee"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.INTEGRATION_EMPLOYEE]}>
                     <IntegrationEmployeeHomePage />
                   </ProtectedRoute>
                 }
               />
 
+              {/* Government Manager Routes */}
               <Route
                 path="/govsector-manager-home"
                 element={
-                  <ProtectedRoute allowedRoles={["gov_manager"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.GOV_MANAGER]}>
                     <GovSectorManagerHomePage />
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/add-gov-employee"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.GOV_MANAGER]}>
+                    <AddGovEmployeePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-gov-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.GOV_MANAGER]}>
+                    <ManageTicketsGovPage />
+                  </ProtectedRoute>
+                }
+              />
 
+              {/* Operating Manager Routes */}
               <Route
                 path="/op-manager-home"
                 element={
-                  <ProtectedRoute allowedRoles={["op_manager"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.OP_MANAGER]}>
                     <OperatingManagerHomePage />
                   </ProtectedRoute>
                 }
@@ -205,7 +264,7 @@ const App = () => {
               <Route
                 path="/add-op-employee"
                 element={
-                  <ProtectedRoute allowedRoles={["op_manager"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.OP_MANAGER]}>
                     <AddCompanyEmployeePage />
                   </ProtectedRoute>
                 }
@@ -213,20 +272,31 @@ const App = () => {
               <Route
                 path="/manage-op-tickets"
                 element={
-                  <ProtectedRoute allowedRoles={["op_manager"]}>
+                  <ProtectedRoute allowedRoles={[ROLES.OP_MANAGER]}>
                     <ManageOpTicketsPage />
                   </ProtectedRoute>
                 }
               />
+
+              {/* Operating Employee Routes */}
               <Route
-                path="/manage-kap-tickets"
+                path="/op-employee-home"
                 element={
-                  <ProtectedRoute allowedRoles={["kap_employee"]}>
-                    <ManageKapTicketPage />
+                  <ProtectedRoute allowedRoles={[ROLES.OP_EMPLOYEE]}>
+                    <OperatingEmployeeHomePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-op-employee-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.OP_EMPLOYEE]}>
+                    <ManageTicketsEmployeePage />
                   </ProtectedRoute>
                 }
               />
 
+              {/* Catch-all Route */}
               <Route
                 path="*"
                 element={

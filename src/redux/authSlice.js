@@ -161,6 +161,7 @@ export const getUsers = createAsyncThunk(
       });
 
       const { data, message, success } = await handleApiError(response);
+      console.log(data);
       return { success, message, data };
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch users");

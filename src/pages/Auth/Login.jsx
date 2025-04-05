@@ -36,11 +36,7 @@ const LoginPage = () => {
 
       // Check if login failed
       if (response.payload && !response.payload.success) {
-        console.log("Login failed response:", response.payload);
-        setError(response.payload.message);
-
-        // Debugging: Check if state updates
-        setTimeout(() => console.log("Updated Error:", error), 0);
+        setError(response.payload.message || response.payload);
       } else {
         navigate("/admin-update");
       }
@@ -54,7 +50,11 @@ const LoginPage = () => {
     <div className="flex items-center justify-center bg-gray-100 px-4 mt-5">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <img src={logo} alt="Company Logo" className="h-40 w-40" />
+          <img
+            src={logo}
+            alt="Company Logo"
+            className="h-40 w-40 rounded-full"
+          />
         </div>
 
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
