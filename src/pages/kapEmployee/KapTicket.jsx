@@ -24,7 +24,7 @@ const ManageKapTicketPage = () => {
 
   const [requestors, setRequestors] = useState([]);
   const [operators, setOperators] = useState([]);
-  const locations = ["location1", "location2", "location3"];
+  const locations = ["NCT", "AMSTEL", "PDC"];
 
   const [formData, setFormData] = useState({
     requestType: "",

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import {
   createUser,
   getUsers,
@@ -26,7 +26,7 @@ const AddKapEmployeePage = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    mobile: "",
+    mobile: "+966",
     username: "",
     jobTitle: "",
     password: "",
@@ -233,7 +233,7 @@ const AddKapEmployeePage = () => {
   const resetForm = () => {
     setFormData({
       name: "",
-      mobile: "",
+      mobile: "+966",
       username: "",
       jobTitle: "",
       password: "",
@@ -251,13 +251,6 @@ const AddKapEmployeePage = () => {
 
   return (
     <div className="p-4">
-      <button onClick={() => navigate("/manage-employees")} className="ml-4">
-        <FaHome
-          size={24}
-          className="text-gray-500 hover:text-gray-700 transition"
-        />
-      </button>
-
       <ConfirmationModal
         isOpen={confirmDelete.ids.length > 0}
         onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
@@ -370,7 +363,7 @@ const AddKapEmployeePage = () => {
                   label="Mobile Number"
                   name="mobile"
                   type="tel"
-                  placeholder="Enter mobile number"
+                  placeholder="+9665XXXXXXXX"
                   value={formData.mobile}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, mobile: e.target.value }))

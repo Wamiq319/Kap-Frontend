@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaUserPlus } from "react-icons/fa";
+import { FaExchangeAlt } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
 import { getUsers } from "../../redux/authSlice";
 import {
@@ -304,7 +304,8 @@ const ManageTicketsGovPage = () => {
           buttons={[
             {
               text: "Transfer Ticket",
-              icon: <FaUserPlus />,
+              icon: <FaExchangeAlt className="text-orange-500" />,
+              className: "bg-orange-100 hover:bg-orange-200",
               onClick: handleAssign,
             },
           ]}

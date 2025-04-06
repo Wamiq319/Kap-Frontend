@@ -40,6 +40,11 @@ const KAPEmployeeHomePage = () => {
           onClick={() => handleNavigation("/manage-kap-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
+        <Button
+          text="Track Tickets"
+          onClick={() => handleNavigation("/track-kap-tickets")}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
+        />
       </div>
     </div>
   );

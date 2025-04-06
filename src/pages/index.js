@@ -19,7 +19,7 @@ import GovEmployeeHomePage from "./Home/GovEmployee.jsx";
 // ======================
 // Admin Management Pages
 // ======================
-import AddKapCompanyPage from "./Admin/AddkapCompany";
+
 import AddGovSectorPage from "./Admin/AddGovernment";
 import AddOperatingCompanyPage from "./Admin/AddOperatingCompanies";
 import ManageEmployeePage from "./Admin/ManageEmployee";
@@ -37,7 +37,7 @@ import ManageKapTicketPage from "./kapEmployee/KapTicket.jsx";
 import ManageTicketsEmployeePage from "./OpEmployee/ManageTicket.jsx";
 import ManageTicketsGovPage from "./GovernmentManager/govTickets.jsx";
 import ManageGovTicketsEmployeePage from "./GovEmployee/ManageTicket.jsx";
-
+import TrackKapTicketPage from "./kapEmployee/TicketTracking.jsx";
 // ======================
 // Export All Components
 // ======================
@@ -57,7 +57,6 @@ export {
   GovEmployeeHomePage,
 
   // Admin Management
-  AddKapCompanyPage,
   AddGovSectorPage,
   AddOperatingCompanyPage,
   ManageEmployeePage,
@@ -70,6 +69,7 @@ export {
   AddGovEmployeePage,
   ManageOpTicketsPage,
   ManageKapTicketPage,
+  TrackKapTicketPage,
   ManageTicketsEmployeePage,
   ManageTicketsGovPage,
   ManageGovTicketsEmployeePage,

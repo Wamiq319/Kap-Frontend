@@ -438,24 +438,25 @@ const AddCompanyEmployeePage = () => {
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-blue-200"
+          rowHoverEffect={true}
           bulkActions={[
             {
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              icon: <FaTrash className="text-red-500" />,
+              className: "bg-red-100 hover:bg-red-200",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
               text: "Remove",
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              icon: <FaTrash className="text-red-500" />,
+              className: "bg-red-100 hover:bg-red-200",
               onClick: handleDelete,
             },
             {
               text: "Reset Password",
-              icon: <MdOutlineLockReset />,
-              className: "bg-blue-500",
+              icon: <MdOutlineLockReset className="text-blue-500" />,
+              className: "bg-blue-100 hover:text-blue-300",
               onClick: handleEditPassword,
             },
           ]}

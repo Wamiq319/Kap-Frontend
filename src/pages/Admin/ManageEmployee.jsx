@@ -18,26 +18,35 @@ const ManageEmployeePage = () => {
 
         <div className="flex  flex-col">
           <div className="flex justify-center">
-            <img src={logo} alt="Company Logo" className="h-60 w-60" />
+            <img
+              src={logo}
+              alt="Company Logo"
+              className="h-60 w-60 rounded-full"
+            />
           </div>
         </div>
-
-        <Button
-          text="Manage KAP Employees"
-          onClick={() => handleNavigation("/add-kapEmployee")}
-          className="w-full bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 shadow"
-        />
 
         <Button
           text="Manage Government Managers"
           onClick={() => handleNavigation("/add-govManager")}
           className="w-full bg-green-600 hover:bg-green-700 text-lg py-3 shadow"
         />
+        <Button
+          text="Manage Government Employees"
+          onClick={() => handleNavigation("/add-companyManager")}
+          className="w-full bg-orange-600 hover:bg-orange-700 text-lg py-3 shadow"
+        />
 
         <Button
           text="Manage Company Managers"
-          onClick={() => handleNavigation("/add-companyManager")}
+          onClick={() => handleNavigation("/add-companyEmployee")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
+        />
+
+        <Button
+          text="Manage Company Employees"
+          onClick={() => handleNavigation("/add-companyEmployee")}
+          className="w-full bg-orange-600 hover:bg-orange-700 text-lg py-3 shadow"
         />
       </div>
     </div>

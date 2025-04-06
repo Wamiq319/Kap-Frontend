@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaTrash } from "react-icons/fa";
-import { MdOutlineLockReset } from "react-icons/md";
+import { FaHome, FaEdit, FaTrash } from "react-icons/fa";
 import {
   createUser,
   getUsers,
@@ -21,16 +20,16 @@ import {
   Loader,
 } from "../../components";
 
-const AddCompanyManagerPage = () => {
+const AddGovEmployeePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    companyId: "",
+    sectorId: "",
     name: "",
-    mobile: "=966",
+    mobile: "+966",
     username: "",
     password: "",
   });
@@ -60,18 +59,18 @@ const AddCompanyManagerPage = () => {
 
   const tableHeader = [
     { key: "index", label: "#" },
-    { key: "name", label: "Manager Name" },
+    { key: "name", label: "Employee Name" },
     { key: "mobile", label: "Mobile No" },
     { key: "username", label: "Username" },
-    { key: "company", label: "Company" },
+    { key: "sector", label: "Gov Sector" },
     { key: "password", label: "Password" },
   ];
 
   const fetchUsers = async () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
-      await dispatch(fetchNames({ endpoint: "op/company-names" }));
-      await dispatch(getUsers({ endpoint: "op-managers" }));
+      await dispatch(fetchNames({ endpoint: "gov/sector-names" }));
+      await dispatch(getUsers("gov-Employees"));
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -83,7 +82,7 @@ const AddCompanyManagerPage = () => {
 
   const options = names?.map((name) => ({
     value: name.id,
-    label: name.companyName,
+    label: name.sectorName,
   }));
 
   const tableData = users?.map((item, index) => ({
@@ -93,7 +92,7 @@ const AddCompanyManagerPage = () => {
     mobile: item.mobile,
     username: item.username,
     password: item.password,
-    company: item.company,
+    sector: item.sector,
   }));
 
   const handlePasswordUpdate = async (e) => {
@@ -118,7 +117,6 @@ const AddCompanyManagerPage = () => {
         showToast("Password updated successfully", "success");
         resetPasswordEdit();
         setUiState((prev) => ({ ...prev, isModalOpen: false }));
-        fetchUsers();
       }
     } catch (error) {
       showToast(error.message || "Failed to update password", "error");
@@ -167,7 +165,7 @@ const AddCompanyManagerPage = () => {
       );
 
       const message = confirmDelete.isBulk
-        ? `Deleted ${confirmDelete.ids.length} managers`
+        ? `Deleted ${confirmDelete.ids.length} users`
         : `Deleted ${confirmDelete.name}`;
 
       showToast(message, "success");
@@ -191,7 +189,7 @@ const AddCompanyManagerPage = () => {
       !formData.mobile ||
       !formData.username ||
       !formData.password ||
-      !formData.companyId
+      !formData.sectorId
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -206,7 +204,7 @@ const AddCompanyManagerPage = () => {
         createUser({
           data: {
             ...formData,
-            role: "op_manager",
+            role: "gov_Employee",
           },
         })
       ).unwrap();
@@ -237,7 +235,7 @@ const AddCompanyManagerPage = () => {
 
   const resetForm = () => {
     setFormData({
-      companyId: "",
+      sectorId: "",
       name: "",
       mobile: "+966",
       username: "",
@@ -259,7 +257,7 @@ const AddCompanyManagerPage = () => {
       <button onClick={() => navigate("/manage-employees")} className="ml-4">
         <FaHome
           size={24}
-          className="text-blue-500 hover:text-blue-700 transition"
+          className="text-green-500 hover:text-green-700 transition"
         />
       </button>
 
@@ -270,7 +268,7 @@ const AddCompanyManagerPage = () => {
         title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
         message={
           confirmDelete.isBulk
-            ? `Delete ${confirmDelete.ids.length} selected managers?`
+            ? `Delete ${confirmDelete.ids.length} selected users?`
             : `Delete ${confirmDelete.name}?`
         }
       />
@@ -285,7 +283,7 @@ const AddCompanyManagerPage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Company Manager"
+          text="Add Government Employee"
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -293,7 +291,7 @@ const AddCompanyManagerPage = () => {
               isEditingPassword: false,
             }))
           }
-          className="bg-blue-600 hover:bg-blue-700 text-lg font-semibold py-3 mb-2 shadow"
+          className="bg-green-600 hover:bg-green-700 text-lg font-semibold py-3 mb-2 shadow"
         />
       </div>
 
@@ -306,7 +304,9 @@ const AddCompanyManagerPage = () => {
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
           title={
-            uiState.isEditingPassword ? "Reset Password" : "Add Company Manager"
+            uiState.isEditingPassword
+              ? "Reset Password"
+              : "Add Government Employee"
           }
         >
           <form
@@ -320,8 +320,8 @@ const AddCompanyManagerPage = () => {
                 <InputField
                   label="Current Password"
                   name="oldPassword"
+                  placeholder="Enter Old Password"
                   type="password"
-                  placeholder="Enter current password"
                   value={passwordEditData.oldPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -334,8 +334,8 @@ const AddCompanyManagerPage = () => {
                 <InputField
                   label="New Password"
                   name="newPassword"
-                  type="password"
                   placeholder="Enter new password"
+                  type="password"
                   value={passwordEditData.newPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -348,8 +348,8 @@ const AddCompanyManagerPage = () => {
                 <InputField
                   label="Confirm Password"
                   name="confirmPassword"
+                  placeholder="Confirm new Password"
                   type="password"
-                  placeholder="Confirm new password"
                   value={passwordEditData.confirmPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -363,19 +363,19 @@ const AddCompanyManagerPage = () => {
             ) : (
               <>
                 <InputField
-                  label="Full Name"
+                  label="Name"
                   name="name"
-                  placeholder="Enter manager's full name"
+                  placeholder="Enter Name"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
                 <InputField
-                  label="Mobile Number"
+                  label="Mobile"
                   name="mobile"
-                  type="tel"
                   placeholder="+9665XXXXXXXX"
+                  type="tel"
                   value={formData.mobile}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, mobile: e.target.value }))
@@ -384,7 +384,7 @@ const AddCompanyManagerPage = () => {
                 <InputField
                   label="Username"
                   name="username"
-                  placeholder="Choose a username"
+                  placeholder="Enter UserName"
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -394,19 +394,18 @@ const AddCompanyManagerPage = () => {
                   }
                 />
                 <Dropdown
-                  label="Company"
+                  label="Sector"
                   options={options}
-                  selectedValue={formData.companyId}
-                  placeholder="Select company"
+                  selectedValue={formData.sectorId}
                   onChange={(value) =>
-                    setFormData((prev) => ({ ...prev, companyId: value }))
+                    setFormData((prev) => ({ ...prev, sectorId: value }))
                   }
                 />
                 <InputField
                   label="Password"
                   name="password"
+                  placeholder="Enter Password"
                   type="password"
-                  placeholder="Set a password"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -431,10 +430,9 @@ const AddCompanyManagerPage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text={uiState.isLoading ? "Saving..." : "Save."}
+                text={uiState.isLoading ? "Saving...." : "Save"}
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
-                disabled={uiState.isLoading}
               />
             </div>
           </form>
@@ -447,11 +445,10 @@ const AddCompanyManagerPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Company Managers"
+          heading="Gov Employees"
           tableHeader={tableHeader}
           tableData={tableData}
-          headerBgColor="bg-blue-200"
-          rowsPerPage={5}
+          headerBgColor="bg-green-200"
           bulkActions={[
             {
               icon: <FaTrash />,
@@ -468,7 +465,7 @@ const AddCompanyManagerPage = () => {
             },
             {
               text: "Reset Password",
-              icon: <MdOutlineLockReset />,
+              icon: <FaEdit />,
               className: "bg-blue-500",
               onClick: handleEditPassword,
             },
@@ -479,4 +476,4 @@ const AddCompanyManagerPage = () => {
   );
 };
 
-export default AddCompanyManagerPage;
+export default AddGovEmployeePage;

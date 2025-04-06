@@ -25,9 +25,7 @@ const AddGovSectorPage = () => {
     govSector: "",
     logoImage: null,
     adminName: "",
-    mobile: "",
-    username: "",
-    password: "",
+    mobile: "+966",
   });
 
   const [uiState, setUiState] = useState({
@@ -51,8 +49,6 @@ const AddGovSectorPage = () => {
     { key: "image", label: "Logo" },
     { key: "adminName", label: "Admin Name" },
     { key: "mobile", label: "Mobile No" },
-    { key: "username", label: "Username" },
-    { key: "password", label: "Password" },
   ];
 
   const fetchData = async () => {
@@ -75,8 +71,6 @@ const AddGovSectorPage = () => {
     image: item.logoImage,
     adminName: item.adminName,
     mobile: item.mobile,
-    username: item.username,
-    password: item.password,
   }));
 
   const handleDelete = (entity) => {
@@ -141,8 +135,6 @@ const AddGovSectorPage = () => {
       !formData.govSector ||
       !formData.adminName ||
       !formData.mobile ||
-      !formData.username ||
-      !formData.password ||
       !formData.logoImage
     ) {
       setUiState((prev) => ({
@@ -190,9 +182,7 @@ const AddGovSectorPage = () => {
       govSector: "",
       logoImage: null,
       adminName: "",
-      mobile: "",
-      username: "",
-      password: "",
+      mobile: "+966",
     });
   };
 
@@ -262,24 +252,9 @@ const AddGovSectorPage = () => {
             <InputField
               label="Mobile Number"
               name="mobile"
-              placeholder="Enter mobile number"
+              placeholder="+9665XXXXXXXX"
               type="tel"
               value={formData.mobile}
-              onChange={handleChange}
-            />
-            <InputField
-              label="Username"
-              name="username"
-              placeholder="Choose a username"
-              value={formData.username}
-              onChange={handleChange}
-            />
-            <InputField
-              label="Password"
-              name="password"
-              placeholder="Set a password"
-              type="password"
-              value={formData.password}
               onChange={handleChange}
             />
 

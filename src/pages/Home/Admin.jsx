@@ -18,13 +18,17 @@ const AdminHomePage = () => {
 
         <div className="flex  flex-col">
           <div className="flex justify-center">
-            <img src={logo} alt="Company Logo" className="h-40 w-40" />
+            <img
+              src={logo}
+              alt="Company Logo"
+              className="h-40 w-40 rounded-full"
+            />
           </div>
         </div>
 
         <Button
-          text="Manage KAP companies"
-          onClick={() => handleNavigation("/add-kapCompany")}
+          text="Manage KAP"
+          onClick={() => handleNavigation("/add-kapEmployee")}
           className="w-full bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 shadow"
         />
 

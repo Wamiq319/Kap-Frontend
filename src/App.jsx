@@ -16,7 +16,6 @@ import {
   GovSectorManagerHomePage,
   OperatingManagerHomePage,
   OperatingEmployeeHomePage,
-  AddKapCompanyPage,
   AddGovSectorPage,
   AddOperatingCompanyPage,
   ManageEmployeePage,
@@ -31,6 +30,7 @@ import {
   ManageTicketsGovPage,
   GovEmployeeHomePage,
   ManageGovTicketsEmployeePage,
+  TrackKapTicketPage,
 } from "./pages";
 import Header from "./components/Header";
 
@@ -113,14 +113,7 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/add-kapCompany"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                    <AddKapCompanyPage />
-                  </ProtectedRoute>
-                }
-              />
+
               <Route
                 path="/add-govSector"
                 element={
@@ -184,6 +177,14 @@ const App = () => {
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.KAP_EMPLOYEE]}>
                     <ManageKapTicketPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/track-kap-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.KAP_EMPLOYEE]}>
+                    <TrackKapTicketPage />
                   </ProtectedRoute>
                 }
               />

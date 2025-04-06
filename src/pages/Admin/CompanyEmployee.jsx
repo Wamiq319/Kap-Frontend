@@ -21,7 +21,7 @@ import {
   Loader,
 } from "../../components";
 
-const AddCompanyManagerPage = () => {
+const AddCompanyEmployeePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
@@ -30,7 +30,7 @@ const AddCompanyManagerPage = () => {
   const [formData, setFormData] = useState({
     companyId: "",
     name: "",
-    mobile: "=966",
+    mobile: "+966",
     username: "",
     password: "",
   });
@@ -451,7 +451,6 @@ const AddCompanyManagerPage = () => {
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-blue-200"
-          rowsPerPage={5}
           bulkActions={[
             {
               icon: <FaTrash />,
@@ -479,4 +478,4 @@ const AddCompanyManagerPage = () => {
   );
 };
 
-export default AddCompanyManagerPage;
+export default AddCompanyEmployeePage;

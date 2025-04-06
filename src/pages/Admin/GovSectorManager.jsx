@@ -29,7 +29,7 @@ const AddGovManagerPage = () => {
   const [formData, setFormData] = useState({
     sectorId: "",
     name: "",
-    mobile: "",
+    mobile: "+966",
     username: "",
     password: "",
   });
@@ -237,7 +237,7 @@ const AddGovManagerPage = () => {
     setFormData({
       sectorId: "",
       name: "",
-      mobile: "",
+      mobile: "+966",
       username: "",
       password: "",
     });
@@ -374,7 +374,7 @@ const AddGovManagerPage = () => {
                 <InputField
                   label="Mobile"
                   name="mobile"
-                  placeholder="Enter Mobile Number"
+                  placeholder="+9665XXXXXXXX"
                   type="tel"
                   value={formData.mobile}
                   onChange={(e) =>

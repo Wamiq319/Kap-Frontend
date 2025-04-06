@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaUserPlus, FaCheck } from "react-icons/fa";
+import { FaExchangeAlt, FaCheck, FaEye, FaStickyNote } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
 import { getUsers } from "../../redux/authSlice";
 import {
@@ -11,6 +11,7 @@ import {
   Loader,
   Dropdown,
   ConfirmationModal,
+  InputField,
 } from "../../components";
 
 const ManageOpTicketsPage = () => {
@@ -32,8 +33,10 @@ const ManageOpTicketsPage = () => {
       ticketId: null,
       employeeId: "",
       currentAssignee: null,
-      ticketStatus: null, // Added ticket status to modal state
+      ticketStatus: null,
     },
+    viewProgress: { isOpen: false, ticket: null },
+    viewNotes: { isOpen: false, ticket: null },
   });
 
   const [confirmAction, setConfirmAction] = useState({
@@ -52,6 +55,20 @@ const ManageOpTicketsPage = () => {
     { key: "requestor", label: "Requestor" },
     { key: "expectedCompletionDate", label: "Expected Completion" },
     { key: "status", label: "Ticket Status" },
+  ];
+
+  const progressHeaders = [
+    { key: "index", label: "#" },
+    { key: "percentage", label: "Progress" },
+    { key: "date", label: "Date" },
+    { key: "observation", label: "Observation" },
+  ];
+
+  const notesHeaders = [
+    { key: "index", label: "#" },
+    { key: "date", label: "Date" },
+    { key: "addedBy", label: "Added By" },
+    { key: "note", label: "Note" },
   ];
 
   const fetchData = async () => {
@@ -105,16 +122,72 @@ const ManageOpTicketsPage = () => {
         ? new Date(item.expectedCompletionDate).toLocaleDateString()
         : "",
       status: item.status,
+      opTransferReq: item.opTransferReq,
     }));
   };
 
-  const showConfirmation = (message, onConfirm, data = null) => {
-    setConfirmAction({
-      isOpen: true,
-      message,
-      onConfirm,
-      data,
+  const formatProgressData = (progress) => {
+    if (!progress || !Array.isArray(progress)) return [];
+
+    const sortedProgress = [...progress].sort((a, b) => {
+      const dateA = new Date(a.date || Date.now());
+      const dateB = new Date(b.date || Date.now());
+      return dateB - dateA;
     });
+
+    return sortedProgress.map((item, index) => ({
+      index: index + 1,
+      percentage: `${item.percentage}%`,
+      date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
+      observation: item.observation || "-",
+    }));
+  };
+
+  const formatNotesData = (notes) => {
+    if (!notes || !Array.isArray(notes)) return [];
+
+    const sortedNotes = [...notes].sort((a, b) => {
+      const dateA = new Date(a.date || Date.now());
+      const dateB = new Date(b.date || Date.now());
+      return dateB - dateA;
+    });
+
+    return sortedNotes.map((item, index) => ({
+      index: index + 1,
+      date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
+      addedBy: item.addedBy?.name || "Unknown",
+      note: item.note || "-",
+    }));
+  };
+
+  const handleViewProgress = (tableRow) => {
+    const ticket = entities.find((entity) => entity._id === tableRow.id);
+    if (!ticket) {
+      showToast("Ticket data not found", "error");
+      return;
+    }
+    setModals((prev) => ({
+      ...prev,
+      viewProgress: {
+        isOpen: true,
+        ticket,
+      },
+    }));
+  };
+
+  const handleViewNotes = (tableRow) => {
+    const ticket = entities.find((entity) => entity._id === tableRow.id);
+    if (!ticket) {
+      showToast("Ticket data not found", "error");
+      return;
+    }
+    setModals((prev) => ({
+      ...prev,
+      viewNotes: {
+        isOpen: true,
+        ticket,
+      },
+    }));
   };
 
   const handleAssign = (ticket) => {
@@ -132,7 +205,8 @@ const ManageOpTicketsPage = () => {
         ticketId: ticket.id,
         employeeId: fullTicket?.assignedTo?._id || "",
         currentAssignee: fullTicket?.assignedTo || null,
-        ticketStatus: fullTicket.status, // Store ticket status in modal state
+        ticketStatus: fullTicket.status,
+        opTransferRequest: fullTicket.opTransferReq,
       },
     }));
   };
@@ -231,6 +305,15 @@ const ManageOpTicketsPage = () => {
     }));
   };
 
+  const showConfirmation = (message, onConfirm, data = null) => {
+    setConfirmAction({
+      isOpen: true,
+      message,
+      onConfirm,
+      data,
+    });
+  };
+
   const employeeOptions =
     users?.map((user) => ({
       value: user.id,
@@ -296,10 +379,10 @@ const ManageOpTicketsPage = () => {
           </div>
         ) : (
           <form onSubmit={handleAssignSubmit} className="space-y-4">
-            {modals.assign.currentAssignee && (
-              <div className="mb-4 p-3 bg-gray-100 rounded">
-                <h3 className="font-semibold">
-                  Currently Assigned: {modals.assign.currentAssignee}
+            {modals.assign?.opTransferRequest && (
+              <div className="mb-4 p-3 bg-red-50 rounded border border-red-200">
+                <h3 className="font-semibold text-red-700">
+                  Transfer Request: {modals.assign.opTransferRequest}
                 </h3>
               </div>
             )}
@@ -349,6 +432,84 @@ const ManageOpTicketsPage = () => {
         )}
       </Modal>
 
+      {/* View Progress Modal */}
+      <Modal
+        isOpen={modals.viewProgress.isOpen}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            viewProgress: { ...prev.viewProgress, isOpen: false },
+          }))
+        }
+        title="Progress History"
+        size="lg"
+      >
+        {modals.viewProgress.ticket && (
+          <div className="space-y-4">
+            <DataTable
+              tableHeader={progressHeaders}
+              tableData={formatProgressData(
+                modals.viewProgress.ticket.progress
+              )}
+              emptyMessage="No progress history available"
+              className="shadow-sm"
+              headerBgColor="bg-blue-100"
+              rowsPerPage={5}
+            />
+            <div className="flex justify-end">
+              <Button
+                text="Close"
+                onClick={() =>
+                  setModals((prev) => ({
+                    ...prev,
+                    viewProgress: { ...prev.viewProgress, isOpen: false },
+                  }))
+                }
+                className="bg-gray-500 hover:bg-gray-600 px-6 py-2"
+              />
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* View Notes Modal */}
+      <Modal
+        isOpen={modals.viewNotes.isOpen}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            viewNotes: { ...prev.viewNotes, isOpen: false },
+          }))
+        }
+        title="Ticket Notes"
+        size="lg"
+      >
+        {modals.viewNotes.ticket && (
+          <div className="space-y-4">
+            <DataTable
+              tableHeader={notesHeaders}
+              tableData={formatNotesData(modals.viewNotes.ticket.notes)}
+              emptyMessage="No notes available"
+              className="shadow-sm"
+              headerBgColor="bg-blue-100"
+              rowsPerPage={5}
+            />
+            <div className="flex justify-end">
+              <Button
+                text="Close"
+                onClick={() =>
+                  setModals((prev) => ({
+                    ...prev,
+                    viewNotes: { ...prev.viewNotes, isOpen: false },
+                  }))
+                }
+                className="bg-gray-500 hover:bg-gray-600 px-6 py-2"
+              />
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={confirmAction.isOpen}
@@ -384,8 +545,28 @@ const ManageOpTicketsPage = () => {
           rowHoverEffect={true}
           buttons={[
             {
+              text: "View Progress",
+              icon: <FaEye className="text-blue-500" />,
+              className: "bg-blue-100 hover:bg-blue-200",
+              onClick: handleViewProgress,
+            },
+            {
+              text: "View Notes",
+              icon: <FaStickyNote className="text-purple-500" />,
+              className: "bg-purple-100 hover:bg-purple-200",
+              onClick: handleViewNotes,
+            },
+            {
               text: "Transfer Ticket",
-              icon: <FaUserPlus />,
+              icon: (row) => (
+                <div className="relative">
+                  <FaExchangeAlt className="text-orange-500" />
+                  {row.opTransferReq && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+                  )}
+                </div>
+              ),
+              className: "bg-orange-100 hover:bg-orange-200 relative",
               onClick: handleAssign,
             },
           ]}

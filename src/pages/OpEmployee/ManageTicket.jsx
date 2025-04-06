@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaEye, FaEdit, FaStickyNote } from "react-icons/fa";
+import { FaEye, FaEdit, FaStickyNote, FaExchangeAlt } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
+import { getUsers } from "../../redux/authSlice";
 import {
   DataTable,
   Button,
@@ -9,12 +10,15 @@ import {
   Modal,
   Loader,
   InputField,
+  Dropdown,
   ConfirmationModal,
 } from "../../components";
+import { data } from "react-router-dom";
 
 const ManageTicketsEmployeePage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
+  const { users } = useSelector((state) => state.auth);
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [uiState, setUiState] = useState({
@@ -32,6 +36,10 @@ const ManageTicketsEmployeePage = () => {
       ticket: null,
       percentage: 0,
       observation: "",
+    },
+    transferRequest: {
+      isOpen: false,
+      ticketId: null,
     },
   });
 
@@ -65,6 +73,13 @@ const ManageTicketsEmployeePage = () => {
     { key: "note", label: "Note" },
   ];
 
+  const percentageOptions = [
+    { value: "20", label: "20%" },
+    { value: "40", label: "40%" },
+    { value: "60", label: "60%" },
+    { value: "80", label: "80%" },
+  ];
+
   const fetchData = async () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
@@ -82,8 +97,27 @@ const ManageTicketsEmployeePage = () => {
     }
   };
 
+  const fetchEmployees = async () => {
+    try {
+      console.log(user);
+      await dispatch(
+        getUsers({
+          resource: "employee",
+          endpoint: "get-employees",
+          queryParams: {
+            role: "op_employee",
+            entityId: user.entity?.id,
+          },
+        })
+      );
+    } catch (error) {
+      showToast("Failed to load employees", "error");
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchEmployees();
   }, [dispatch]);
 
   const formatTableData = () => {
@@ -179,10 +213,74 @@ const ManageTicketsEmployeePage = () => {
       updateProgress: {
         isOpen: true,
         ticket,
-        percentage: ticket.progress?.slice(-1)[0]?.percentage || 0,
+        percentage: ticket.progress?.slice(-1)[0]?.percentage || "20",
         observation: "",
       },
     }));
+  };
+
+  const handleTransferRequest = (ticket) => {
+    const fullTicket = entities.find((e) => e._id === ticket.id);
+
+    setModals((prev) => ({
+      ...prev,
+      transferRequest: {
+        isOpen: true,
+        ticketId: ticket.id,
+        employeeId: "",
+        currentAssignee: fullTicket.assignedTo,
+      },
+    }));
+  };
+
+  const handleTransferSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!modals.transferRequest.employeeId) {
+      showToast("Please select an employee", "error");
+      return;
+    }
+
+    const selectedEmployee = employeeOptions.find(
+      (emp) => emp.value === modals.transferRequest.employeeId
+    );
+
+    showConfirmation(
+      "Are you sure you want to request this transfer?",
+      async () => {
+        try {
+          setUiState((prev) => ({ ...prev, isLoading: true }));
+          const response = await dispatch(
+            updateEntity({
+              endpoint: "tkt/transfer-request",
+              id: modals.transferRequest.ticketId,
+              data: {
+                transferType: "op",
+                message: `${user.name} wants to transfer ticket to ${selectedEmployee?.label}`,
+              },
+            })
+          ).unwrap();
+
+          if (response.success) {
+            showToast("Transfer request submitted successfully", "success");
+            fetchData();
+            setModals((prev) => ({
+              ...prev,
+              transferRequest: {
+                isOpen: false,
+                ticketId: null,
+                employeeId: "",
+                currentAssignee: null,
+              },
+            }));
+          }
+        } catch (error) {
+          showToast(error.message || "Transfer request failed", "error");
+        } finally {
+          setUiState((prev) => ({ ...prev, isLoading: false }));
+        }
+      }
+    );
   };
 
   const handleProgressSubmit = async (e) => {
@@ -212,7 +310,7 @@ const ManageTicketsEmployeePage = () => {
               updateProgress: {
                 ...prev.updateProgress,
                 isOpen: false,
-                percentage: 0,
+                percentage: "20",
                 observation: "",
               },
             }));
@@ -232,6 +330,7 @@ const ManageTicketsEmployeePage = () => {
       async () => {
         try {
           setUiState((prev) => ({ ...prev, isLoading: true }));
+
           await dispatch(
             updateEntity({
               endpoint: "tkt/status",
@@ -247,7 +346,7 @@ const ManageTicketsEmployeePage = () => {
             updateProgress: {
               ...prev.updateProgress,
               isOpen: false,
-              percentage: 0,
+              percentage: "20",
               observation: "",
             },
           }));
@@ -277,6 +376,14 @@ const ManageTicketsEmployeePage = () => {
       data,
     });
   };
+
+  const employeeOptions =
+    users
+      ?.filter((emp) => emp.id !== user.id)
+      ?.map((emp) => ({
+        value: emp.id,
+        label: emp.name,
+      })) || [];
 
   return (
     <div className="p-4">
@@ -373,19 +480,16 @@ const ManageTicketsEmployeePage = () => {
           <div>
             <form onSubmit={handleProgressSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
-                <InputField
+                <Dropdown
                   label="Progress Percentage"
-                  name="percentage"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={modals.updateProgress.percentage}
-                  onChange={(e) =>
+                  options={percentageOptions}
+                  selectedValue={modals.updateProgress.percentage.toString()}
+                  onChange={(value) =>
                     setModals((prev) => ({
                       ...prev,
                       updateProgress: {
                         ...prev.updateProgress,
-                        percentage: e.target.value,
+                        percentage: value,
                       },
                     }))
                   }
@@ -443,6 +547,63 @@ const ManageTicketsEmployeePage = () => {
         )}
       </Modal>
 
+      {/* Transfer Request Modal */}
+      <Modal
+        isOpen={modals.transferRequest.isOpen}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            transferRequest: {
+              ...prev.transferRequest,
+              isOpen: false,
+            },
+          }))
+        }
+        title="Request Ticket Transfer"
+      >
+        <form onSubmit={handleTransferSubmit} className="space-y-4">
+          <Dropdown
+            label="Transfer To"
+            options={employeeOptions.filter(
+              (opt) => opt.value !== modals.transferRequest.currentAssignee?._id
+            )}
+            selectedValue={modals.transferRequest.employeeId}
+            onChange={(value) =>
+              setModals((prev) => ({
+                ...prev,
+                transferRequest: {
+                  ...prev.transferRequest,
+                  employeeId: value,
+                },
+              }))
+            }
+          />
+
+          <div className="flex justify-end gap-2">
+            <Button
+              text="Cancel"
+              type="button"
+              onClick={() =>
+                setModals((prev) => ({
+                  ...prev,
+                  transferRequest: {
+                    ...prev.transferRequest,
+                    isOpen: false,
+                  },
+                }))
+              }
+              className="bg-gray-500 hover:bg-gray-700"
+            />
+            <Button
+              text={uiState.isLoading ? "Submitting..." : "Submit Request"}
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={uiState.isLoading}
+            />
+          </div>
+        </form>
+      </Modal>
+
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={confirmAction.isOpen}
@@ -494,6 +655,12 @@ const ManageTicketsEmployeePage = () => {
               icon: <FaEdit className="text-green-500" />,
               className: "bg-green-100 hover:bg-green-200",
               onClick: handleUpdateProgress,
+            },
+            {
+              text: "Transfer",
+              icon: <FaExchangeAlt className="text-orange-500" />,
+              className: "bg-orange-100 hover:bg-orange-200",
+              onClick: handleTransferRequest,
             },
           ]}
         />
