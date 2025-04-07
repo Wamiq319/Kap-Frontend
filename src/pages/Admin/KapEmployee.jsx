@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import {
   createUser,
@@ -21,7 +20,6 @@ import {
 
 const AddKapEmployeePage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { users } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
@@ -45,7 +43,7 @@ const AddKapEmployeePage = () => {
     toastType: "success",
     errorMessage: "",
     isModalOpen: false,
-    isLoading: true,
+    isLoading: false,
     isEditingPassword: false,
   });
 
@@ -96,31 +94,39 @@ const AddKapEmployeePage = () => {
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
 
+    // Validate passwords match
     if (passwordEditData.newPassword !== passwordEditData.confirmPassword) {
-      showToast("Passwords don't match", "error");
+      showToast("New passwords don't match", "error");
       return;
     }
 
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
+
       const response = await dispatch(
         updatePassword({
-          userId: passwordEditData.userId,
-          oldPassword: passwordEditData.oldPassword,
-          newPassword: passwordEditData.newPassword,
+          id: passwordEditData.userId,
+          data: {
+            oldPassword: passwordEditData.oldPassword,
+            newPassword: passwordEditData.newPassword,
+          },
         })
       ).unwrap();
 
       if (response.success) {
-        showToast("Password updated successfully", "success");
-        resetPasswordEdit();
-        setUiState((prev) => ({ ...prev, isModalOpen: false }));
-        fetchUsers();
+        showToast(response.message, "success");
+      } else {
+        showToast(response.message, "error");
       }
     } catch (error) {
-      showToast(error.message || "Failed to update password", "error");
+      showToast(
+        error.message || "Failed to update password. Please try again.",
+        "error"
+      );
     } finally {
-      setUiState((prev) => ({ ...prev, isLoading: false }));
+      resetPasswordEdit();
+      setUiState((prev) => ({ ...prev, isModalOpen: false, isLoading: false }));
+      fetchUsers();
     }
   };
 
@@ -160,7 +166,7 @@ const AddKapEmployeePage = () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await Promise.all(
-        confirmDelete.ids.map((id) => dispatch(deleteUser(id)))
+        confirmDelete.ids.map((id) => dispatch(deleteUser({ userId: id })))
       );
 
       const message = confirmDelete.isBulk
@@ -201,8 +207,10 @@ const AddKapEmployeePage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         createUser({
-          ...formData,
-          role: "kap_employee",
+          data: {
+            ...formData,
+            role: "kap_employee",
+          },
         })
       ).unwrap();
 
@@ -323,7 +331,7 @@ const AddKapEmployeePage = () => {
                   label="New Password"
                   name="newPassword"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder="Enter new password (min 8 characters)"
                   value={passwordEditData.newPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -419,7 +427,7 @@ const AddKapEmployeePage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text={uiState.isLoading ? "Save" : "Saving...."}
+                text={uiState.isLoading ? "Saving..." : "Save"}
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}

@@ -43,6 +43,7 @@ export const createUser = createAsyncThunk(
   "auth/createUser",
   async ({ data, resource = "user" }, { rejectWithValue }) => {
     try {
+      console.log(data);
       const response = await fetch(`${API_URL}/protected/${resource}/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

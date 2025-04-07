@@ -116,21 +116,16 @@ const AddGovManagerPage = () => {
       ).unwrap();
 
       if (response.success) {
-        showToast("Password updated successfully", "success");
-        resetPasswordEdit();
-        setUiState((prev) => ({ ...prev, isModalOpen: false }));
+        showToast(response.message, "success");
+      } else {
+        showToast(response.message, "error");
       }
-      fetchUsers();
     } catch (error) {
       showToast(error.message || "Failed to update password", "error");
     } finally {
       resetPasswordEdit();
-      setUiState((prev) => ({
-        ...prev,
-        isModalOpen: false,
-        isEditingPassword: false,
-        isLoading: false,
-      }));
+      setUiState((prev) => ({ ...prev, isModalOpen: false, isLoading: false }));
+      fetchUsers();
     }
   };
 

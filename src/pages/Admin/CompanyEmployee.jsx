@@ -179,7 +179,9 @@ const AddOpEmployeePage = () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await Promise.all(
-        confirmDelete.ids.map((id) => dispatch(deleteUser({ userId: id })))
+        confirmDelete.ids.map((id) =>
+          dispatch(deleteUser({ userId: id, resource: "employee" }))
+        )
       );
 
       const message = confirmDelete.isBulk
@@ -220,9 +222,10 @@ const AddOpEmployeePage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         createUser({
+          resource: "employee",
           data: {
             ...formData,
-            role: "op_manager",
+            role: "op_employee",
           },
         })
       ).unwrap();
