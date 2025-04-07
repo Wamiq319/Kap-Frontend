@@ -21,18 +21,19 @@ import {
   Loader,
 } from "../../components";
 
-const AddCompanyEmployeePage = () => {
+const AddOpEmployeePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    companyId: "",
+    entityId: "",
     name: "",
     mobile: "+966",
     username: "",
     password: "",
+    role: "op_employee",
   });
 
   const [passwordEditData, setPasswordEditData] = useState({
@@ -60,10 +61,11 @@ const AddCompanyEmployeePage = () => {
 
   const tableHeader = [
     { key: "index", label: "#" },
+    { key: "image", label: "Company" },
+    { key: "company", label: "Company Name" },
     { key: "name", label: "Manager Name" },
     { key: "mobile", label: "Mobile No" },
     { key: "username", label: "Username" },
-    { key: "company", label: "Company" },
     { key: "password", label: "Password" },
   ];
 
@@ -71,7 +73,17 @@ const AddCompanyEmployeePage = () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await dispatch(fetchNames({ endpoint: "op/company-names" }));
-      await dispatch(getUsers({ endpoint: "op-managers" }));
+      const response = await dispatch(
+        getUsers({
+          resource: "employee",
+          endpoint: "get-employees",
+          queryParams: {
+            role: "op_employee",
+            entityId: "Get_All",
+          },
+        })
+      );
+      showToast(response.payload.message, "info");
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -93,7 +105,8 @@ const AddCompanyEmployeePage = () => {
     mobile: item.mobile,
     username: item.username,
     password: item.password,
-    company: item.company,
+    image: item.entityImage,
+    company: item.entityName,
   }));
 
   const handlePasswordUpdate = async (e) => {
@@ -108,9 +121,12 @@ const AddCompanyEmployeePage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         updatePassword({
-          userId: passwordEditData.userId,
-          oldPassword: passwordEditData.oldPassword,
-          newPassword: passwordEditData.newPassword,
+          id: passwordEditData.userId,
+          data: {
+            oldPassword: passwordEditData.oldPassword,
+            newPassword: passwordEditData.newPassword,
+          },
+          resource: "employee",
         })
       ).unwrap();
 
@@ -191,7 +207,7 @@ const AddCompanyEmployeePage = () => {
       !formData.mobile ||
       !formData.username ||
       !formData.password ||
-      !formData.companyId
+      !formData.entityId
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -237,7 +253,7 @@ const AddCompanyEmployeePage = () => {
 
   const resetForm = () => {
     setFormData({
-      companyId: "",
+      entityId: "",
       name: "",
       mobile: "+966",
       username: "",
@@ -285,7 +301,7 @@ const AddCompanyEmployeePage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Company Manager"
+          text="Add Company Employee"
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -396,10 +412,10 @@ const AddCompanyEmployeePage = () => {
                 <Dropdown
                   label="Company"
                   options={options}
-                  selectedValue={formData.companyId}
+                  selectedValue={formData.entityId}
                   placeholder="Select company"
                   onChange={(value) =>
-                    setFormData((prev) => ({ ...prev, companyId: value }))
+                    setFormData((prev) => ({ ...prev, entityId: value }))
                   }
                 />
                 <InputField
@@ -447,7 +463,7 @@ const AddCompanyEmployeePage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Company Managers"
+          heading="Company Emplyees"
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-blue-200"
@@ -478,4 +494,4 @@ const AddCompanyEmployeePage = () => {
   );
 };
 
-export default AddCompanyEmployeePage;
+export default AddOpEmployeePage;

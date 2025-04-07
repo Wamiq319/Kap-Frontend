@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEntities, fetchNames } from "../../redux/adminCrudSlice";
+import {
+  fetchEntities,
+  fetchNames,
+  updateEntity,
+} from "../../redux/adminCrudSlice";
 import {
   DataTable,
   ToastNotification,
   Loader,
   Modal,
   Button,
+  InputField,
+  ConfirmationModal,
 } from "../../components";
 
 const TrackKapTicketPage = () => {
@@ -24,6 +30,19 @@ const TrackKapTicketPage = () => {
     toastMessage: "",
     toastType: "success",
     isLoading: false,
+  });
+
+  const [modals, setModals] = useState({
+    addNoteModal: {
+      isOpen: false,
+      ticketId: null,
+      note: "",
+    },
+    confirmAction: {
+      isOpen: false,
+      message: "",
+      onConfirm: null,
+    },
   });
 
   const tableHeaders = [
@@ -108,6 +127,17 @@ const TrackKapTicketPage = () => {
     }));
   };
 
+  const showConfirmation = (message, onConfirm) => {
+    setModals((prev) => ({
+      ...prev,
+      confirmAction: {
+        isOpen: true,
+        message,
+        onConfirm,
+      },
+    }));
+  };
+
   const handlePrint = () => {
     const printContent = document.getElementById("print-content");
     const printWindow = window.open("", "", "width=800,height=600");
@@ -138,6 +168,151 @@ const TrackKapTicketPage = () => {
     }, 500);
   };
 
+  const handleThankYouLetter = async () => {
+    showConfirmation(
+      "Are you sure you want to send a thank you letter and close this ticket?",
+      async () => {
+        try {
+          setUiState((prev) => ({ ...prev, isLoading: true }));
+
+          // Send thank you letter via API
+          const thankYouResponse = await dispatch(
+            updateEntity({
+              endpoint: "tkt/send-thank-you",
+              id: selectedTicket._id,
+              data: {
+                sentBy: user.name,
+              },
+            })
+          ).unwrap();
+
+          if (!thankYouResponse.success) {
+            throw new Error("Failed to send thank you letter");
+          }
+
+          // Close the ticket
+          const closeResponse = await dispatch(
+            updateEntity({
+              endpoint: "tkt/status",
+              id: selectedTicket._id,
+              data: {
+                status: "Closed",
+                closedBy: user.name,
+                closedAt: new Date().toISOString(),
+              },
+            })
+          ).unwrap();
+
+          if (closeResponse.success) {
+            showToast(
+              "Thank you letter sent and ticket closed successfully",
+              "success"
+            );
+            fetchData();
+            setIsFollowupModalOpen(false);
+          }
+        } catch (error) {
+          showToast(
+            error.message || "Failed to send thank you letter",
+            "error"
+          );
+        } finally {
+          setUiState((prev) => ({ ...prev, isLoading: false }));
+        }
+      }
+    );
+  };
+
+  const handleAddNote = () => {
+    setModals((prev) => ({
+      ...prev,
+      addNoteModal: {
+        isOpen: true,
+        ticketId: selectedTicket._id,
+        note: "",
+      },
+    }));
+  };
+
+  const handleSubmitNote = async () => {
+    const { ticketId, note } = modals.addNoteModal;
+
+    showConfirmation("Are you sure you want to add this note?", async () => {
+      try {
+        setUiState((prev) => ({ ...prev, isLoading: true }));
+
+        const response = await dispatch(
+          updateEntity({
+            endpoint: "tkt/add-note",
+            id: ticketId,
+            data: {
+              text: note,
+              addedBy: "KAP:" + user.name,
+            },
+          })
+        ).unwrap();
+
+        if (response.success) {
+          showToast("Note added successfully", "success");
+          // Close the note modal
+          setModals((prev) => ({
+            ...prev,
+            addNoteModal: {
+              isOpen: false,
+              ticketId: null,
+              note: "",
+            },
+          }));
+          // Refresh the ticket data
+          await fetchData();
+          // Re-open the ticket details modal to show updated notes
+          if (selectedTicket) {
+            setIsFollowupModalOpen(true);
+          }
+        } else {
+          throw new Error(response.message || "Failed to add note");
+        }
+      } catch (error) {
+        showToast(error.message || "Failed to add note", "error");
+      } finally {
+        setUiState((prev) => ({ ...prev, isLoading: false }));
+      }
+    });
+  };
+
+  const handleCloseTicket = async () => {
+    showConfirmation(
+      "Are you sure you want to close this ticket?",
+      async () => {
+        try {
+          setUiState((prev) => ({ ...prev, isLoading: true }));
+
+          const response = await dispatch(
+            updateEntity({
+              endpoint: "tkt/status",
+              id: selectedTicket._id,
+              data: {
+                status: "Closed",
+                closedBy: user.name,
+                closedAt: new Date().toISOString(),
+              },
+            })
+          ).unwrap();
+
+          if (response.success) {
+            showToast("Ticket closed successfully", "success");
+            fetchData();
+            setIsFollowupModalOpen(false);
+          }
+        } catch (error) {
+          showToast(error.message || "Failed to close ticket", "error");
+        } finally {
+          setUiState((prev) => ({ ...prev, isLoading: false }));
+        }
+      }
+    );
+  };
+
   return (
     <div className="p-4">
       {uiState.showToast && (
@@ -163,7 +338,7 @@ const TrackKapTicketPage = () => {
         />
       )}
 
-      {/* Follow Up Modal */}
+      {/* Ticket Details Modal */}
       <Modal
         isOpen={isFollowupModalOpen}
         onClose={() => setIsFollowupModalOpen(false)}
@@ -214,6 +389,18 @@ const TrackKapTicketPage = () => {
                   <span className="detail-label">Status:</span>
                   <span>{selectedTicket.status}</span>
                 </div>
+                <div className="detail-row">
+                  <span className="detail-label">TicketBuilder:</span>
+                  <span>{selectedTicket.ticketBuilder}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">TicketRecienpt:</span>
+                  <span>
+                    {selectedTicket.ticketReciept
+                      ? selectedTicket.ticketReciept
+                      : "N/A"}
+                  </span>
+                </div>
               </div>
 
               <div className="mt-6">
@@ -240,7 +427,10 @@ const TrackKapTicketPage = () => {
                   <ul className="space-y-2">
                     {selectedTicket.notes.map((note, index) => (
                       <li key={index} className="notes-item">
-                        {note}
+                        {note.text} - <em>{note.addedBy}</em>
+                        <span className="text-gray-500 text-sm ml-2">
+                          ({new Date(note.date).toLocaleString()})
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -252,29 +442,123 @@ const TrackKapTicketPage = () => {
 
             <div className="flex flex-wrap gap-4 justify-between mt-6 print-hidden">
               <Button
-                text="Archive"
-                className="bg-yellow-600 hover:bg-yellow-700 flex-1 min-w-[150px]"
-                onClick={() => console.log("Archive clicked")}
-              />
-              <Button
                 text="Thank You"
                 className="bg-blue-600 hover:bg-blue-700 flex-1 min-w-[150px]"
-                onClick={() => console.log("Thank You Letter clicked")}
+                onClick={handleThankYouLetter}
               />
               <Button
                 text="Add Note"
                 className="bg-gray-600 hover:bg-gray-700 flex-1 min-w-[150px]"
-                onClick={() => console.log("Add Note clicked")}
+                onClick={handleAddNote}
               />
               <Button
                 text="Print Report"
                 className="bg-purple-600 hover:bg-purple-700 flex-1 min-w-[150px]"
                 onClick={handlePrint}
               />
+              <Button
+                text="Close Ticket"
+                className={`flex-1 min-w-[150px] ${
+                  selectedTicket.status === "Closed"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+                onClick={
+                  selectedTicket.status === "Closed"
+                    ? undefined
+                    : handleCloseTicket
+                }
+                disabled={selectedTicket.status === "Closed"}
+              />
             </div>
           </div>
         )}
       </Modal>
+
+      {/* Add Note Modal */}
+      <Modal
+        isOpen={modals.addNoteModal?.isOpen || false}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            addNoteModal: {
+              isOpen: false,
+              ticketId: null,
+              note: "",
+            },
+          }))
+        }
+        title="Add Note"
+      >
+        <div className="space-y-4">
+          <InputField
+            label="Note"
+            type="textarea"
+            rows={4}
+            value={modals.addNoteModal?.note || ""}
+            onChange={(e) =>
+              setModals((prev) => ({
+                ...prev,
+                addNoteModal: {
+                  ...prev.addNoteModal,
+                  note: e.target.value,
+                },
+              }))
+            }
+            placeholder="Enter your note..."
+          />
+          <div className="flex justify-end gap-2">
+            <Button
+              text="Cancel"
+              type="button"
+              onClick={() =>
+                setModals((prev) => ({
+                  ...prev,
+                  addNoteModal: {
+                    isOpen: false,
+                    ticketId: null,
+                    note: "",
+                  },
+                }))
+              }
+              className="bg-gray-500 hover:bg-gray-700"
+            />
+            <Button
+              text="Add Note"
+              type="button"
+              onClick={handleSubmitNote}
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={uiState.isLoading || !modals.addNoteModal?.note.trim()}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={modals.confirmAction.isOpen}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            confirmAction: {
+              ...prev.confirmAction,
+              isOpen: false,
+            },
+          }))
+        }
+        onConfirm={() => {
+          modals.confirmAction.onConfirm();
+          setModals((prev) => ({
+            ...prev,
+            confirmAction: {
+              ...prev.confirmAction,
+              isOpen: false,
+            },
+          }));
+        }}
+        title="Confirm Action"
+        message={modals.confirmAction.message}
+      />
     </div>
   );
 };

@@ -39,11 +39,6 @@ const OperatingEmployeeHomePage = () => {
           onClick={() => handleNavigation("/manage-op-employee-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
-        <Button
-          text="Manage Notification"
-          onClick={() => handleNavigation("/manage-employee-tickets")}
-          className="w-full bg-orange-600 hover:bg-orange-700 text-lg font-semibold py-3 shadow"
-        />
       </div>
     </div>
   );

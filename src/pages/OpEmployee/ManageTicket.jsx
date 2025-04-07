@@ -13,7 +13,6 @@ import {
   Dropdown,
   ConfirmationModal,
 } from "../../components";
-import { data } from "react-router-dom";
 
 const ManageTicketsEmployeePage = () => {
   const dispatch = useDispatch();
@@ -78,6 +77,7 @@ const ManageTicketsEmployeePage = () => {
     { value: "40", label: "40%" },
     { value: "60", label: "60%" },
     { value: "80", label: "80%" },
+    { value: "100", label: "100%" },
   ];
 
   const fetchData = async () => {
@@ -163,8 +163,8 @@ const ManageTicketsEmployeePage = () => {
     return sortedNotes.map((item, index) => ({
       index: index + 1,
       date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
-      addedBy: item.addedBy?.name || "Unknown",
-      note: item.note || "-",
+      addedBy: item.addedBy || "Unknown",
+      note: item.text || "-",
     }));
   };
 
@@ -221,7 +221,10 @@ const ManageTicketsEmployeePage = () => {
 
   const handleTransferRequest = (ticket) => {
     const fullTicket = entities.find((e) => e._id === ticket.id);
-
+    if (fullTicket.status === "Completed") {
+      showToast("Cannot Transfer Completed Ticket", "error");
+      return;
+    }
     setModals((prev) => ({
       ...prev,
       transferRequest: {
@@ -335,7 +338,7 @@ const ManageTicketsEmployeePage = () => {
             updateEntity({
               endpoint: "tkt/status",
               id: modals.updateProgress.ticket._id,
-              data: { status: "Completed" },
+              data: { status: "Completed", acceptedBy: null },
             })
           ).unwrap();
 

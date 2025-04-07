@@ -27,6 +27,7 @@ const ManageKapTicketPage = () => {
   const locations = ["NCT", "AMSTEL", "PDC"];
 
   const [formData, setFormData] = useState({
+    ticketBuilder: user.name,
     requestType: "",
     location: locations[0],
     operator: "",

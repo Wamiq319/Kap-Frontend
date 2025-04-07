@@ -119,10 +119,6 @@ const ManageTicketsGovPage = () => {
   const handleAssign = (ticket) => {
     const fullTicket = entities.find((e) => e._id === ticket.id);
 
-    if (fullTicket.status == "Completed") {
-      showToast("Cannot Asign Completed Ticket", "error");
-      return;
-    }
     setModals((prev) => ({
       ...prev,
       assign: {

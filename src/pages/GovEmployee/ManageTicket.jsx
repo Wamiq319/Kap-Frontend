@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaEye, FaStickyNote } from "react-icons/fa";
+import { FaEye, FaStickyNote, FaRegStickyNote } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
 import {
   DataTable,
@@ -54,7 +54,6 @@ const ManageGovTicketsEmployeePage = () => {
     { key: "date", label: "Date" },
     { key: "addedBy", label: "Added By" },
     { key: "note", label: "Note" },
-    { key: "entityName", label: "Entity" },
   ];
 
   const fetchData = async () => {
@@ -121,9 +120,8 @@ const ManageGovTicketsEmployeePage = () => {
     return sortedNotes.map((item, index) => ({
       index: index + 1,
       date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
-      addedBy: item.addedBy?.name || "Unknown",
-      note: item.note || "-",
-      entityName: item.entityName || "-",
+      addedBy: item.addedBy || "Unknown",
+      note: item.text || "-",
     }));
   };
 
@@ -189,9 +187,8 @@ const ManageGovTicketsEmployeePage = () => {
           endpoint: "tkt/add-note",
           id: modals.addNote.ticket._id,
           data: {
-            note: modals.addNote.note,
-            addedBy: user.id,
-            entityName: user.sector?.name || "Unknown",
+            text: modals.addNote.note,
+            addedBy: "Gov:" + user.name,
           },
         })
       ).unwrap();
@@ -394,7 +391,7 @@ const ManageGovTicketsEmployeePage = () => {
             },
             {
               text: "Add Note",
-              icon: <FaStickyNote className="text-purple-500" />,
+              icon: <FaRegStickyNote className="text-purple-500" />,
               className: "bg-purple-100 hover:bg-purple-200",
               onClick: handleAddNote,
             },

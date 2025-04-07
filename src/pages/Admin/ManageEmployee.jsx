@@ -21,7 +21,7 @@ const ManageEmployeePage = () => {
             <img
               src={logo}
               alt="Company Logo"
-              className="h-60 w-60 rounded-full"
+              className="h-40 w-40 rounded-full"
             />
           </div>
         </div>
@@ -33,19 +33,19 @@ const ManageEmployeePage = () => {
         />
         <Button
           text="Manage Government Employees"
-          onClick={() => handleNavigation("/add-companyManager")}
+          onClick={() => handleNavigation("/add_gov_employee")}
           className="w-full bg-orange-600 hover:bg-orange-700 text-lg py-3 shadow"
         />
 
         <Button
           text="Manage Company Managers"
-          onClick={() => handleNavigation("/add-companyEmployee")}
+          onClick={() => handleNavigation("/add-companyManager")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
 
         <Button
           text="Manage Company Employees"
-          onClick={() => handleNavigation("/add-companyEmployee")}
+          onClick={() => handleNavigation("/add_op_employee")}
           className="w-full bg-orange-600 hover:bg-orange-700 text-lg py-3 shadow"
         />
       </div>

@@ -20,14 +20,14 @@ import {
   Loader,
 } from "../../components";
 
-const AddGovEmployeePage = () => {
+const AddGovernmentEmployeePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    sectorId: "",
+    entityId: "",
     name: "",
     mobile: "+966",
     username: "",
@@ -59,10 +59,11 @@ const AddGovEmployeePage = () => {
 
   const tableHeader = [
     { key: "index", label: "#" },
+    { key: "image", label: "Sector" },
+    { key: "sector", label: "Gov Sector" },
     { key: "name", label: "Employee Name" },
     { key: "mobile", label: "Mobile No" },
     { key: "username", label: "Username" },
-    { key: "sector", label: "Gov Sector" },
     { key: "password", label: "Password" },
   ];
 
@@ -70,8 +71,20 @@ const AddGovEmployeePage = () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       await dispatch(fetchNames({ endpoint: "gov/sector-names" }));
-      await dispatch(getUsers("gov-Employees"));
+      const response = await dispatch(
+        getUsers({
+          resource: "employee",
+          endpoint: "get-employees",
+          queryParams: {
+            role: "gov_employee",
+            entityId: "Get_All",
+          },
+        })
+      );
+
+      showToast(response.payload.message, "info");
     } finally {
+      console.log(users);
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
   };
@@ -92,7 +105,8 @@ const AddGovEmployeePage = () => {
     mobile: item.mobile,
     username: item.username,
     password: item.password,
-    sector: item.sector,
+    image: item.entityImage,
+    sector: item.entityName,
   }));
 
   const handlePasswordUpdate = async (e) => {
@@ -107,9 +121,12 @@ const AddGovEmployeePage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         updatePassword({
-          userId: passwordEditData.userId,
-          oldPassword: passwordEditData.oldPassword,
-          newPassword: passwordEditData.newPassword,
+          id: passwordEditData.userId,
+          data: {
+            oldPassword: passwordEditData.oldPassword,
+            newPassword: passwordEditData.newPassword,
+          },
+          resource: "employee",
         })
       ).unwrap();
 
@@ -118,10 +135,17 @@ const AddGovEmployeePage = () => {
         resetPasswordEdit();
         setUiState((prev) => ({ ...prev, isModalOpen: false }));
       }
+      fetchUsers();
     } catch (error) {
       showToast(error.message || "Failed to update password", "error");
     } finally {
-      setUiState((prev) => ({ ...prev, isLoading: false }));
+      resetPasswordEdit();
+      setUiState((prev) => ({
+        ...prev,
+        isModalOpen: false,
+        isEditingPassword: false,
+        isLoading: false,
+      }));
     }
   };
 
@@ -189,7 +213,7 @@ const AddGovEmployeePage = () => {
       !formData.mobile ||
       !formData.username ||
       !formData.password ||
-      !formData.sectorId
+      !formData.entityId
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -235,7 +259,7 @@ const AddGovEmployeePage = () => {
 
   const resetForm = () => {
     setFormData({
-      sectorId: "",
+      entityId: "",
       name: "",
       mobile: "+966",
       username: "",
@@ -396,9 +420,9 @@ const AddGovEmployeePage = () => {
                 <Dropdown
                   label="Sector"
                   options={options}
-                  selectedValue={formData.sectorId}
+                  selectedValue={formData.entityId}
                   onChange={(value) =>
-                    setFormData((prev) => ({ ...prev, sectorId: value }))
+                    setFormData((prev) => ({ ...prev, entityId: value }))
                   }
                 />
                 <InputField
@@ -476,4 +500,4 @@ const AddGovEmployeePage = () => {
   );
 };
 
-export default AddGovEmployeePage;
+export default AddGovernmentEmployeePage;

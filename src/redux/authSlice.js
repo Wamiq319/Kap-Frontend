@@ -85,20 +85,20 @@ export const updateAdmin = createAsyncThunk(
 // Update Password
 export const updatePassword = createAsyncThunk(
   "auth/updatePassword",
-  async ({ userId, newPassword, oldPassword }, { rejectWithValue }) => {
+  async ({ id, data, resource = "user" }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        `${API_URL}/auth/update-password/${userId}`,
+        `${API_URL}/protected/${resource}/update-password/${id}`,
         {
-          method: "PUT",
+          method: "Put",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ newPassword, oldPassword }),
+          body: JSON.stringify(data),
           credentials: "include",
         }
       );
 
-      const { data, message, success } = await handleApiError(response);
-      return { success, message, data };
+      const { message, success } = await handleApiError(response);
+      return { success, message };
     } catch (error) {
       return rejectWithValue(error.message || "Password update failed");
     }
@@ -148,7 +148,7 @@ export const getUsers = createAsyncThunk(
         endpoint = "",
         resource = "user",
       } = typeof params === "object" ? params : { endpoint: params };
-
+      console.log(params);
       // If there are queryParams, add them to the URL as a query string
       const queryString = new URLSearchParams(queryParams).toString();
       const url = queryString

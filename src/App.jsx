@@ -7,30 +7,49 @@ import {
 } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
+  // Authentication Routes
   LoginPage,
+
+  // Admin Routes
   AdminUpdatePage,
   AdminHomePage,
-  KAPEmployeeHomePage,
-  CompanyEmployeeHomePage,
-  IntegrationEmployeeHomePage,
-  GovSectorManagerHomePage,
-  OperatingManagerHomePage,
-  OperatingEmployeeHomePage,
   AddGovSectorPage,
   AddOperatingCompanyPage,
   ManageEmployeePage,
   AddKapEmloyeePage,
   AddGovManagerPage,
   AddCompanyManagerPage,
-  AddCompanyEmployeePage,
-  AddGovEmployeePage,
-  ManageOpTicketsPage,
+  AddOpEmployeePage,
+  AddGovernmentEmployeePage,
+
+  // KAP Employee Routes
+  KAPEmployeeHomePage,
   ManageKapTicketPage,
-  ManageTicketsEmployeePage,
-  ManageTicketsGovPage,
+  TrackKapTicketPage,
+
+  // Government Employee Routes
   GovEmployeeHomePage,
   ManageGovTicketsEmployeePage,
-  TrackKapTicketPage,
+
+  // Company Employee Routes
+  CompanyEmployeeHomePage,
+
+  // Integration Employee Routes
+  IntegrationEmployeeHomePage,
+
+  // Government Manager Routes
+  GovSectorManagerHomePage,
+  AddGovEmployeePage,
+  ManageTicketsGovPage,
+
+  // Operating Manager Routes
+  OperatingManagerHomePage,
+  AddCompanyEmployeePage,
+  ManageOpTicketsPage,
+
+  // Operating Employee Routes
+  OperatingEmployeeHomePage,
+  ManageTicketsEmployeePage,
 } from "./pages";
 import Header from "./components/Header";
 
@@ -94,7 +113,7 @@ const App = () => {
                 }
               />
 
-              {/* Common Route */}
+              {/* Admin Routes */}
               <Route
                 path="/admin-update"
                 element={
@@ -103,8 +122,6 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Admin Routes */}
               <Route
                 path="/admin-home"
                 element={
@@ -113,7 +130,6 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/add-govSector"
                 element={
@@ -159,6 +175,22 @@ const App = () => {
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AddCompanyManagerPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/add_op_employee"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                    <AddOpEmployeePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/add_gov_employee"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                    <AddGovernmentEmployeePage />
                   </ProtectedRoute>
                 }
               />

@@ -13,6 +13,7 @@ import {
   ConfirmationModal,
   InputField,
 } from "../../components";
+import { use } from "react";
 
 const ManageOpTicketsPage = () => {
   const dispatch = useDispatch();
@@ -109,7 +110,7 @@ const ManageOpTicketsPage = () => {
     fetchData();
     fetchEmployees();
   }, [dispatch]);
-
+  console.log(user);
   const formatTableData = () => {
     return entities?.map((item, index) => ({
       index: index + 1,
@@ -155,8 +156,8 @@ const ManageOpTicketsPage = () => {
     return sortedNotes.map((item, index) => ({
       index: index + 1,
       date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
-      addedBy: item.addedBy?.name || "Unknown",
-      note: item.note || "-",
+      addedBy: item.addedBy || "Unknown",
+      note: item.text || "-",
     }));
   };
 
@@ -222,7 +223,7 @@ const ManageOpTicketsPage = () => {
             updateEntity({
               endpoint: "tkt/status",
               id: modals.assign.ticketId,
-              data: { status: "In Progress" },
+              data: { status: "In Progress", acceptedBy: user.name },
             })
           ).unwrap();
 
@@ -383,6 +384,13 @@ const ManageOpTicketsPage = () => {
               <div className="mb-4 p-3 bg-red-50 rounded border border-red-200">
                 <h3 className="font-semibold text-red-700">
                   Transfer Request: {modals.assign.opTransferRequest}
+                </h3>
+              </div>
+            )}
+            {modals.assign.currentAssignee && (
+              <div className="mb-4 p-3 bg-gray-100 rounded">
+                <h3 className="font-semibold">
+                  Currently Assigned: {modals.assign.currentAssignee}
                 </h3>
               </div>
             )}

@@ -107,9 +107,11 @@ const AddGovManagerPage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         updatePassword({
-          userId: passwordEditData.userId,
-          oldPassword: passwordEditData.oldPassword,
-          newPassword: passwordEditData.newPassword,
+          id: passwordEditData.userId,
+          data: {
+            oldPassword: passwordEditData.oldPassword,
+            newPassword: passwordEditData.newPassword,
+          },
         })
       ).unwrap();
 
@@ -118,10 +120,17 @@ const AddGovManagerPage = () => {
         resetPasswordEdit();
         setUiState((prev) => ({ ...prev, isModalOpen: false }));
       }
+      fetchUsers();
     } catch (error) {
       showToast(error.message || "Failed to update password", "error");
     } finally {
-      setUiState((prev) => ({ ...prev, isLoading: false }));
+      resetPasswordEdit();
+      setUiState((prev) => ({
+        ...prev,
+        isModalOpen: false,
+        isEditingPassword: false,
+        isLoading: false,
+      }));
     }
   };
 
