@@ -21,7 +21,7 @@ import {
 const AddGovEmployeePage = () => {
   const dispatch = useDispatch();
   const { users, data } = useSelector((state) => state.auth);
-  console.log(data);
+
   const [formData, setFormData] = useState({
     entityId: data?.sector.id,
     name: "",
@@ -106,9 +106,12 @@ const AddGovEmployeePage = () => {
       setUiState((prev) => ({ ...prev, isLoading: true }));
       const response = await dispatch(
         updatePassword({
-          userId: passwordEditData.userId,
-          oldPassword: passwordEditData.oldPassword,
-          newPassword: passwordEditData.newPassword,
+          id: passwordEditData.userId,
+          data: {
+            oldPassword: passwordEditData.oldPassword,
+            newPassword: passwordEditData.newPassword,
+          },
+          resource: "employee",
         })
       ).unwrap();
 
@@ -416,7 +419,7 @@ const AddGovEmployeePage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text="Create"
+                text="Save"
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}

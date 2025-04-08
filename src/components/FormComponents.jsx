@@ -31,10 +31,11 @@ export const InputField = ({
     setShowPassword(!showPassword);
   };
 
-  // Determine the input type (for password visibility toggle)
   const resolvedInputType =
-    name === "password" && showPassword ? "text" : inputTypes[name] || type;
-
+    (name === "password" || name.toLowerCase().includes("password")) &&
+    showPassword
+      ? "text"
+      : inputTypes[name] || type;
   return (
     <div className={`w-full ${className}`}>
       {label && (
@@ -64,7 +65,7 @@ export const InputField = ({
             className="w-full p-2 border border-gray-300 rounded-md"
           />
         )}
-        {name === "password" && (
+        {(name === "password" || name.includes("Password")) && (
           <button
             type="button"
             onClick={togglePasswordVisibility}

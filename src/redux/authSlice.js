@@ -68,12 +68,17 @@ export const updateAdmin = createAsyncThunk(
   "auth/updateAdmin",
   async ({ adminId, updatedData }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/auth/update-admin/${adminId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-        credentials: "include",
-      });
+      console.log(adminId, updatedData);
+
+      const response = await fetch(
+        `${API_URL}/protected/user/update-admin/${adminId}`,
+        {
+          method: "Put",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+          credentials: "include",
+        }
+      );
 
       const { data, message, success } = await handleApiError(response);
       return { success, message, data };
@@ -91,7 +96,7 @@ export const updatePassword = createAsyncThunk(
       const response = await fetch(
         `${API_URL}/protected/${resource}/update-password/${id}`,
         {
-          method: "Put",
+          method: "PUT", // Changed from "Put" to "PUT"
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
           credentials: "include",

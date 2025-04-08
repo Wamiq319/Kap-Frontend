@@ -35,8 +35,10 @@ const Header = () => {
         navigate("/employee-home");
         break;
       case "kap_employee":
-        navigate("kap-employee-home");
+        navigate("/kap-employee-home");
         break;
+      case "gov_manager":
+        navigate("/govsector-manager-home");
       default:
         navigate("/login");
     }

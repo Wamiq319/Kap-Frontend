@@ -137,6 +137,7 @@ const AddGovernmentEmployeePage = () => {
       }
       fetchUsers();
     } catch (error) {
+      conseol.error(error);
       showToast(error.message || "Failed to update password", "error");
     } finally {
       resetPasswordEdit();
