@@ -241,6 +241,10 @@ const AddGovernmentEmployeePage = () => {
         showToast(response.message, "success");
         resetForm();
         fetchUsers();
+      } else {
+        showToast(response.message, "error");
+        resetForm();
+        fetchUsers();
       }
     } catch (error) {
       setUiState((prev) => ({

@@ -83,7 +83,6 @@ const AddOpEmployeePage = () => {
           },
         })
       );
-      showToast(response.payload.message, "info");
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
