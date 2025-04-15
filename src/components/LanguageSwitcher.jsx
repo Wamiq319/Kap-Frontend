@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setLanguage } from "../redux/slices/langSlice";
+import { setLanguage } from "../redux/slices/langgSlice";
 import { arflag, usflag } from "../assets";
 
 const LanguageSwitcher = () => {
