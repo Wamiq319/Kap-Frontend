@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import adminCrudReducer from "./slices/adminCrudSlice";
-import langReducer from "./slices/langSlice";
+import langReducer from "./slices/langgSlice";
 
 const store = configureStore({
   reducer: {
