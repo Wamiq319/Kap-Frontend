@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaHome, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import {
   fetchEntities,
   addEntity,
   deleteEntity,
-} from "../../redux/adminCrudSlice";
+} from "../../redux/slices/adminCrudSlice";
 import {
   DataTable,
   Button,
@@ -20,6 +20,7 @@ import {
 const AddGovSectorPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
+  const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     govSector: "",
@@ -44,11 +45,14 @@ const AddGovSectorPage = () => {
   });
 
   const tableHeader = [
-    { key: "index", label: "#" },
-    { key: "govSector", label: "Government Sector" },
-    { key: "image", label: "Logo" },
-    { key: "adminName", label: "Admin Name" },
-    { key: "mobile", label: "Mobile No" },
+    { key: "index", label: words["#"] || "#" },
+    {
+      key: "govSector",
+      label: words["Government Sector"] || "Government Sector",
+    },
+    { key: "image", label: words["Logo"] || "Logo" },
+    { key: "adminName", label: words["Admin Name"] || "Admin Name" },
+    { key: "mobile", label: words["Mobile No"] || "Mobile No" },
   ];
 
   const fetchData = async () => {
@@ -82,6 +86,10 @@ const AddGovSectorPage = () => {
   };
 
   const handleBulkDelete = (selectedIds) => {
+    if (selectedIds.length === 0) {
+      showToast(words["No Sectors  selected"], "warning");
+      return;
+    }
     setConfirmDelete({
       ids: selectedIds,
       isBulk: true,
@@ -101,14 +109,16 @@ const AddGovSectorPage = () => {
       );
 
       const message = confirmDelete.isBulk
-        ? `Deleted ${confirmDelete.ids.length} sectors`
-        : `Deleted ${confirmDelete.govSector}`;
+        ? `${words["Deleted"]} ${confirmDelete.ids.length} ${words["Sectors"]}`
+        : `${words["Deleted"]} ${confirmDelete.name}`;
 
-      showToast(response.message, "success");
+      showToast(message, "success");
       fetchData();
     } catch (error) {
       showToast(
-        confirmDelete.isBulk ? "Bulk delete failed" : "Delete failed",
+        confirmDelete.isBulk
+          ? words["Bulk delete failed"] || "Bulk delete failed"
+          : words["Delete failed"] || "Delete failed",
         "error"
       );
     } finally {
@@ -139,7 +149,8 @@ const AddGovSectorPage = () => {
     ) {
       setUiState((prev) => ({
         ...prev,
-        errorMessage: "Please complete all fields",
+        errorMessage:
+          words["Please complete all fields"] || "Please complete all fields",
       }));
       return;
     }
@@ -160,9 +171,18 @@ const AddGovSectorPage = () => {
         showToast(response.message, "success");
         resetForm();
         fetchData();
+      } else {
+        showToast(response.message, "error");
+        resetForm();
+        fetchData();
       }
     } catch (error) {
-      showToast(error.message || "Failed to add sector", "error");
+      showToast(
+        error.message ||
+          words["Failed to add sector"] ||
+          "Failed to add sector",
+        "error"
+      );
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false, isModalOpen: false }));
     }
@@ -192,11 +212,18 @@ const AddGovSectorPage = () => {
         isOpen={confirmDelete.ids.length > 0}
         onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
         onConfirm={confirmDeleteAction}
-        title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
+        title={
+          confirmDelete.isBulk
+            ? words["Confirm Bulk Delete"] || "Confirm Bulk Delete"
+            : words["Confirm Delete"] || "Confirm Delete"
+        }
         message={
           confirmDelete.isBulk
-            ? `Delete ${confirmDelete.ids.length} selected sectors?`
-            : `Delete ${confirmDelete.name}?`
+            ? (
+                words["Delete $1 selected sectors?"] ||
+                "Delete $1 selected sectors?"
+              ).replace("$1", confirmDelete.ids.length)
+            : `${words["Delete"] || "Delete"} ${confirmDelete.name}?`
         }
       />
 
@@ -210,7 +237,7 @@ const AddGovSectorPage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Government Sector"
+          text={words["Add Government Sector"]}
           onClick={() => setUiState((prev) => ({ ...prev, isModalOpen: true }))}
           className="bg-green-600 hover:bg-green-700 text-lg font-semibold py-3 mb-2 shadow"
         />
@@ -223,34 +250,36 @@ const AddGovSectorPage = () => {
             resetForm();
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
-          title="Add Government Sector"
+          title={words["Add Government Sector"]}
         >
           <form
             onSubmit={handleSubmit}
             className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
             <InputField
-              label="Government Sector"
+              label={words["Government Sector"] || "Government Sector"}
               name="govSector"
-              placeholder="Enter sector name"
+              placeholder={words["Enter sector name"] || "Enter sector name"}
               value={formData.govSector}
               onChange={handleChange}
             />
             <ImageInput
-              label="Logo Image"
+              label={words["Logo Image"] || "Logo Image"}
               name="logoImage"
               onChange={handleImageChange}
               required={true}
             />
             <InputField
-              label="Admin Name"
+              label={words["Admin Name"] || "Admin Name"}
               name="adminName"
-              placeholder="Enter admin full name"
+              placeholder={
+                words["Enter admin full name"] || "Enter admin full name"
+              }
               value={formData.adminName}
               onChange={handleChange}
             />
             <InputField
-              label="Mobile Number"
+              label={words["Mobile Number"] || "Mobile Number"}
               name="mobile"
               placeholder="+9665XXXXXXXX"
               type="tel"
@@ -265,14 +294,18 @@ const AddGovSectorPage = () => {
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"] || "Cancel"}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text={uiState.isLoading ? "Creating...." : "Create"}
+                text={
+                  uiState.isLoading
+                    ? words["Creating...."] || "Creating...."
+                    : words["Create"] || "Create"
+                }
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}
@@ -288,22 +321,23 @@ const AddGovSectorPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Government Sectors"
+          heading={words["Government Sectors"] || "Government Sectors"}
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-green-200"
           bulkActions={[
             {
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              text: words["Remove"],
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
-              text: "Delete",
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              text: words["Delete"] || "Delete",
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleDelete,
             },
           ]}

@@ -9,7 +9,6 @@ import AdminUpdatePage from "./Auth/AdminUpdatePage";
 // ======================
 import AdminHomePage from "./Home/Admin";
 import KAPEmployeeHomePage from "./Home/KapEmployee";
-import CompanyEmployeeHomePage from "./Home/CompanyEmployee";
 import IntegrationEmployeeHomePage from "./Home/IntegrationEmployee";
 import OperatingManagerHomePage from "./Home/OperatingManager.jsx";
 import GovSectorManagerHomePage from "./Home/GovSectorManager.jsx";
@@ -51,7 +50,6 @@ export {
   // Home/Dashboard
   AdminHomePage,
   KAPEmployeeHomePage,
-  CompanyEmployeeHomePage,
   IntegrationEmployeeHomePage,
   OperatingManagerHomePage,
   GovSectorManagerHomePage,

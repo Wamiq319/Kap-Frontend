@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../redux/authSlice";
+import { loginUser } from "../../redux/slices/authSlice";
 import { Button, InputField } from "../../components";
-import logo from "../../assets/logo.png";
+import { logo } from "../../assets";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
-  const [error, setError] = useState(""); // State for error messages
-
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const words = useSelector((state) => state.lang.words);
   const { success } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
@@ -19,22 +19,21 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Reset error before attempting login
+    setError("");
+    console.log("submit");
 
     if (!formData.username.trim()) {
-      setError("Username cannot be empty");
+      setError(words["Username cannot be empty"]);
       return;
     }
     if (!formData.password.trim()) {
-      setError("Password cannot be empty");
+      setError(words["Password cannot be empty"]);
       return;
     }
 
     try {
-      // Dispatch login action
       const response = await dispatch(loginUser(formData));
 
-      // Check if login failed
       if (response.payload && !response.payload.success) {
         setError(response.payload.message || response.payload);
       } else {
@@ -42,7 +41,7 @@ const LoginPage = () => {
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("Something went wrong. Please try again.");
+      setError(words["Something went wrong. Please try again."]);
     }
   };
 
@@ -52,31 +51,30 @@ const LoginPage = () => {
         <div className="flex justify-center mb-6">
           <img
             src={logo}
-            alt="Company Logo"
+            alt={words["Company Logo"]}
             className="h-40 w-40 rounded-full"
           />
         </div>
 
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
-          Login to Your Account
+          {words["Login to Your Account"]}
         </h2>
 
-        {/* Display error message */}
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-center my-2">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField
-            label="Username:"
+            label={words["Username"]}
             name="username"
-            placeholder="Enter your username"
+            placeholder={words["Enter your username"]}
             value={formData.username}
             onChange={handleChange}
             className="mb-4"
           />
           <InputField
-            label="Password:"
+            label={words["Password"]}
             name="password"
-            placeholder="Enter your password"
+            placeholder={words["Enter your password"]}
             type="password"
             value={formData.password}
             onChange={handleChange}
@@ -84,10 +82,9 @@ const LoginPage = () => {
           />
 
           <Button
-            text="Login"
+            text={words["Login"]}
             type="submit"
             className="w-full bg-green-600 hover:bg-green-700 transition text-white font-bold py-2 rounded-md"
-            disabled={success === false} // Disable if login failed
           />
         </form>
 
@@ -96,7 +93,7 @@ const LoginPage = () => {
             href="/forgot-password"
             className="text-blue-500 hover:underline text-sm"
           >
-            Forgot Password?
+            {words["Forgot Password?"]}
           </a>
         </div>
       </div>

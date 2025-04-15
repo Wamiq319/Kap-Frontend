@@ -31,9 +31,6 @@ import {
   GovEmployeeHomePage,
   ManageGovTicketsEmployeePage,
 
-  // Company Employee Routes
-  CompanyEmployeeHomePage,
-
   // Integration Employee Routes
   IntegrationEmployeeHomePage,
 
@@ -87,9 +84,11 @@ const App = () => {
   const user =
     useSelector((state) => state.auth.data) ||
     JSON.parse(localStorage.getItem("user"));
+  const lang = useSelector((state) => state.lang.lang);
+  const direction = lang === "ar" ? "rtl" : "ltr";
 
   return (
-    <div className="h-screen bg-gray-100">
+    <div className="h-screen  bg-gray-100" dir={direction}>
       <Router>
         <div className="flex flex-col align-middle">
           <Header />
@@ -240,14 +239,6 @@ const App = () => {
               />
 
               {/* Company Employee Routes */}
-              <Route
-                path="/company-employee-home"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.COMPANY_EMPLOYEE]}>
-                    <CompanyEmployeeHomePage />
-                  </ProtectedRoute>
-                }
-              />
 
               {/* Integration Employee Routes */}
               <Route

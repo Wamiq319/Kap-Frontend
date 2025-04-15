@@ -7,7 +7,7 @@ import {
   getUsers,
   deleteUser,
   updatePassword,
-} from "../../redux/authSlice";
+} from "../../redux/slices/authSlice";
 import {
   DataTable,
   Button,

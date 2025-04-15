@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updateAdmin, updatePassword } from "../../redux/authSlice";
+import { updateAdmin, updatePassword } from "../../redux/slices/authSlice";
 import { Button, InputField } from "../../components";
-import Logo from "../../assets/logo.png";
+import { logo } from "../../assets";
 
 const AdminUpdatePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const data = JSON.parse(localStorage.getItem("user"));
+  const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     username: data?.username || "",
@@ -34,21 +35,19 @@ const AdminUpdatePage = () => {
     // Validation for admin users
     if (data.role === "admin") {
       if (!formData.username || !formData.email || !formData.mobile) {
-        setError("Please fill in all required fields");
+        setError(words["Please fill in all required fields"]);
         return;
       }
     } else if (!formData.username) {
-      // Validation for non-admin users
-      setError("Please fill in username");
+      setError(words["Please fill in username"]);
       return;
     }
 
-    // Password validation for all users
     if (
       (formData.oldPassword || formData.newPassword) &&
       (!formData.oldPassword || !formData.newPassword)
     ) {
-      setError("Please fill both password fields");
+      setError(words["Please fill both password fields"]);
       return;
     }
 
@@ -56,21 +55,17 @@ const AdminUpdatePage = () => {
       let response;
 
       if (data.role === "admin") {
-        console.log("update");
         response = await dispatch(
           updateAdmin({
             adminId: data.id,
             updatedData: formData,
           })
         ).unwrap();
-      }
-      // Case 2: Managers - update password with "user" resource
-      else if (
+      } else if (
         data.role === "gov_manager" ||
         data.role === "op_manager" ||
         data.role === "kap_employee"
       ) {
-        console.log(data.id);
         response = await dispatch(
           updatePassword({
             id: data.id,
@@ -81,9 +76,7 @@ const AdminUpdatePage = () => {
             resource: "user",
           })
         ).unwrap();
-      }
-      // Case 3: Employees - update password with "employee" resource
-      else {
+      } else {
         response = await dispatch(
           updatePassword({
             id: data.id,
@@ -102,11 +95,11 @@ const AdminUpdatePage = () => {
         window.location.reload();
         navigate("/login");
       } else {
-        setError(response?.message || "Failed to update profile");
+        setError(words["Failed to update profile"]);
       }
     } catch (error) {
       console.error("Update error:", error);
-      setError(error.message || "Failed to update profile");
+      setError(words["Failed to update profile"]);
     }
   };
 
@@ -130,23 +123,23 @@ const AdminUpdatePage = () => {
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-4">
           <img
-            src={Logo}
-            alt="Company Logo"
+            src={logo}
+            alt={words["Company Logo"]}
             className="h-20 w-20 rounded-full"
           />
         </div>
 
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-4">
-          Update Information
+          {words["Update Information"]}
         </h2>
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <InputField
-            label="Username:"
+            label={words["Username"]}
             name="username"
-            placeholder="Enter new username"
+            placeholder={words["Enter new username"]}
             value={formData.username}
             onChange={handleChange}
             className="mb-4"
@@ -156,10 +149,10 @@ const AdminUpdatePage = () => {
           {data?.role === "admin" && (
             <>
               <InputField
-                label="Email:"
+                label={words["Email"]}
                 name="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder={words["Enter your email"]}
                 value={formData.email}
                 onChange={handleChange}
                 className="mb-4"
@@ -167,9 +160,9 @@ const AdminUpdatePage = () => {
               />
 
               <InputField
-                label="Mobile Number:"
+                label={words["Mobile Number"]}
                 name="mobile"
-                placeholder="Enter your mobile number"
+                placeholder={words["Enter your mobile number"]}
                 value={formData.mobile}
                 onChange={handleChange}
                 className="mb-4"
@@ -179,20 +172,20 @@ const AdminUpdatePage = () => {
           )}
 
           <InputField
-            label="Current Password:"
+            label={words["Current Password"]}
             name="oldPassword"
             type="password"
-            placeholder="Enter current password"
+            placeholder={words["Enter current password"]}
             value={formData.oldPassword}
             onChange={handleChange}
             className="mb-4"
           />
 
           <InputField
-            label="New Password:"
+            label={words["New Password"]}
             name="newPassword"
             type="password"
-            placeholder="Enter new password"
+            placeholder={words["Enter new password"]}
             value={formData.newPassword}
             onChange={handleChange}
             className="mb-4"
@@ -200,13 +193,13 @@ const AdminUpdatePage = () => {
 
           <div className="flex justify-between">
             <Button
-              text="Skip"
+              text={words["Skip"]}
               onClick={handleSkip}
               className="w-1/2 bg-gray-500 hover:bg-gray-700 mr-2"
               type="button"
             />
             <Button
-              text="Update"
+              text={words["Update"]}
               type="submit"
               className="w-1/2 bg-green-600 hover:bg-green-700"
             />

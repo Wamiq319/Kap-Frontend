@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import React from "react";
 import { Button } from "../../components";
 import { useSelector } from "react-redux";
-import logo from "../../assets/logo.png";
+import { logo } from "../../assets";
 
 const KAPEmployeeHomePage = () => {
   const navigate = useNavigate();

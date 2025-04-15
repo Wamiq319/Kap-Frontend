@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaEye, FaStickyNote, FaRegStickyNote } from "react-icons/fa";
-import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
+import { fetchEntities, updateEntity } from "../../redux/slices/adminCrudSlice";
 import {
   DataTable,
   Button,

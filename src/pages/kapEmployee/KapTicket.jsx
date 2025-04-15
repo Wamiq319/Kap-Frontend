@@ -4,7 +4,7 @@ import {
   fetchEntities,
   addEntity,
   fetchNames,
-} from "../../redux/adminCrudSlice";
+} from "../../redux/slices/adminCrudSlice";
 import {
   DataTable,
   Button,

@@ -5,7 +5,7 @@ import {
   fetchEntities,
   addEntity,
   deleteEntity,
-} from "../../redux/adminCrudSlice";
+} from "../../redux/slices/adminCrudSlice";
 import {
   DataTable,
   Button,
@@ -287,18 +287,19 @@ const AddOperatingCompanyPage = () => {
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-blue-200"
+          borderColor="border-blue-200 "
           bulkActions={[
             {
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
               text: "Delete",
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleDelete,
             },
           ]}

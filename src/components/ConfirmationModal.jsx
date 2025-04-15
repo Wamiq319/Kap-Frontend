@@ -1,7 +1,9 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   if (!isOpen) return null;
+  const words = useSelector((state) => state.lang.words);
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
@@ -11,15 +13,15 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="bg-gray-400 px-4 py-2 rounded-md text-white"
+            className="bg-gray-400 px-4 py-2  mx-2 rounded-md text-white"
           >
-            No
+            {words["No"]}
           </button>
           <button
             onClick={onConfirm}
-            className="bg-red-500 px-4 py-2 rounded-md text-white"
+            className="bg-red-500 px-4 py-2 mx-2 rounded-md text-white"
           >
-            Yes
+            {words["Yes"]}
           </button>
         </div>
       </div>

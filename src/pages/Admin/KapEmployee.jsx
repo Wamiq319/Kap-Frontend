@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
+import { MdOutlineLockReset } from "react-icons/md";
 import {
   createUser,
   getUsers,
   deleteUser,
   updatePassword,
-} from "../../redux/authSlice";
+} from "../../redux/slices/authSlice";
 import {
   DataTable,
   Button,
@@ -21,6 +22,7 @@ import {
 const AddKapEmployeePage = () => {
   const dispatch = useDispatch();
   const { users } = useSelector((state) => state.auth);
+  const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -54,18 +56,18 @@ const AddKapEmployeePage = () => {
   });
 
   const jobTitleOptions = [
-    { value: "Affair-officer", label: "Affair Officer" },
-    { value: "Data-Entry", label: "Data Entry" },
-    { value: "Ticket-Supervisor", label: "Ticket Supervisor" },
+    { value: "Affair-officer", label: words["Affair Officer"] },
+    { value: "Data-Entry", label: words["Data Entry"] },
+    { value: "Ticket-Supervisor", label: words["Ticket Supervisor"] },
   ];
 
   const tableHeader = [
-    { key: "index", label: "#" },
-    { key: "name", label: "Employee Name" },
-    { key: "jobTitle", label: "Job Title" },
-    { key: "mobile", label: "Mobile No" },
-    { key: "username", label: "Username" },
-    { key: "password", label: "Password" },
+    { key: "index", label: words["#"] },
+    { key: "name", label: words["Employee Name"] },
+    { key: "jobTitle", label: words["Job Title"] },
+    { key: "mobile", label: words["Mobile No"] },
+    { key: "username", label: words["Username"] },
+    { key: "password", label: words["Password"] },
   ];
 
   const fetchUsers = async () => {
@@ -91,18 +93,58 @@ const AddKapEmployeePage = () => {
     password: item.password,
   }));
 
+  const showToast = (message, type) => {
+    setUiState((prev) => ({
+      ...prev,
+      showToast: true,
+      toastMessage: message,
+      toastType: type,
+    }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      mobile: "+966",
+      username: "",
+      jobTitle: "",
+      password: "",
+    });
+  };
+
+  const resetPasswordEdit = () => {
+    setPasswordEditData({
+      userId: null,
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
-
-    // Validate passwords match
+    setUiState((prev) => ({
+      ...prev,
+      errorMessage: null,
+    }));
+    if (
+      !passwordEditData.newPassword ||
+      !passwordEditData.confirmPassword ||
+      !passwordEditData.oldPassword
+    ) {
+      setUiState((prev) => ({
+        ...prev,
+        errorMessage: words["Please complete all fields"],
+      }));
+      return;
+    }
     if (passwordEditData.newPassword !== passwordEditData.confirmPassword) {
-      showToast("New passwords don't match", "error");
+      showToast(words["Passwords don't match"], "error");
       return;
     }
 
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
-
       const response = await dispatch(
         updatePassword({
           id: passwordEditData.userId,
@@ -119,14 +161,11 @@ const AddKapEmployeePage = () => {
         showToast(response.message, "error");
       }
     } catch (error) {
-      showToast(
-        error.message || "Failed to update password. Please try again.",
-        "error"
-      );
+      showToast(words["Failed to update password"], "error");
     } finally {
       resetPasswordEdit();
       setUiState((prev) => ({ ...prev, isModalOpen: false, isLoading: false }));
-      fetchUsers();
+      await fetchUsers();
     }
   };
 
@@ -153,6 +192,10 @@ const AddKapEmployeePage = () => {
   };
 
   const handleBulkDelete = (selectedIds) => {
+    if (selectedIds.length === 0) {
+      showToast(words["No employees selected"], "warning");
+      return;
+    }
     setConfirmDelete({
       ids: selectedIds,
       isBulk: true,
@@ -170,14 +213,16 @@ const AddKapEmployeePage = () => {
       );
 
       const message = confirmDelete.isBulk
-        ? `Deleted ${confirmDelete.ids.length} employees`
-        : `Deleted ${confirmDelete.name}`;
+        ? `${words["Deleted"]} ${confirmDelete.ids.length} ${words["employees"]}`
+        : `${words["Deleted"]} ${confirmDelete.name}`;
 
       showToast(message, "success");
-      fetchUsers();
+      await fetchUsers();
     } catch (error) {
       showToast(
-        confirmDelete.isBulk ? "Bulk delete failed" : "Delete failed",
+        confirmDelete.isBulk
+          ? words["Bulk delete failed"]
+          : words["Delete failed"],
         "error"
       );
     } finally {
@@ -198,7 +243,7 @@ const AddKapEmployeePage = () => {
     ) {
       setUiState((prev) => ({
         ...prev,
-        errorMessage: "Please complete all fields.",
+        errorMessage: words["Please complete all fields"],
       }));
       return;
     }
@@ -215,50 +260,30 @@ const AddKapEmployeePage = () => {
       ).unwrap();
 
       if (response?.success) {
-        showToast(response.message, "success");
+        showToast(
+          response.message || words["Employee created successfully"],
+          "success"
+        );
         resetForm();
-        fetchUsers();
+        await fetchUsers();
       } else {
-        showToast(response.message, "error");
-        resetForm();
-        fetchUsers();
+        showToast(
+          response.message || words["Failed to create employee"],
+          "error"
+        );
       }
     } catch (error) {
+      showToast(error.message || words["Server error"], "error");
+    } finally {
       setUiState((prev) => ({
         ...prev,
-        errorMessage: error.message || "Server error",
+        isLoading: false,
+        isModalOpen: false,
+        errorMessage: "",
       }));
-    } finally {
-      setUiState((prev) => ({ ...prev, isLoading: false, isModalOpen: false }));
+      resetForm();
+      await fetchUsers();
     }
-  };
-
-  const showToast = (message, type) => {
-    setUiState((prev) => ({
-      ...prev,
-      toastMessage: message,
-      toastType: type,
-      showToast: true,
-    }));
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      mobile: "+966",
-      username: "",
-      jobTitle: "",
-      password: "",
-    });
-  };
-
-  const resetPasswordEdit = () => {
-    setPasswordEditData({
-      userId: null,
-      oldPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
   };
 
   return (
@@ -267,11 +292,15 @@ const AddKapEmployeePage = () => {
         isOpen={confirmDelete.ids.length > 0}
         onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
         onConfirm={confirmDeleteAction}
-        title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
+        title={
+          confirmDelete.isBulk
+            ? words["Confirm Bulk Delete"]
+            : words["Confirm Delete"]
+        }
         message={
           confirmDelete.isBulk
-            ? `Delete ${confirmDelete.ids.length} selected employees?`
-            : `Delete ${confirmDelete.name}?`
+            ? `${words["Delete"]} ${confirmDelete.ids.length} ${words["selected employees?"]}`
+            : `${words["Delete"]} ${confirmDelete.name}?`
         }
       />
 
@@ -285,7 +314,7 @@ const AddKapEmployeePage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add KAP Employee"
+          text={words["Add KAP Employee"]}
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -293,7 +322,7 @@ const AddKapEmployeePage = () => {
               isEditingPassword: false,
             }))
           }
-          className="bg-gray-600 hover:bg-gray-700 text-lg font-semibold py-3 mb-2 shadow"
+          className="bg-slate-600 hover:bg-slate-700 text-white text-lg font-semibold py-3 mb-2 shadow"
         />
       </div>
 
@@ -306,7 +335,9 @@ const AddKapEmployeePage = () => {
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
           title={
-            uiState.isEditingPassword ? "Reset Password" : "Add KAP Employee"
+            uiState.isEditingPassword
+              ? words["Reset Password"]
+              : words["Add KAP Employee"]
           }
         >
           <form
@@ -318,10 +349,10 @@ const AddKapEmployeePage = () => {
             {uiState.isEditingPassword ? (
               <>
                 <InputField
-                  label="Current Password"
+                  label={words["Current Password"]}
                   name="oldPassword"
                   type="password"
-                  placeholder="Enter current password"
+                  placeholder={words["Enter current password"]}
                   value={passwordEditData.oldPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -332,10 +363,10 @@ const AddKapEmployeePage = () => {
                   required
                 />
                 <InputField
-                  label="New Password"
+                  label={words["New Password"]}
                   name="newPassword"
                   type="password"
-                  placeholder="Enter new password (min 8 characters)"
+                  placeholder={words["Enter new password (min 8 characters)"]}
                   value={passwordEditData.newPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -346,10 +377,10 @@ const AddKapEmployeePage = () => {
                   required
                 />
                 <InputField
-                  label="Confirm Password"
+                  label={words["Confirm Password"]}
                   name="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={words["Confirm new password"]}
                   value={passwordEditData.confirmPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -363,16 +394,16 @@ const AddKapEmployeePage = () => {
             ) : (
               <>
                 <InputField
-                  label="Full Name"
+                  label={words["Full Name"]}
                   name="name"
-                  placeholder="Enter employee's full name"
+                  placeholder={words["Enter employee's full name"]}
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
                 <InputField
-                  label="Mobile Number"
+                  label={words["Mobile Number"]}
                   name="mobile"
                   type="tel"
                   placeholder="+9665XXXXXXXX"
@@ -382,9 +413,9 @@ const AddKapEmployeePage = () => {
                   }
                 />
                 <InputField
-                  label="Username"
+                  label={words["Username"]}
                   name="username"
-                  placeholder="Choose a username"
+                  placeholder={words["Choose a username"]}
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -394,19 +425,19 @@ const AddKapEmployeePage = () => {
                   }
                 />
                 <Dropdown
-                  label="Job Title"
+                  label={words["Job Title"]}
                   options={jobTitleOptions}
                   selectedValue={formData.jobTitle}
-                  placeholder="Select job title"
+                  placeholder={words["Select job title"]}
                   onChange={(value) =>
                     setFormData((prev) => ({ ...prev, jobTitle: value }))
                   }
                 />
                 <InputField
-                  label="Password"
+                  label={words["Password"]}
                   name="password"
                   type="password"
-                  placeholder="Set a password"
+                  placeholder={words["Set a password"]}
                   value={formData.password}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -424,16 +455,24 @@ const AddKapEmployeePage = () => {
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"]}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
-                className="bg-gray-500 hover:bg-gray-700"
+                className="bg-gray-500 hover:bg-gray-700 text-white"
               />
               <Button
-                text={uiState.isLoading ? "Saving..." : "Save"}
+                text={
+                  uiState.isLoading
+                    ? uiState.isEditingPassword
+                      ? words["Updating..."]
+                      : words["Creating..."]
+                    : uiState.isEditingPassword
+                    ? words["Update"]
+                    : words["Create"]
+                }
                 type="submit"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white"
                 disabled={uiState.isLoading}
               />
             </div>
@@ -442,33 +481,35 @@ const AddKapEmployeePage = () => {
       )}
 
       {uiState.isLoading ? (
-        <div className="flex justify-center align-middle">
+        <div className="flex border-blue-400 justify-center align-middle">
           <Loader size={5} opacity={100} />
         </div>
       ) : (
         <DataTable
-          heading="KAP Employees"
+          heading={words["KAP Employees"]}
           tableHeader={tableHeader}
           tableData={tableData}
-          headerBgColor="bg-gray-200"
+          headerBgColor="bg-slate-200"
+          borderColor="border-slate-200"
           bulkActions={[
             {
+              text: words["Remove Selected"],
               icon: <FaTrash />,
-              className: "bg-red-500",
+              className: "bg-red-500  hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
-              text: "Remove",
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              text: words["Remove"],
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleDelete,
             },
             {
-              text: "Reset Password",
-              icon: <FaEdit />,
-              className: "bg-blue-500",
+              text: words["Reset Password"],
+              icon: <MdOutlineLockReset className="text-white" />,
+              className: "bg-blue-500 hover:bg-blue-600 text-white",
               onClick: handleEditPassword,
             },
           ]}

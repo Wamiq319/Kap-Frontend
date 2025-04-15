@@ -7,8 +7,8 @@ import {
   getUsers,
   deleteUser,
   updatePassword,
-} from "../../redux/authSlice";
-import { fetchNames } from "../../redux/adminCrudSlice";
+} from "../../redux/slices/authSlice";
+import { fetchNames } from "../../redux/slices/adminCrudSlice";
 import {
   DataTable,
   Button,

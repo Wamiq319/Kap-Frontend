@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./authSlice";
-import adminCrudReducer from "./adminCrudSlice";
+import authReducer from "./slices/authSlice";
+import adminCrudReducer from "./slices/adminCrudSlice";
+import langReducer from "./slices/langSlice";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     adminCrud: adminCrudReducer,
+    lang: langReducer,
   },
 });
 

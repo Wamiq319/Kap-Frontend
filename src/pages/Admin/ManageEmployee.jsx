@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/FormComponents"; // Import your Button component
-import logo from "../../assets/logo.png";
+import { logo } from "../../assets";
 
 const ManageEmployeePage = () => {
   const navigate = useNavigate();

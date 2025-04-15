@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaExchangeAlt, FaCheck, FaEye, FaStickyNote } from "react-icons/fa";
-import { fetchEntities, updateEntity } from "../../redux/adminCrudSlice";
-import { getUsers } from "../../redux/authSlice";
+import { fetchEntities, updateEntity } from "../../redux/slices/adminCrudSlice";
+import { getUsers } from "../../redux/slices/authSlice";
 import {
   DataTable,
   Button,
