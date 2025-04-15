@@ -18,7 +18,7 @@ const langSlice = createSlice({
 
       // Change the language words based on the selected language
       if (action.payload === "en") {
-        // Changed from "eng" to "en"
+        // Changed from "eng" to "en" changes
         state.words = eng;
       } else if (action.payload === "ar") {
         state.words = ar;
