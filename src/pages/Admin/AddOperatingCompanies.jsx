@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaHome, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import {
   fetchEntities,
   addEntity,
@@ -20,6 +20,7 @@ import {
 const AddOperatingCompanyPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
+  const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     opCompany: "",
@@ -44,11 +45,11 @@ const AddOperatingCompanyPage = () => {
   });
 
   const tableHeader = [
-    { key: "index", label: "#" },
-    { key: "opCompany", label: "Operating Company" },
-    { key: "image", label: "Logo" },
-    { key: "adminName", label: "Admin Name" },
-    { key: "mobile", label: "Mobile No" },
+    { key: "index", label: words["#"] },
+    { key: "opCompany", label: words["Operating Company"] },
+    { key: "image", label: words["Logo"] },
+    { key: "adminName", label: words["Admin Name"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchData = async () => {
@@ -77,7 +78,7 @@ const AddOperatingCompanyPage = () => {
     setConfirmDelete({
       ids: [entity.id],
       isBulk: false,
-      name: entity.adminName,
+      name: entity.opCompany,
     });
   };
 
@@ -99,15 +100,16 @@ const AddOperatingCompanyPage = () => {
           dispatch(deleteEntity({ endpoint: "op/delete", id }))
         )
       );
-
-      showToast(response.message, "success");
-      fetchData();
+      showToast(words["Deleted succesfully"], "success");
     } catch (error) {
       showToast(
-        confirmDelete.isBulk ? "Bulk delete failed" : "Delete failed",
+        confirmDelete.isBulk
+          ? words["Bulk delete failed"]
+          : words["Delete failed"],
         "error"
       );
     } finally {
+      fetchData();
       setConfirmDelete({ ids: [], isBulk: false, name: "" });
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -135,7 +137,7 @@ const AddOperatingCompanyPage = () => {
     ) {
       setUiState((prev) => ({
         ...prev,
-        errorMessage: "Please complete all fields",
+        errorMessage: words["Please complete all fields"],
       }));
       return;
     }
@@ -153,14 +155,16 @@ const AddOperatingCompanyPage = () => {
       ).unwrap();
 
       if (response.success) {
-        showToast("Company added successfully", "success");
-        resetForm();
-        fetchData();
+        showToast(words["Company added successfully"], "success");
+      } else {
+        showToast(response.message, "error");
       }
     } catch (error) {
-      showToast(error.message || "Failed to add company", "error");
+      showToast(words["Failed to add company"], "error");
     } finally {
       setUiState((prev) => ({ ...prev, isLoading: false, isModalOpen: false }));
+      resetForm();
+      fetchData();
     }
   };
 
@@ -188,11 +192,15 @@ const AddOperatingCompanyPage = () => {
         isOpen={confirmDelete.ids.length > 0}
         onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
         onConfirm={confirmDeleteAction}
-        title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
+        title={
+          confirmDelete.isBulk
+            ? words["Confirm Bulk Delete"]
+            : words["Confirm Delete"]
+        }
         message={
           confirmDelete.isBulk
-            ? `Delete ${confirmDelete.ids.length} selected companies?`
-            : `Delete ${confirmDelete.name}?`
+            ? `${words["Delete"]} ${confirmDelete.ids.length} ${words["Selected Companies?"]}`
+            : `${words["Delete"]} ${confirmDelete.name}?`
         }
       />
 
@@ -206,7 +214,7 @@ const AddOperatingCompanyPage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Operating Company"
+          text={words["Add Operating Company"]}
           onClick={() => setUiState((prev) => ({ ...prev, isModalOpen: true }))}
           className="bg-blue-600 hover:bg-blue-700 text-lg font-semibold py-3 mb-2 shadow"
         />
@@ -219,35 +227,35 @@ const AddOperatingCompanyPage = () => {
             resetForm();
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
-          title="Add Operating Company"
+          title={words["Add Operating Company"]}
         >
           <form
             onSubmit={handleSubmit}
             className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
             <InputField
-              label="Company Name"
+              label={words["Company Name"]}
               name="opCompany"
-              placeholder="Enter company name"
+              placeholder={words["Enter Company Name"]}
               value={formData.opCompany}
               onChange={handleChange}
             />
             <ImageInput
-              label="Logo Image"
+              label={words["Logo Image"]}
               name="logoImage"
               onChange={handleImageChange}
             />
             <InputField
-              label="Admin Name"
+              label={words["Admin Name"]}
               name="adminName"
-              placeholder="Enter admin full name"
+              placeholder={words["Enter admin full name"]}
               value={formData.adminName}
               onChange={handleChange}
             />
             <InputField
-              label="Mobile Number"
+              label={words["Mobile Number"]}
               name="mobile"
-              placeholder="+9665XXXXXXXX"
+              placeholder={words["+9665XXXXXXXX"]}
               type="tel"
               value={formData.mobile}
               onChange={handleChange}
@@ -260,14 +268,16 @@ const AddOperatingCompanyPage = () => {
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"]}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text={uiState.isLoading ? "Creating...." : "Create"}
+                text={
+                  uiState.isLoading ? words["Creating...."] : words["Create"]
+                }
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}
@@ -283,13 +293,14 @@ const AddOperatingCompanyPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Operating Companies"
+          heading={words["Operating Companies"]}
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-blue-200"
           borderColor="border-blue-200 "
           bulkActions={[
             {
+              text: words["Remove Selected"],
               icon: <FaTrash className="text-white" />,
               className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
@@ -297,7 +308,7 @@ const AddOperatingCompanyPage = () => {
           ]}
           buttons={[
             {
-              text: "Delete",
+              text: words["Delete"],
               icon: <FaTrash className="text-white" />,
               className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleDelete,

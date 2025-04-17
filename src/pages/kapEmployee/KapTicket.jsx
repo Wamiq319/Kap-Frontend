@@ -105,11 +105,11 @@ const ManageKapTicketPage = () => {
     requestType: item.requestType,
     ticketNumber: item.ticketNumber,
     location: item.location,
-    operator: item.operator,
-    requestor: item.requestor,
+    operator: item.operator ?? "N/A",
+    requestor: item.requestor ?? "N/A",
     expectedCompletionDate: item.expectedCompletionDate
       ? new Date(item.expectedCompletionDate).toLocaleDateString()
-      : "",
+      : "N/A",
     orderDate: item.createdAt
       ? new Date(item.createdAt).toLocaleDateString()
       : "",
@@ -135,8 +135,7 @@ const ManageKapTicketPage = () => {
       !formData.requestType ||
       !formData.requestor ||
       !formData.operator ||
-      !formData.location ||
-      !formData.expectedCompletionDate
+      !formData.location
     ) {
       setUiState((prev) => ({
         ...prev,
@@ -161,8 +160,8 @@ const ManageKapTicketPage = () => {
 
       if (response.success) {
         showToast(response.message, "success");
-        resetForm();
-        fetchData();
+      } else {
+        showToast(response.message, "error");
       }
     } catch (error) {
       showToast(error.message || "Failed to create ticket", "error");
@@ -172,6 +171,8 @@ const ManageKapTicketPage = () => {
         isLoading: false,
         isModalOpen: false,
       }));
+      resetForm();
+      fetchData();
     }
   };
 
@@ -265,13 +266,13 @@ const ManageKapTicketPage = () => {
             }
           />
 
-          <DatePicker
+          {/* <DatePicker
             label="Expected Completion"
             name="expectedCompletionDate"
             value={formData.expectedCompletionDate}
             onChange={handleChange}
             required
-          />
+          /> */}
 
           <FileInput
             required={false}

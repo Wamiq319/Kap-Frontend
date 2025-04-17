@@ -274,7 +274,10 @@ const AddOpEmployeePage = () => {
 
   return (
     <div className="p-4">
-      <button onClick={() => navigate("/manage-employees")} className="ml-4">
+      <button
+        onClick={() => navigate("/manage-employees")}
+        className="p-2 bg-white rounded-full hover:bg-gray-100 transition-all duration-300 shadow-md"
+      >
         <FaHome
           size={24}
           className="text-blue-500 hover:text-blue-700 transition"

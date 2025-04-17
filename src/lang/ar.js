@@ -122,6 +122,24 @@ export const ar = {
   No: "لا",
   Yes: "نعم",
   "Remove Selected": "إزالة المحدد",
+  "Operating Company": "شركة التشغيل",
+  "Add Operating Company": "شركة رقم التشغيل",
+  "Company added successfully": "أضافت الشركة ستة أضعاف",
+  "Company Name": "اسم الشركة",
+  "Enter Company Name": "أدخل اسم الشركة",
+  "Operating Companies": "شركات التشغيل",
+  "Selected Companies?": "شركات مختارة؟",
+
+  "Manage Government Managers": "إدارة مديري الجهات الحكومية",
+  "Manage Government Employees": "إدارة موظفي الجهات الحكومية",
+  "Manage Company Managers": "إدارة مديري الشركات",
+  "Manage Company Employees": "إدارة موظفي الشركات",
+
+  "Add Government Manager": "إضافة مدير حكومي",
+  "Manager Name": "اسم المدير",
+  "Gov Managers": "مدراء الحكومة",
+  Sector: "قطاع",
+  "Confirm Password": "تأكيد كلمة المرور",
 };
 
 export default ar;

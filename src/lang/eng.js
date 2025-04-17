@@ -128,6 +128,25 @@ export const eng = {
   No: "No",
   Yes: "Yes",
   "Remove Selected": "Remove Selected",
+  "Operating Company": "Operating Company",
+  "Company added successfully": "Company added successfully",
+  "Add Operating Company": "Add Operating Company",
+  "Company Name": "Company Name",
+  "Enter Company Name": "Enter Company Name",
+  "Operating Companies": "Operating Companies",
+  "Selected Companies?": "Selected Companies?",
+
+  "Manage Government Managers": "Manage Government Managers",
+  "Manage Government Employees": "Manage Government Employees",
+  "Manage Company Managers": "Manage Company Managers",
+  "Manage Company Employees": "Manage Company Employees",
+
+  "Add Government Manager": "Add Government Manager",
+  "Manager Name": "Manager Name",
+  "Gov Managers": "Gov Managers",
+
+  Sector: "Sector",
+  "Confirm Password": "Confirm Password",
 };
 
 export default eng;

@@ -98,8 +98,8 @@ const TrackKapTicketPage = () => {
       : "",
     ticketNumber: item.ticketNumber,
     location: item.location,
-    operator: item.operator,
-    requestor: item.requestor,
+    operator: item.operator ?? "N/A",
+    requestor: item.requestor ?? "N/A",
     orderDate: item.createdAt
       ? new Date(item.createdAt).toLocaleDateString()
       : "",
@@ -301,12 +301,14 @@ const TrackKapTicketPage = () => {
 
           if (response.success) {
             showToast("Ticket closed successfully", "success");
-            fetchData();
-            setIsFollowupModalOpen(false);
+          } else {
+            showToast(response.message, "error");
           }
         } catch (error) {
           showToast(error.message || "Failed to close ticket", "error");
         } finally {
+          fetchData();
+          setIsFollowupModalOpen(false);
           setUiState((prev) => ({ ...prev, isLoading: false }));
         }
       }
@@ -443,8 +445,16 @@ const TrackKapTicketPage = () => {
             <div className="flex flex-wrap gap-4 justify-between mt-6 print-hidden">
               <Button
                 text="Thank You"
-                className="bg-blue-600 hover:bg-blue-700 flex-1 min-w-[150px]"
-                onClick={handleThankYouLetter}
+                className={`flex-1 min-w-[150px] ${
+                  selectedTicket.status !== "Closed"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+                onClick={
+                  selectedTicket.status !== "Closed"
+                    ? undefined
+                    : handleThankYouLetter
+                }
               />
               <Button
                 text="Add Note"
@@ -468,7 +478,6 @@ const TrackKapTicketPage = () => {
                     ? undefined
                     : handleCloseTicket
                 }
-                disabled={selectedTicket.status === "Closed"}
               />
             </div>
           </div>

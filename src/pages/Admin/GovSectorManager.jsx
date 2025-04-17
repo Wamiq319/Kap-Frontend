@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaEdit, FaTrash } from "react-icons/fa";
+import { FaHome, FaTrash } from "react-icons/fa";
+import { MdOutlineLockReset } from "react-icons/md";
 import {
   createUser,
   getUsers,
@@ -25,6 +26,7 @@ const AddGovManagerPage = () => {
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
+  const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     sectorId: "",
@@ -59,11 +61,11 @@ const AddGovManagerPage = () => {
 
   const tableHeader = [
     { key: "index", label: "#" },
-    { key: "name", label: "Manager Name" },
-    { key: "mobile", label: "Mobile No" },
-    { key: "username", label: "Username" },
-    { key: "sector", label: "Gov Sector" },
-    { key: "password", label: "Password" },
+    { key: "name", label: words["Manager Name"] },
+    { key: "mobile", label: words["Mobile No"] },
+    { key: "username", label: words["Username"] },
+    { key: "sector", label: words["Gov Sector"] },
+    { key: "password", label: words["Password"] },
   ];
 
   const fetchUsers = async () => {
@@ -152,6 +154,10 @@ const AddGovManagerPage = () => {
   };
 
   const handleBulkDelete = (selectedIds) => {
+    if (selectedIds.length === 0) {
+      showToast(words["No employees selected"], "warning");
+      return;
+    }
     setConfirmDelete({
       ids: selectedIds,
       isBulk: true,
@@ -262,7 +268,10 @@ const AddGovManagerPage = () => {
 
   return (
     <div className="p-4">
-      <button onClick={() => navigate("/manage-employees")} className="ml-4">
+      <button
+        onClick={() => navigate("/manage-employees")}
+        className="p-2 bg-white rounded-full hover:bg-gray-100 transition-all duration-300 shadow-md"
+      >
         <FaHome
           size={24}
           className="text-green-500 hover:text-green-700 transition"
@@ -273,7 +282,11 @@ const AddGovManagerPage = () => {
         isOpen={confirmDelete.ids.length > 0}
         onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
         onConfirm={confirmDeleteAction}
-        title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
+        title={
+          confirmDelete.isBulk
+            ? words["Confirm Bulk Delete"]
+            : words["Confirm Delete"]
+        }
         message={
           confirmDelete.isBulk
             ? `Delete ${confirmDelete.ids.length} selected users?`
@@ -291,7 +304,7 @@ const AddGovManagerPage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Government Manager"
+          text={words["Add Government Manager"]}
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -313,8 +326,8 @@ const AddGovManagerPage = () => {
           }}
           title={
             uiState.isEditingPassword
-              ? "Reset Password"
-              : "Add Government Manager"
+              ? words["Reset Password"]
+              : words["Add Government Manager"]
           }
         >
           <form
@@ -326,9 +339,9 @@ const AddGovManagerPage = () => {
             {uiState.isEditingPassword ? (
               <>
                 <InputField
-                  label="Current Password"
+                  label={words["Current Password"]}
                   name="oldPassword"
-                  placeholder="Enter Old Password"
+                  placeholder={words["Enter current password"]}
                   type="password"
                   value={passwordEditData.oldPassword}
                   onChange={(e) =>
@@ -340,9 +353,9 @@ const AddGovManagerPage = () => {
                   required
                 />
                 <InputField
-                  label="New Password"
+                  label={words["New Password"]}
                   name="newPassword"
-                  placeholder="Enter new password"
+                  placeholder={words["Enter new password (min 8 characters)"]}
                   type="password"
                   value={passwordEditData.newPassword}
                   onChange={(e) =>
@@ -354,9 +367,9 @@ const AddGovManagerPage = () => {
                   required
                 />
                 <InputField
-                  label="Confirm Password"
+                  label={words["Confirm Password"]}
                   name="confirmPassword"
-                  placeholder="Confirm new Password"
+                  placeholder={words["Confirm new password"]}
                   type="password"
                   value={passwordEditData.confirmPassword}
                   onChange={(e) =>
@@ -371,16 +384,16 @@ const AddGovManagerPage = () => {
             ) : (
               <>
                 <InputField
-                  label="Name"
+                  label={words["Full Name"]}
                   name="name"
-                  placeholder="Enter Name"
+                  placeholder={words["Enter employee's full name"]}
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
                 <InputField
-                  label="Mobile"
+                  label={words["Mobile Number"]}
                   name="mobile"
                   placeholder="+9665XXXXXXXX"
                   type="tel"
@@ -390,9 +403,9 @@ const AddGovManagerPage = () => {
                   }
                 />
                 <InputField
-                  label="Username"
+                  label={words["Username"]}
                   name="username"
-                  placeholder="Enter UserName"
+                  placeholder={words["Choose a username"]}
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -402,7 +415,7 @@ const AddGovManagerPage = () => {
                   }
                 />
                 <Dropdown
-                  label="Sector"
+                  label={words["Sector"]}
                   options={options}
                   selectedValue={formData.sectorId}
                   onChange={(value) =>
@@ -410,9 +423,9 @@ const AddGovManagerPage = () => {
                   }
                 />
                 <InputField
-                  label="Password"
+                  label={words["Password"]}
                   name="password"
-                  placeholder="Enter Password"
+                  placeholder={words["Set a password"]}
                   type="password"
                   value={formData.password}
                   onChange={(e) =>
@@ -431,14 +444,22 @@ const AddGovManagerPage = () => {
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"]}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text={uiState.isLoading ? "Saving...." : "Save"}
+                text={
+                  uiState.isLoading
+                    ? uiState.isEditingPassword
+                      ? words["Updating..."]
+                      : words["Creating..."]
+                    : uiState.isEditingPassword
+                    ? words["Update"]
+                    : words["Create"]
+                }
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
               />
@@ -453,28 +474,29 @@ const AddGovManagerPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Gov Managers"
+          heading={words["Gov Managers"]}
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-green-200"
           bulkActions={[
             {
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              text: words["Remove Selected"],
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
-              text: "Remove",
-              icon: <FaTrash />,
-              className: "bg-red-500",
+              text: words["Remove"],
+              icon: <FaTrash className="text-white" />,
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleDelete,
             },
             {
-              text: "Reset Password",
-              icon: <FaEdit />,
-              className: "bg-blue-500",
+              text: words["Reset Password"],
+              icon: <MdOutlineLockReset className="text-white" />,
+              className: "bg-blue-500 hover:bg-blue-600 text-white",
               onClick: handleEditPassword,
             },
           ]}

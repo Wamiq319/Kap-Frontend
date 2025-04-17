@@ -149,7 +149,7 @@ export const Dropdown = ({
   return (
     <div className={`w-full relative ${className}`} ref={dropdownRef}>
       {label && (
-        <label className="block text-sm font-medium mb-1 text-gray-700">
+        <label className="block text-sm font-bold mb-1 text-gray-700">
           {label}
           {required && <span className="text-red-500"> *</span>}
         </label>
@@ -245,7 +245,7 @@ export const ImageInput = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-bold  text-gray-700">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -317,7 +317,7 @@ export const DatePicker = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium mb-1 text-gray-700">
+        <label className="block text-sm font-bold mb-1 text-gray-700">
           {label}
           {required && <span className="text-red-500"> *</span>}
         </label>
@@ -374,7 +374,7 @@ export const FileInput = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium mb-1 text-gray-700">
+        <label className="block text-sm font-bold mb-1 text-gray-700">
           {label}
           {required && <span className="text-red-500"> *</span>}
         </label>

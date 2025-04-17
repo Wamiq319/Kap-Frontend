@@ -81,7 +81,7 @@ const AddGovSectorPage = () => {
     setConfirmDelete({
       ids: [entity.id],
       isBulk: false,
-      name: entity.adminName,
+      name: entity.govSector,
     });
   };
 
@@ -302,9 +302,7 @@ const AddGovSectorPage = () => {
               />
               <Button
                 text={
-                  uiState.isLoading
-                    ? words["Creating...."] || "Creating...."
-                    : words["Create"] || "Create"
+                  uiState.isLoading ? words["Creating...."] : words["Create"]
                 }
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
@@ -327,7 +325,7 @@ const AddGovSectorPage = () => {
           headerBgColor="bg-green-200"
           bulkActions={[
             {
-              text: words["Remove"],
+              text: words["Remove Selected"],
               icon: <FaTrash className="text-white" />,
               className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
