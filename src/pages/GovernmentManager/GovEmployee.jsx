@@ -21,7 +21,8 @@ import {
 const AddGovEmployeePage = () => {
   const dispatch = useDispatch();
   const { users, data } = useSelector((state) => state.auth);
-
+   const words = useSelector((state) => state.lang.words);
+  
   const [formData, setFormData] = useState({
     entityId: data?.sector.id,
     name: "",
@@ -54,11 +55,11 @@ const AddGovEmployeePage = () => {
   });
 
   const tableHeader = [
-    { key: "index", label: "#" },
-    { key: "name", label: "Employee Name" },
-    { key: "mobile", label: "Mobile No" },
-    { key: "username", label: "Username" },
-    { key: "password", label: "Password" },
+    { key: "index", label: words["#"] },
+    { key: "name", label: words["Employee Name"] },
+    { key: "mobile", label: words["Mobile No"] },
+    { key: "username", label: words["Username"] },
+    { key: "password", label: words["Password"] },
   ];
 
   const fetchUsers = async () => {
@@ -281,7 +282,7 @@ const AddGovEmployeePage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Government Employee"
+          text={words["Add Government Employee"]}
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -289,7 +290,7 @@ const AddGovEmployeePage = () => {
               isEditingPassword: false,
             }))
           }
-          className="bg-green-600 hover:bg-green-700 text-lg font-semibold py-3 mb-2 shadow"
+         className="bg-slate-600 hover:bg-slate-700 text-white text-lg font-semibold py-3 mb-2 shadow"
         />
       </div>
 
@@ -302,7 +303,9 @@ const AddGovEmployeePage = () => {
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
           title={
-            uiState.isEditingPassword ? "Reset Password" : "Add eentity Manager"
+            uiState.isEditingPassword
+              ? words["Reset Password"]
+              : words["Add Government Employee"]
           }
         >
           <form
@@ -314,10 +317,10 @@ const AddGovEmployeePage = () => {
             {uiState.isEditingPassword ? (
               <>
                 <InputField
-                  label="Current Password"
+                  label={words["Current Password"]}
                   name="oldPassword"
                   type="password"
-                  placeholder="Enter current password"
+                  placeholder={words["Enter current password"]}
                   value={passwordEditData.oldPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -328,10 +331,10 @@ const AddGovEmployeePage = () => {
                   required
                 />
                 <InputField
-                  label="New Password"
+                 label={words["New Password"]}
                   name="newPassword"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={words["Enter new password (min 8 characters)"]}
                   value={passwordEditData.newPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -342,10 +345,10 @@ const AddGovEmployeePage = () => {
                   required
                 />
                 <InputField
-                  label="Confirm Password"
+                  label={words["Confirm Password"]}
                   name="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={words["Confirm new password"]}
                   value={passwordEditData.confirmPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -359,16 +362,16 @@ const AddGovEmployeePage = () => {
             ) : (
               <>
                 <InputField
-                  label="Full Name"
+                   label={words["Full Name"]}
                   name="name"
-                  placeholder="Enter Employee's full name"
+                  placeholder={words["Enter employee's full name"]}
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
                 <InputField
-                  label="Mobile Number"
+                  label={words["Mobile Number"]}
                   name="mobile"
                   type="tel"
                   placeholder="Enter mobile number"
@@ -378,9 +381,9 @@ const AddGovEmployeePage = () => {
                   }
                 />
                 <InputField
-                  label="Username"
+                  label={words["Username"]}
                   name="username"
-                  placeholder="Choose a username"
+                  placeholder={words["Choose a username"]}
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -391,10 +394,10 @@ const AddGovEmployeePage = () => {
                 />
 
                 <InputField
-                  label="Password"
+                  label={words["Password"]}
                   name="password"
                   type="password"
-                  placeholder="Set a password"
+                  placeholder={words["Set a password"]}
                   value={formData.password}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -412,14 +415,22 @@ const AddGovEmployeePage = () => {
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                text="Cancel"
+               text={words["Cancel"]}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
-                className="bg-gray-500 hover:bg-gray-700"
+                 className="bg-gray-500 hover:bg-gray-700 text-white"
               />
               <Button
-                text="Save"
+                text={
+                  uiState.isLoading
+                    ? uiState.isEditingPassword
+                      ? words["Updating..."]
+                      : words["Creating..."]
+                    : uiState.isEditingPassword
+                    ? words["Update"]
+                    : words["Create"]
+                }
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}
@@ -435,24 +446,27 @@ const AddGovEmployeePage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Government Employees"
+          heading={words["Government Employees"]}
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-green-200"
           bulkActions={[
             {
+              text: words["Remove Selected"],
               icon: <FaTrash className="text-red-500" />,
-              className: "bg-red-100 hover:bg-red-200",
+              className: "bg-red-100  hover:bg-red-200 ",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
+              text: words["Remove"],
               icon: <FaTrash className="text-red-500" />,
-              className: "bg-red-100 hover:bg-red-200",
+              className: "bg-red-100 hover:bg-red-200 ",
               onClick: handleDelete,
             },
             {
+              text: words["Reset Password"],
               icon: <MdOutlineLockReset className="text-red-500" />,
               className: "bg-blue-100 hover:bg-blue-200",
               onClick: handleEditPassword,
