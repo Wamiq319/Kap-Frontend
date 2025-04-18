@@ -26,6 +26,7 @@ const AddCompanyManagerPage = () => {
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
+const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     companyId: "",
@@ -59,12 +60,12 @@ const AddCompanyManagerPage = () => {
   });
 
   const tableHeader = [
-    { key: "index", label: "#" },
-    { key: "name", label: "Manager Name" },
-    { key: "mobile", label: "Mobile No" },
-    { key: "username", label: "Username" },
-    { key: "company", label: "Company" },
-    { key: "password", label: "Password" },
+    { key: "index", label: words["#"] },
+    { key: "name", label: words["Manager Name"] },
+    { key: "mobile", label: words["Mobile No"] },
+    { key: "username", label: words["Username"] },
+    { key: "company", label: words["Company"] },
+    { key: "password", label: words["Password"] },
   ];
 
   const fetchUsers = async () => {
@@ -297,7 +298,7 @@ const AddCompanyManagerPage = () => {
 
       <div className="flex justify-center">
         <Button
-          text="Add Company Manager"
+          text={words["Add Company Manager"]}
           onClick={() =>
             setUiState((prev) => ({
               ...prev,
@@ -318,7 +319,7 @@ const AddCompanyManagerPage = () => {
             setUiState((prev) => ({ ...prev, isModalOpen: false }));
           }}
           title={
-            uiState.isEditingPassword ? "Reset Password" : "Add Company Manager"
+            uiState.isEditingPassword ? words["Reset Password"] : words["Add Company Manager"]
           }
         >
           <form
@@ -330,10 +331,10 @@ const AddCompanyManagerPage = () => {
             {uiState.isEditingPassword ? (
               <>
                 <InputField
-                  label="Current Password"
+                  label={words["Current Password"]}
                   name="oldPassword"
                   type="password"
-                  placeholder="Enter current password"
+                  placeholder={words["Enter current password"]}
                   value={passwordEditData.oldPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -344,10 +345,10 @@ const AddCompanyManagerPage = () => {
                   required
                 />
                 <InputField
-                  label="New Password"
+                   label={words["New Password"]}
                   name="newPassword"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={words["Enter new password (min 8 characters)"]}
                   value={passwordEditData.newPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -358,10 +359,10 @@ const AddCompanyManagerPage = () => {
                   required
                 />
                 <InputField
-                  label="Confirm Password"
+                   label={words["Confirm Password"]}
                   name="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={words["Confirm new password"]}
                   value={passwordEditData.confirmPassword}
                   onChange={(e) =>
                     setPasswordEditData((prev) => ({
@@ -375,16 +376,16 @@ const AddCompanyManagerPage = () => {
             ) : (
               <>
                 <InputField
-                  label="Full Name"
+                  label={words["Full Name"]}
                   name="name"
-                  placeholder="Enter manager's full name"
+                  placeholder={words["Enter employee's full name"]}
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
                 <InputField
-                  label="Mobile Number"
+                   label={words["Mobile Number"]}
                   name="mobile"
                   type="tel"
                   placeholder="+9665XXXXXXXX"
@@ -394,9 +395,9 @@ const AddCompanyManagerPage = () => {
                   }
                 />
                 <InputField
-                  label="Username"
+                   label={words["Username"]}
                   name="username"
-                  placeholder="Choose a username"
+                  placeholder={words["Choose a username"]}
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -406,19 +407,19 @@ const AddCompanyManagerPage = () => {
                   }
                 />
                 <Dropdown
-                  label="Company"
+                  label={words["Company"]}
                   options={options}
                   selectedValue={formData.companyId}
-                  placeholder="Select company"
+                  placeholder={words["Select company"]}
                   onChange={(value) =>
                     setFormData((prev) => ({ ...prev, companyId: value }))
                   }
                 />
                 <InputField
-                  label="Password"
+                  label={words["Password"]}
                   name="password"
                   type="password"
-                  placeholder="Set a password"
+                  placeholder={words["Set a password"]}
                   value={formData.password}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -436,14 +437,22 @@ const AddCompanyManagerPage = () => {
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"]}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
-                className="bg-gray-500 hover:bg-gray-700"
+                 className="bg-gray-500 hover:bg-gray-700 text-white"
               />
               <Button
-                text={uiState.isLoading ? "Saving..." : "Save."}
+                 text={
+                  uiState.isLoading
+                    ? uiState.isEditingPassword
+                      ? words["Updating..."]
+                      : words["Creating..."]
+                    : uiState.isEditingPassword
+                    ? words["Update"]
+                    : words["Create"]
+                }
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
                 disabled={uiState.isLoading}
@@ -459,29 +468,30 @@ const AddCompanyManagerPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Company Managers"
+          heading={words["Company Managers"]}
           tableHeader={tableHeader}
           tableData={tableData}
           headerBgColor="bg-blue-200"
           rowsPerPage={5}
           bulkActions={[
             {
+              text: words["Remove Selected"],
               icon: <FaTrash />,
-              className: "bg-red-500",
+              className: "bg-red-500  hover:bg-red-600 text-white",
               onClick: handleBulkDelete,
             },
           ]}
           buttons={[
             {
-              text: "Remove",
+              text: words["Remove"],
               icon: <FaTrash />,
-              className: "bg-red-500",
+              className: "bg-red-500 hover:bg-red-600 text-white",
               onClick: handleDelete,
             },
             {
-              text: "Reset Password",
+              text: words["Reset Password"],
               icon: <MdOutlineLockReset />,
-              className: "bg-blue-500",
+              className: "bg-blue-500 hover:bg-blue-600 text-white",
               onClick: handleEditPassword,
             },
           ]}

@@ -5,7 +5,7 @@ export const eng = {
   Password: "Password",
   Logout: "Logout",
   "Control Panel": "Control Panel",
-
+ 
   // LoginPage specific
   "Username cannot be empty": "Username cannot be empty",
   "Password cannot be empty": "Password cannot be empty",
@@ -147,6 +147,13 @@ export const eng = {
 
   Sector: "Sector",
   "Confirm Password": "Confirm Password",
+  "Gov Employees":"Gov Employees",
+"Add Government Employee":"Add Government Employee",
+"Company":"Company",
+"Add Company Manager":"Add Company Manager",
+"Company Managers":"Company Managers",
+"Add Company Employee":"Add Company Employee",
+"Company Employees":"Company Employees"
 };
 
 export default eng;
