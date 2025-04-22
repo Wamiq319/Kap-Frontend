@@ -337,6 +337,10 @@ export const eng = {
   "Track Tickets": "Track Tickets",
   "Manage Tickets": "Manage Tickets",
   "Kap Employee Dashboard": "Kap Employee Dashboard",
+  "Enter request type":"Enter request type",
+  "Save":"Save",
+  "Reset Password":"Reset Password",
+  
 };
 
 export default eng;
