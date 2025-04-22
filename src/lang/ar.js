@@ -7,7 +7,7 @@ export const ar = {
   Password: "كلمة المرور",
   Logout: "تسجيل الخروج",
   KAP: "KAP",
- 
+
   // LoginPage specific
   "Username cannot be empty": "اسم المستخدم لا يمكن أن يكون فارغاً",
   "Password cannot be empty": "كلمة المرور لا يمكن أن تكون فارغة",
@@ -140,6 +140,7 @@ export const ar = {
   "Gov Managers": "مدراء الحكومة",
   Sector: "قطاع",
   "Confirm Password": "تأكيد كلمة المرور",
+<<<<<<< HEAD
    "Gov Employees":"الموظفين الحكوميين",
    "Add Government Employee":"إضافة موظف حكومي",
    "Company":"شركة",
@@ -173,6 +174,19 @@ export const ar = {
    "Kap Employee Dashboard":"لوحة معلومات موظفي كاب",
    
    
+=======
+  "Gov Employees": "الموظفين الحكوميين",
+  "Add Government Employee": "إضافة موظف حكومي",
+  Company: "شركة",
+  "Add Company Manager": "إضافة مدير شركة",
+  "Company Managers": "مدراء الشركة",
+  "Add Company Employee": "أضف شركة موظف",
+  "Company Employees": "موظفي الشركة",
+  "Deleted Successfully": "تم الحذف بنجاح",
+  Deleted: "تم الحذف",
+  "Sector added successfully": "تمت إضافة القطاع بنجاح",
+  companies: "الشركات",
+>>>>>>> c458aff7be907c73142dfb103864079fcca35afd
 };
 
 export default ar;

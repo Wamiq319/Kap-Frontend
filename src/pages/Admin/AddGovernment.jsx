@@ -117,8 +117,8 @@ const AddGovSectorPage = () => {
     } catch (error) {
       showToast(
         confirmDelete.isBulk
-          ? words["Bulk delete failed"] || "Bulk delete failed"
-          : words["Delete failed"] || "Delete failed",
+          ? words["Bulk delete failed"]
+          : words["Delete failed"],
         "error"
       );
     } finally {
@@ -149,8 +149,7 @@ const AddGovSectorPage = () => {
     ) {
       setUiState((prev) => ({
         ...prev,
-        errorMessage:
-          words["Please complete all fields"] || "Please complete all fields",
+        errorMessage: words["Please complete all fields"],
       }));
       return;
     }
@@ -168,13 +167,10 @@ const AddGovSectorPage = () => {
       ).unwrap();
 
       if (response.success) {
-        showToast(response.message, "success");
-        resetForm();
-        fetchData();
+        showToast(words["Sector added successfully"], "success");
       } else {
         showToast(response.message, "error");
-        resetForm();
-        fetchData();
+    
       }
     } catch (error) {
       showToast(
@@ -184,6 +180,8 @@ const AddGovSectorPage = () => {
         "error"
       );
     } finally {
+      resetForm();
+      fetchData();
       setUiState((prev) => ({ ...prev, isLoading: false, isModalOpen: false }));
     }
   };
@@ -219,10 +217,10 @@ const AddGovSectorPage = () => {
         }
         message={
           confirmDelete.isBulk
-            ? (
-                words["Delete $1 selected sectors?"] ||
-                "Delete $1 selected sectors?"
-              ).replace("$1", confirmDelete.ids.length)
+            ? words["Delete $1 selected sectors?"].replace(
+                "$1",
+                confirmDelete.ids.length
+              )
             : `${words["Delete"] || "Delete"} ${confirmDelete.name}?`
         }
       />
