@@ -100,7 +100,11 @@ const AddOperatingCompanyPage = () => {
           dispatch(deleteEntity({ endpoint: "op/delete", id }))
         )
       );
-      showToast(words["Deleted succesfully"], "success");
+      const message = confirmDelete.isBulk
+        ? `${words["Deleted"]} ${confirmDelete.ids.length} ${words["companies"]}`
+        : `${words["Deleted Successfully"]}`;
+
+      showToast(message, "success");
     } catch (error) {
       showToast(
         confirmDelete.isBulk

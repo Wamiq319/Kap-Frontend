@@ -214,7 +214,7 @@ const AddKapEmployeePage = () => {
 
       const message = confirmDelete.isBulk
         ? `${words["Deleted"]} ${confirmDelete.ids.length} ${words["employees"]}`
-        : `${words["Deleted"]} ${confirmDelete.name}`;
+        : `${words["Deleted Successfully"]}`;
 
       showToast(message, "success");
       await fetchUsers();

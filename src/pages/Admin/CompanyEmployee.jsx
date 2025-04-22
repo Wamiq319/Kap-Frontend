@@ -26,7 +26,7 @@ const AddOpEmployeePage = () => {
   const navigate = useNavigate();
   const { names } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
-const words = useSelector((state) => state.lang.words);
+  const words = useSelector((state) => state.lang.words);
 
   const [formData, setFormData] = useState({
     entityId: "",
@@ -185,17 +185,16 @@ const words = useSelector((state) => state.lang.words);
       );
 
       const message = confirmDelete.isBulk
-        ? `Deleted ${confirmDelete.ids.length} managers`
-        : `Deleted ${confirmDelete.name}`;
-
+        ? `${words["Deleted"]} ${confirmDelete.ids.length} ${words["employees"]}`
+        : `${words["Deleted Successfully"]}`;
       showToast(message, "success");
-      fetchUsers();
     } catch (error) {
       showToast(
         confirmDelete.isBulk ? "Bulk delete failed" : "Delete failed",
         "error"
       );
     } finally {
+      await fetchUsers();
       setConfirmDelete({ ids: [], isBulk: false, name: "" });
       setUiState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -232,8 +231,8 @@ const words = useSelector((state) => state.lang.words);
 
       if (response?.success) {
         showToast(response.message, "success");
-        resetForm();
-        fetchUsers();
+      } else {
+        showToast(response.message, "error");
       }
     } catch (error) {
       setUiState((prev) => ({
@@ -241,6 +240,8 @@ const words = useSelector((state) => state.lang.words);
         errorMessage: error.message || "Server error",
       }));
     } finally {
+      resetForm();
+      fetchUsers();
       setUiState((prev) => ({ ...prev, isLoading: false, isModalOpen: false }));
     }
   };
@@ -289,11 +290,15 @@ const words = useSelector((state) => state.lang.words);
         isOpen={confirmDelete.ids.length > 0}
         onClose={() => setConfirmDelete({ ids: [], isBulk: false, name: "" })}
         onConfirm={confirmDeleteAction}
-        title={confirmDelete.isBulk ? "Confirm Bulk Delete" : "Confirm Delete"}
+        title={
+          confirmDelete.isBulk
+            ? words["Confirm Bulk Delete"]
+            : words["Confirm Delete"]
+        }
         message={
           confirmDelete.isBulk
-            ? `Delete ${confirmDelete.ids.length} selected managers?`
-            : `Delete ${confirmDelete.name}?`
+            ? `${words["Delete"]} ${confirmDelete.ids.length} ${words["Selected employees?"]}`
+            : `${words["Delete"]} ${confirmDelete.name}?`
         }
       />
 
@@ -387,7 +392,7 @@ const words = useSelector((state) => state.lang.words);
             ) : (
               <>
                 <InputField
-                   label={words["Full Name"]}
+                  label={words["Full Name"]}
                   name="name"
                   placeholder={words["Enter employee's full name"]}
                   value={formData.name}
@@ -406,7 +411,7 @@ const words = useSelector((state) => state.lang.words);
                   }
                 />
                 <InputField
-                   label={words["Username"]}
+                  label={words["Username"]}
                   name="username"
                   placeholder={words["Choose a username"]}
                   value={formData.username}
@@ -448,7 +453,7 @@ const words = useSelector((state) => state.lang.words);
             )}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
-                 text={words["Cancel"]}
+                text={words["Cancel"]}
                 onClick={() =>
                   setUiState((prev) => ({ ...prev, isModalOpen: false }))
                 }
