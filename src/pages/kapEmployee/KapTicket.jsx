@@ -21,6 +21,8 @@ const ManageKapTicketPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
+  const words = useSelector((state) => state.lang.words);
+   
 
   const [requestors, setRequestors] = useState([]);
   const [operators, setOperators] = useState([]);
@@ -46,15 +48,15 @@ const ManageKapTicketPage = () => {
   });
 
   const tableHeaders = [
-    { key: "index", label: "#" },
-    { key: "requestType", label: "Request Type" },
-    { key: "ticketNumber", label: "Ticket Number" },
-    { key: "location", label: "Location" },
-    { key: "operator", label: "Operator" },
-    { key: "requestor", label: "Requestor" },
-    { key: "orderDate", label: "Order Creation" },
-    { key: "expectedCompletionDate", label: "Expected Completion" },
-    { key: "attachment", label: "Attachment" },
+    { key: "index", label: words["#"] },
+    { key: "requestType", label: words["Ticket Number"] },
+    { key: "ticketNumber", label: words["Request Type"] },
+    { key: "location", label: words["Location"] },
+    { key: "operator", label: words["Operator"] },
+    { key: "requestor", label: words["Requestor"] },
+    { key: "orderDate", label: words["Order Creation"] },
+    { key: "expectedCompletionDate", label: words["Expected Completion"] },
+    { key: "attachment", label: words["Attachment"] },
   ];
 
   const companyOptions = operators?.map((operator) => ({
@@ -215,7 +217,7 @@ const ManageKapTicketPage = () => {
 
       <div className="flex justify-center mb-6">
         <Button
-          text="Create Ticket"
+          text={words["Create Ticket"]}
           onClick={() => setUiState((prev) => ({ ...prev, isModalOpen: true }))}
           className="bg-blue-600 hover:bg-blue-700 text-lg font-semibold py-3 shadow"
         />
@@ -224,23 +226,23 @@ const ManageKapTicketPage = () => {
       <Modal
         isOpen={uiState.isModalOpen}
         onClose={closeModal}
-        title="Create Ticket"
+        title= {words["Create Ticket"]}
       >
         <form
           onSubmit={handleSubmit}
           className="md:grid md:grid-cols-2 flex flex-wrap gap-4 max-h-[35rem] overflow-y-auto"
         >
           <InputField
-            label="Request Type"
+            label={words["Request Type"]}
             name="requestType"
-            placeholder="Enter request type"
+            placeholder={words["Enter request type"]}
             value={formData.requestType}
             onChange={handleChange}
             required
           />
 
           <Dropdown
-            label="Location"
+            label={words["Location"]}
             options={locations.map((loc) => ({ value: loc, label: loc }))}
             selectedValue={formData.location}
             onChange={(value) =>
@@ -249,7 +251,7 @@ const ManageKapTicketPage = () => {
           />
 
           <Dropdown
-            label="Operator"
+            label={words["Operator"]}
             options={companyOptions}
             selectedValue={formData.operator}
             onChange={(value) =>
@@ -258,7 +260,7 @@ const ManageKapTicketPage = () => {
           />
 
           <Dropdown
-            label="Requestor"
+            label={words["Requestor"]}
             options={sectorOptions}
             selectedValue={formData.requestor}
             onChange={(value) =>
@@ -276,7 +278,7 @@ const ManageKapTicketPage = () => {
 
           <FileInput
             required={false}
-            label="Attachments(optional)"
+            label={words["Attachments(optional)"]}
             name="attachment" // Fixed name to match formData
             onChange={handleFileChange} // Fixed to use handleFileChange
           />
@@ -289,13 +291,13 @@ const ManageKapTicketPage = () => {
 
           <div className="col-span-2 flex justify-end gap-2 mt-4">
             <Button
-              text="Cancel"
+              text={words["Cancel"]}
               onClick={closeModal}
               type="button"
               className="bg-gray-500 hover:bg-gray-700"
             />
             <Button
-              text={uiState.isLoading ? "Submitting..." : "Submit"}
+              text={uiState.isLoading ? words["Submitting..."] : words["Submit"]}
               type="submit"
               className="bg-green-600 hover:bg-green-700"
               disabled={uiState.isLoading}
@@ -310,7 +312,7 @@ const ManageKapTicketPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Tickets"
+          heading={words["Tickets"]}
           tableHeader={tableHeaders}
           tableData={tableData}
           headerBgColor="bg-gray-200"

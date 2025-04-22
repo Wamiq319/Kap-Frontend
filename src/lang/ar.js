@@ -146,7 +146,33 @@ export const ar = {
    "Add Company Manager": "إضافة مدير شركة",
    "Company Managers":"مدراء الشركة",
    "Add Company Employee":"أضف شركة موظف",
-   "Company Employees":"موظفي الشركة"
+   "Company Employees":"موظفي الشركة",
+   "Ticket Number":"رقم التذكرة",
+   "Request Type":"نوع الطلب",
+   "Location":"موقع",
+   "Operator":"المشغل",
+   "Requestor":"المتقدم",
+   "Order Creation":"إنشاء الطلب",
+   "Expected Completion":"الانتهاء المتوقع",
+   "Attachment":"مرفق",
+   "Create Ticket":"إنشاء تذكرة",
+   "Submit":"يُقدِّم",
+   "Completion %":"انتهاء ٪",
+   "Follow Up":"متابعة",
+   "Tickets":"تذاكر",
+   "Add Note":"إضافة ملاحظة",
+   "Note":"ملحوظة",
+   "Close Ticket":"إغلاق التذكرة",
+   "Print Report":"طباعة التقرير",
+   "Cancel":"يلغي",
+   "Enter your note...":"أدخل ملاحظتك...",
+   "Thank You":"شكرًا لك",
+   "Request Time":"طلب الوقت",
+   "Track Tickets":"طلب الوقت",
+   "Manage Tickets":"إدارة التذاكر",
+   "Kap Employee Dashboard":"لوحة معلومات موظفي كاب",
+   
+   
 };
 
 export default ar;

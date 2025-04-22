@@ -153,7 +153,35 @@ export const eng = {
 "Add Company Manager":"Add Company Manager",
 "Company Managers":"Company Managers",
 "Add Company Employee":"Add Company Employee",
-"Company Employees":"Company Employees"
+"Company Employees":"Company Employees",
+"Ticket Number":"Ticket Number",
+"Request Type":"Request Type",
+"Location":"Location",
+"Operator":"Operator",
+"Requestor":"Requestor",
+"Order Creation":"Order Creation",
+"Expected Completion":"Expected Completion",
+"Attachment":"Attachment",
+"Create Ticket":"Create Ticket",
+"Submit":"Submit",
+"Completion %":"Completion %",
+"Follow Up":"Follow Up",
+"Tickets":"Tickets",
+"Add Note":"Add Note",
+"Note":"Note",
+"Close Ticket":"Close Ticket",
+"Print Report":"Print Report",
+"Cancel":"Cancel",
+"Enter your note...":"Enter your note...",
+"Thank You":"Thank You",
+"Request Time":"Request Time",
+"Track Tickets":"Track Tickets",
+"Manage Tickets":"Manage Tickets",
+"Kap Employee Dashboard":"Kap Employee Dashboard",
+
+
+
+
 };
 
 export default eng;

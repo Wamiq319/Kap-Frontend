@@ -7,6 +7,7 @@ import { logo } from "../../assets";
 const KAPEmployeeHomePage = () => {
   const navigate = useNavigate();
   const { data } = useSelector((state) => state.auth);
+  const words = useSelector((state) => state.lang.words);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -30,18 +31,18 @@ const KAPEmployeeHomePage = () => {
             </h4>
             {data?.role && (
               <p className="text-sm text-gray-500 mt-1">
-                Kap Employee Dashboard
+            {words["Kap Employee Dashboard"]}
               </p>
             )}
           </div>
         </div>
         <Button
-          text="Manage Tickets"
+          text={words["Manage Tickets"]}
           onClick={() => handleNavigation("/manage-kap-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
         <Button
-          text="Track Tickets"
+          text={words["Track Tickets"]}
           onClick={() => handleNavigation("/track-kap-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />

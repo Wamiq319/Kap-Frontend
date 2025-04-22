@@ -23,7 +23,7 @@ const AddKapEmployeePage = () => {
   const dispatch = useDispatch();
   const { users } = useSelector((state) => state.auth);
   const words = useSelector((state) => state.lang.words);
-
+ 
   const [formData, setFormData] = useState({
     name: "",
     mobile: "+966",

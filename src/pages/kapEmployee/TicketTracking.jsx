@@ -19,7 +19,8 @@ const TrackKapTicketPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
-
+ const words = useSelector((state) => state.lang.words);
+   
   const [requestors, setRequestors] = useState([]);
   const [operators, setOperators] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -46,16 +47,16 @@ const TrackKapTicketPage = () => {
   });
 
   const tableHeaders = [
-    { key: "index", label: "#" },
-    { key: "requestTime", label: "Request Time" },
-    { key: "ticketNumber", label: "Ticket Number" },
-    { key: "location", label: "Location" },
-    { key: "operator", label: "Operator" },
-    { key: "requestor", label: "Requestor" },
-    { key: "orderDate", label: "Order Creation" },
-    { key: "attachment", label: "Attachment" },
-    { key: "completionPercentage", label: "Completion %" },
-    { key: "followup", label: "Follow Up" },
+    { key: "index", label: words["#"] },
+    { key: "requestTime", label: words["Request Time"] },
+    { key: "ticketNumber", label: words["Ticket Number"] },
+    { key: "location", label: words["Location"] },
+    { key: "operator", label: words["Operator"] },
+    { key: "requestor", label: words["Requestor"] },
+    { key: "orderDate", label: words["Order Creation"] },
+    { key: "attachment", label: words["Attachment"] },
+    { key: "completionPercentage", label: words["Completion %"] },
+    { key: "followup", label: words["Follow Up"] },
   ];
 
   const fetchData = async () => {
@@ -331,7 +332,7 @@ const TrackKapTicketPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Tickets"
+          heading= {words ["Tickets"]}
           tableHeader={tableHeaders}
           tableData={tableData}
           headerBgColor="bg-gray-200"
@@ -462,7 +463,7 @@ const TrackKapTicketPage = () => {
 
             <div className="flex flex-wrap gap-4 justify-between mt-6 print-hidden">
               <Button
-                text="Thank You"
+                text={words["Thank You"]}
                 className={`flex-1 min-w-[150px] ${
                   selectedTicket.status !== "Closed"
                     ? "bg-gray-400 cursor-not-allowed"
@@ -475,17 +476,17 @@ const TrackKapTicketPage = () => {
                 }
               />
               <Button
-                text="Add Note"
+                text={words["Add Note"]}
                 className="bg-gray-600 hover:bg-gray-700 flex-1 min-w-[150px]"
                 onClick={handleAddNote}
               />
               <Button
-                text="Print Report"
+                text={words["Print Report"]}
                 className="bg-purple-600 hover:bg-purple-700 flex-1 min-w-[150px]"
                 onClick={handlePrint}
               />
               <Button
-                text="Close Ticket"
+                text={words["Close Ticket"]}
                 className={`flex-1 min-w-[150px] ${
                   selectedTicket.status === "Closed"
                     ? "bg-gray-400 cursor-not-allowed"
@@ -519,7 +520,7 @@ const TrackKapTicketPage = () => {
       >
         <div className="space-y-4">
           <InputField
-            label="Note"
+            label={words["Note"]}
             type="textarea"
             name="textarea"
             rows={4}
@@ -533,11 +534,11 @@ const TrackKapTicketPage = () => {
                 },
               }))
             }
-            placeholder="Enter your note..."
+            placeholder={words["Enter your note..."]}
           />
           <div className="flex justify-end gap-2">
             <Button
-              text="Cancel"
+              text={words["Cancel"]}
               type="button"
               onClick={() =>
                 setModals((prev) => ({
@@ -552,7 +553,7 @@ const TrackKapTicketPage = () => {
               className="bg-gray-500 hover:bg-gray-700"
             />
             <Button
-              text="Add Note"
+              text={words["Add Note"]}
               type="button"
               onClick={handleSubmitNote}
               className="bg-blue-600 hover:bg-blue-700"
