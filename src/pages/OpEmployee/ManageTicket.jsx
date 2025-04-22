@@ -60,8 +60,9 @@ const ManageTicketsEmployeePage = () => {
 
   const progressHeaders = [
     { key: "index", label: "#" },
-    { key: "percentage", label: "Progress" },
     { key: "date", label: "Date" },
+    { key: "percentage", label: "Progress" },
+    { key: "addedBy", label: "Added By" },
     { key: "observation", label: "Observation" },
   ];
 
@@ -148,6 +149,7 @@ const ManageTicketsEmployeePage = () => {
       percentage: `${item.percentage}%`,
       date: item.date ? new Date(item.date).toLocaleString() : "Unknown date",
       observation: item.observation || "-",
+      addedBy: item.addedBy,
     }));
   };
 

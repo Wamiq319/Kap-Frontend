@@ -34,10 +34,12 @@ import AddGovernmentEmployeePage from "./Admin/GovernmentEmployee.jsx";
 import AddCompanyEmployeePage from "./OperatingManagers/OpEmployee.jsx";
 import AddGovEmployeePage from "./GovernmentManager/GovEmployee.jsx";
 import ManageOpTicketsPage from "./OperatingManagers/opTickets.jsx";
+import AllOpTicketsPage from "./OpEmployee/CompanyTicket.jsx";
 import ManageKapTicketPage from "./kapEmployee/KapTicket.jsx";
 import ManageTicketsEmployeePage from "./OpEmployee/ManageTicket.jsx";
 import ManageTicketsGovPage from "./GovernmentManager/govTickets.jsx";
 import ManageGovTicketsEmployeePage from "./GovEmployee/ManageTicket.jsx";
+import AllGovTicketsPage from "./GovEmployee/SectorTickets.jsx";
 import TrackKapTicketPage from "./kapEmployee/TicketTracking.jsx";
 // ======================
 // Export All Components
@@ -70,9 +72,11 @@ export {
   AddCompanyEmployeePage,
   AddGovEmployeePage,
   ManageOpTicketsPage,
+  AllOpTicketsPage,
   ManageKapTicketPage,
   TrackKapTicketPage,
   ManageTicketsEmployeePage,
   ManageTicketsGovPage,
   ManageGovTicketsEmployeePage,
+  AllGovTicketsPage,
 };

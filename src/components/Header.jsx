@@ -29,12 +29,10 @@ const Header = () => {
         setHeaderText(user.sector?.name);
         break;
       case "op_manager":
+        setHeaderText(user.company?.name || words["Operating"]);
+        break;
       case "op_employee":
-        setHeaderText(
-          (user.sector?.name || words["Operating"]) +
-            " " +
-            words["Control Panel"]
-        );
+        setHeaderText(user.entity?.name || words["Operating"]);
         break;
       default:
         setHeaderText(words["Control Panel"]);

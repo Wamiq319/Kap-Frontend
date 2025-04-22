@@ -317,6 +317,7 @@ const ManageGovTicketsEmployeePage = () => {
             <InputField
               label="Note"
               type="textarea"
+              name="textarea"
               rows={5}
               value={modals.addNote.note}
               onChange={(e) =>

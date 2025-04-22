@@ -4,7 +4,7 @@ import { FaEye } from "react-icons/fa";
 import { fetchEntities } from "../../redux/slices/adminCrudSlice";
 import { DataTable, Loader, Modal } from "../../components";
 
-const AllOpTicketsPage = () => {
+const AllGovTicketsPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
@@ -35,7 +35,7 @@ const AllOpTicketsPage = () => {
 
     { key: "followup", label: "Details" },
   ];
-
+  console.log(user);
   const fetchData = async () => {
     try {
       setUiState((prev) => ({ ...prev, isLoading: true }));
@@ -43,7 +43,7 @@ const AllOpTicketsPage = () => {
         fetchEntities({
           endpoint: "tkt/tickets",
           params: {
-            userRole: "op_manager",
+            userRole: "gov_manager",
             userId: user.entity?.id ?? null,
           },
         })
@@ -227,4 +227,4 @@ const AllOpTicketsPage = () => {
   );
 };
 
-export default AllOpTicketsPage;
+export default AllGovTicketsPage;

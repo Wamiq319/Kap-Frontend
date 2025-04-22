@@ -30,6 +30,7 @@ import {
   // Government Employee Routes
   GovEmployeeHomePage,
   ManageGovTicketsEmployeePage,
+  AllGovTicketsPage,
 
   // Integration Employee Routes
   IntegrationEmployeeHomePage,
@@ -47,6 +48,7 @@ import {
   // Operating Employee Routes
   OperatingEmployeeHomePage,
   ManageTicketsEmployeePage,
+  AllOpTicketsPage,
 } from "./pages";
 import Header from "./components/Header";
 
@@ -237,6 +239,14 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/gov-employee-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.GOV_EMPLOYEE]}>
+                    <AllGovTicketsPage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Company Employee Routes */}
 
@@ -316,6 +326,14 @@ const App = () => {
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.OP_EMPLOYEE]}>
                     <ManageTicketsEmployeePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/op-employee-tickets"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.OP_EMPLOYEE]}>
+                    <AllOpTicketsPage />
                   </ProtectedRoute>
                 }
               />

@@ -35,7 +35,12 @@ const OperatingEmployeeHomePage = () => {
           </div>
         </div>
         <Button
-          text="Manage Tickets"
+          text="All Tickets"
+          onClick={() => handleNavigation("/op-employee-tickets")}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
+        />
+        <Button
+          text="My Assigned Tickets"
           onClick={() => handleNavigation("/manage-op-employee-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />

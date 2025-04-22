@@ -406,38 +406,56 @@ const TrackKapTicketPage = () => {
               </div>
 
               <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-2">Progress:</h3>
+                <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
+                  Progress History
+                </h3>
                 {selectedTicket.progress?.length > 0 ? (
-                  <ul className="space-y-2">
+                  <div className="space-y-2">
                     {selectedTicket.progress.map((item, index) => (
-                      <li key={index} className="progress-item">
-                        <strong>{item.percentage}%</strong> - {item.observation}
-                        <span className="text-gray-500 text-sm ml-2">
-                          ({new Date(item.date).toLocaleString()})
-                        </span>
-                      </li>
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-200 p-3 rounded-lg shadow-sm"
+                      >
+                        <div className="flex justify-between items-start">
+                          <p className="font-medium">
+                            {item.percentage}% - {item.observation}
+                          </p>
+                          <span className=" text-xs text-gray-500">
+                            {" "}
+                            {new Date(item.date).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 ) : (
                   <p>No progress updates yet</p>
                 )}
               </div>
 
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-2">Notes:</h3>
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-700">Notes</h3>
+                </div>
                 {selectedTicket.notes?.length > 0 ? (
-                  <ul className="space-y-2">
-                    {selectedTicket.notes.map((note, index) => (
-                      <li key={index} className="notes-item">
-                        {note.text} - <em>{note.addedBy}</em>
-                        <span className="text-gray-500 text-sm ml-2">
-                          ({new Date(note.date).toLocaleString()})
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-4">
+                    {[...selectedTicket.notes]
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .map((note, index) => (
+                        <div
+                          key={index}
+                          className="bg-white border border-gray-200 p-3 rounded-lg shadow-sm"
+                        >
+                          <p className="text-gray-800">{note.text}</p>
+                          <div className="flex justify-between mt-2 text-xs text-gray-500">
+                            <span>Added by: {note.addedBy}</span>
+                            <span>{new Date(note.date).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
                 ) : (
-                  <p>No notes yet</p>
+                  <p className="text-gray-500 italic">No notes available</p>
                 )}
               </div>
             </div>
@@ -503,6 +521,7 @@ const TrackKapTicketPage = () => {
           <InputField
             label="Note"
             type="textarea"
+            name="textarea"
             rows={4}
             value={modals.addNoteModal?.note || ""}
             onChange={(e) =>
