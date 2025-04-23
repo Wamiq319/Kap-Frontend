@@ -20,7 +20,8 @@ const ManageOpTicketsPage = () => {
   const { entities } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
   const user = JSON.parse(localStorage.getItem("user"));
-  console.log(entities);
+const words = useSelector((state) => state.lang.words);
+
   const [uiState, setUiState] = useState({
     showToast: false,
     toastMessage: "",
@@ -54,14 +55,14 @@ const ManageOpTicketsPage = () => {
   const [expectedCompletionDate, setExpectedCompletionDate] = useState(null);
 
   const tableHeaders = [
-    { key: "index", label: "#" },
-    { key: "requestType", label: "Request Type" },
-    { key: "ticketNumber", label: "Ticket Number" },
-    { key: "location", label: "Location" },
-    { key: "requestor", label: "Requestor" },
-    { key: "expectedCompletionDate", label: "Expected Completion" },
-    { key: "completionPercentage", label: "Completion %" },
-    { key: "followup", label: "Follow Up" },
+    { key: "index", label: words["#"] },
+    { key: "requestType", label: words["Request Type"] },
+    { key: "ticketNumber", label: words["Ticket Number"] },
+    { key: "location", label: words["Location"] },
+    { key: "requestor", label: words["Requestor"] },
+    { key: "expectedCompletionDate", label: words["Expected Completion"] },
+    { key: "completionPercentage", label: words["Completion %"] },
+    { key: "followup", label: words["Follow Up"] },
   ];
 
   const percentageOptions = [
@@ -221,7 +222,7 @@ const ManageOpTicketsPage = () => {
 
   const handleMarkComplete = async () => {
     showConfirmation(
-      "Are you sure you want to mark this ticket as complete?",
+      words["Are you sure you want to mark this ticket as complete?"],
       async () => {
         try {
           setUiState((prev) => ({ ...prev, isLoading: true }));
@@ -402,8 +403,8 @@ const ManageOpTicketsPage = () => {
         }}
         title={
           modals.assign.ticketStatus === "Open"
-            ? "Accept Ticket"
-            : "Transfer Ticket"
+            ? words["Accept Ticket"]
+            : words["Transfer Ticket"]
         }
       >
         {modals.assign.ticketStatus === "Open" ? (
@@ -421,7 +422,7 @@ const ManageOpTicketsPage = () => {
             />
             <div className="flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"]}
                 type="button"
                 onClick={() => {
                   setModals((prev) => ({
@@ -439,7 +440,7 @@ const ManageOpTicketsPage = () => {
                 className="bg-gray-500 hover:bg-gray-700"
               />
               <Button
-                text={uiState.isLoading ? "Processing..." : "Accept Ticket"}
+                text={uiState.isLoading ? words["Processing..."] : words["Accept Ticket"]}
                 type="button"
                 onClick={handleAcceptTicket}
                 className="bg-green-600 hover:bg-green-700"
@@ -467,7 +468,7 @@ const ManageOpTicketsPage = () => {
 
             <Dropdown
               label={
-                modals.assign.currentAssignee ? "Reassign to" : "Assign to"
+                modals.assign.currentAssignee ? words["Reassign to"] : words["Assign to"]
               }
               options={employeeOptions}
               selectedValue={modals.assign.employeeId}
@@ -481,7 +482,7 @@ const ManageOpTicketsPage = () => {
 
             <div className="flex justify-end gap-2">
               <Button
-                text="Cancel"
+                text={words["Cancel"]}
                 type="button"
                 onClick={() =>
                   setModals((prev) => ({
@@ -499,7 +500,7 @@ const ManageOpTicketsPage = () => {
               />
               <Button
                 text={
-                  uiState.isLoading ? "Processing..." : "Confirm Assignment"
+                  uiState.isLoading ? words["Processing..."] : words["Confirm Assignment"]
                 }
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700"
@@ -557,11 +558,11 @@ const ManageOpTicketsPage = () => {
             {/* Progress Update Section */}
             <div className="p-4 bg-white rounded-lg shadow-sm">
               <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
-                Update Progress
+        {words["Update Progress"]}
               </h3>
               <div className="space-y-4">
                 <Dropdown
-                  label="Progress Percentage"
+                  label={words["Progress Percentage"]}
                   options={percentageOptions}
                   selectedValue={modals.ticketDetails.progressPercentage.toString()}
                   onChange={(value) =>
@@ -576,7 +577,7 @@ const ManageOpTicketsPage = () => {
                 />
 
                 <InputField
-                  label="Observation Notes"
+                  label={words["Observation Notes"]}
                   name="observation"
                   type="textarea"
                   rows={3}
@@ -597,13 +598,13 @@ const ManageOpTicketsPage = () => {
                   {/* Top row with two buttons */}
                   <div className="flex justify-between gap-2">
                     <Button
-                      text={uiState.isLoading ? "Updating..." : "Update"}
+                      text={uiState.isLoading ? words["Updating..."] : words["Update"]}
                       className="bg-blue-600 hover:bg-blue-700 flex-1"
                       onClick={handleProgressSubmit}
                       disabled={uiState.isLoading}
                     />
                     <Button
-                      text="Cancel"
+                      text={words["Cancel"]}
                       className="bg-gray-500 hover:bg-gray-600 flex-1"
                       onClick={() =>
                         setModals((prev) => ({
@@ -621,7 +622,7 @@ const ManageOpTicketsPage = () => {
                   <Button
                     type="button"
                     onClick={handleMarkComplete}
-                    text={uiState.isLoading ? "Processing..." : "Mark Complete"}
+                    text={uiState.isLoading ? words["Processing..."] : words["Mark Complete"]}
                     className="bg-red-600 hover:bg-red-700 w-full py-2"
                     disabled={uiState.isLoading}
                   />
@@ -632,7 +633,7 @@ const ManageOpTicketsPage = () => {
             {/* Progress History */}
             <div className="p-4 bg-white rounded-lg shadow-sm">
               <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
-                Progress History
+                {words["Progress History"]}
               </h3>
               {modals.ticketDetails.ticket.progress?.length > 0 ? (
                 <div className="space-y-3">
@@ -669,7 +670,7 @@ const ManageOpTicketsPage = () => {
             {/* Notes Section */}
             <div className="p-4 bg-white rounded-lg shadow-sm">
               <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
-                Notes
+                {words["Notes"]}
               </h3>
               {modals.ticketDetails.ticket.notes?.length > 0 ? (
                 <div className="space-y-3">
@@ -708,7 +709,7 @@ const ManageOpTicketsPage = () => {
           confirmAction.onConfirm();
           setConfirmAction({ ...confirmAction, isOpen: false });
         }}
-        title="Confirm Action"
+        title={words["Confirm Action"]}
         message={confirmAction.message}
       />
 
@@ -728,7 +729,7 @@ const ManageOpTicketsPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Tickets Assigned to your Company"
+          heading={words["Tickets Assigned to your Company"]}
           tableHeader={tableHeaders}
           tableData={formatTableData()}
           headerBgColor="bg-gray-200"
@@ -736,7 +737,7 @@ const ManageOpTicketsPage = () => {
           showProgressBar={true}
           buttons={[
             {
-              text: "Transfer",
+              text: words["Transfer"],
               icon: (row) => (
                 <div className="relative">
                   <FaExchangeAlt className="text-orange-500" />

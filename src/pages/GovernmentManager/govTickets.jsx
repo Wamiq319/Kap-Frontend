@@ -18,6 +18,7 @@ const ManageTicketsGovPage = () => {
   const { entities } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
   const user = JSON.parse(localStorage.getItem("user"));
+ const words = useSelector((state) => state.lang.words);
 
   const [uiState, setUiState] = useState({
     showToast: false,
@@ -44,13 +45,13 @@ const ManageTicketsGovPage = () => {
 
   // Main tickets table headers
   const tableHeaders = [
-    { key: "index", label: "#" },
-    { key: "requestType", label: "Request Type" },
-    { key: "ticketNumber", label: "Ticket Number" },
-    { key: "location", label: "Location" },
-    { key: "operator", label: "Operator" },
-    { key: "expectedCompletionDate", label: "Expected Completion" },
-    { key: "status", label: "Ticket Status" },
+    { key: "index", label: words["#"] },
+    { key: "requestType", label: words["Request Type"] },
+    { key: "ticketNumber", label: words["Ticket Number"] },
+    { key: "location", label: words["Location"] },
+    { key: "operator", label: words["Operator"] },
+    { key: "expectedCompletionDate", label: words["Expected Completion"] },
+    { key: "status", label: words["Ticket Status"] },
   ];
 
   const fetchData = async () => {
@@ -214,7 +215,7 @@ const ManageTicketsGovPage = () => {
             },
           }))
         }
-        title="Assign Ticket"
+        title={words["Assign Ticket"]}
       >
         <form onSubmit={handleAssignSubmit} className="space-y-4 ">
           {modals.assign.currentAssignee && (
@@ -226,7 +227,7 @@ const ManageTicketsGovPage = () => {
           )}
 
           <Dropdown
-            label={modals.assign.currentAssignee ? "Reassign to" : "Assign to"}
+            label={modals.assign.currentAssignee ? words["Reassign to"] : words["Assign to"]}
             options={employeeOptions}
             selectedValue={modals.assign.employeeId}
             onChange={(value) =>
@@ -239,7 +240,7 @@ const ManageTicketsGovPage = () => {
 
           <div className="flex justify-end gap-2">
             <Button
-              text="Cancel"
+              text={words["Cancel"]}
               type="button"
               onClick={() =>
                 setModals((prev) => ({
@@ -255,7 +256,7 @@ const ManageTicketsGovPage = () => {
               className="bg-gray-500 hover:bg-gray-700"
             />
             <Button
-              text={uiState.isLoading ? "Processing..." : "Confirm Assignment"}
+              text={uiState.isLoading ? words["Processing..."] : words["Confirm Assignment"]}
               type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={uiState.isLoading}
@@ -272,7 +273,7 @@ const ManageTicketsGovPage = () => {
           confirmAction.onConfirm();
           setConfirmAction({ ...confirmAction, isOpen: false });
         }}
-        title="Confirm Action"
+        title={words["Confirm Action"]}
         message={confirmAction.message}
       />
 
@@ -292,14 +293,14 @@ const ManageTicketsGovPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Tickets Assigned to your Sector"
+          heading={words["Tickets Assigned to your Sector"]}
           tableHeader={tableHeaders}
           tableData={formatTableData()}
           headerBgColor="bg-green-200"
           rowHoverEffect={true}
           buttons={[
             {
-              text: "Transfer Ticket",
+              text: words["Transfer Ticket"],
               icon: <FaExchangeAlt className="text-orange-500" />,
               className: "bg-orange-100 hover:bg-orange-200",
               onClick: handleAssign,

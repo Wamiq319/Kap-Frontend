@@ -158,6 +158,27 @@ export const ar = {
     "هل أنت متأكد أنك تريد إضافة هذه الملاحظة؟",
   "Are you sure you want to close this ticket?":
     "هل أنت متأكد أنك تريد إغلاق هذه التذكرة؟",
+    "Follow Up":"متابعة",
+    "Tickets Assigned to your Company":"التذاكر المخصصة لشركتك",
+    "Mark Complete":"وضع علامة كاملة",
+    "Confirm Action":"تأكيد الإجراء",
+    "Transfer":"تحويل",
+    "Processing...":"يعالج...",
+    "Cancel":"يلغي",
+    "Observation Notes":"ملاحظات الملاحظة",
+    "Progress Percentage":"نسبة التقدم",
+    "Confirm Assignment":"تأكيد التعيين",
+    "Reassign to":"إعادة التعيين إلى",
+    "Assign to":"تعيين إلى",
+"Are you sure you want to mark this ticket as complete?":"هل أنت متأكد أنك تريد وضع علامة على هذه التذكرة على أنها مكتملة؟",
+"Notes":"ملحوظات",
+"Ticket Status":"حالة التذكرة",
+"Tickets Assigned to your Sector":"التذاكر المخصصة لقطاعك",
+"Transfer Ticket":"تذكرة النقل",
+"Assign Ticket":"تعيين التذكرة",
+"Manage Employees":"إدارة الموظفين",
+
+
 };
 
 export default ar;

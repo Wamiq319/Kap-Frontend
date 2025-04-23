@@ -179,6 +179,26 @@ export const eng = {
     "Are you sure you want to add this note?",
   "Are you sure you want to close this ticket?":
     "Are you sure you want to close this ticket?",
+    "Follow Up":"Follow Up",
+    "Tickets Assigned to your Company":"Tickets Assigned to your Company",
+"Mark Complete":"Mark Complete",
+"Confirm Action":"Confirm Action",
+"Transfer":"Transfer",
+"Processing...":"Processing...",
+"Cancel":"Cancel",
+"Observation Notes":"Observation Notes",
+"Progress Percentage":"Progress Percentage",
+"Confirm Assignment":"Confirm Assignment",
+"Reassign to":"Reassign to",
+"Assign to":"Assign to",
+"Are you sure you want to mark this ticket as complete?":"Are you sure you want to mark this ticket as complete?",
+"Notes":"Notes",
+"Ticket Status":"Ticket Status",
+"Tickets Assigned to your Sector":"Tickets Assigned to your Sector",
+"Transfer Ticket":"Transfer Ticket",
+"Assign Ticket":"Assign Ticket",
+"Manage Employees":"Manage Employees",
+
 };
 
 export default eng;
