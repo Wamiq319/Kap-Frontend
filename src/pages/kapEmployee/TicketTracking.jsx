@@ -19,8 +19,8 @@ const TrackKapTicketPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
- const words = useSelector((state) => state.lang.words);
-   
+  const words = useSelector((state) => state.lang.words);
+
   const [requestors, setRequestors] = useState([]);
   const [operators, setOperators] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -171,7 +171,7 @@ const TrackKapTicketPage = () => {
 
   const handleThankYouLetter = async () => {
     showConfirmation(
-      "Are you sure you want to send a thank you letter and close this ticket?",
+      words["Are you sure you want to send a thank you letter?"],
       async () => {
         try {
           setUiState((prev) => ({ ...prev, isLoading: true }));
@@ -238,52 +238,55 @@ const TrackKapTicketPage = () => {
   const handleSubmitNote = async () => {
     const { ticketId, note } = modals.addNoteModal;
 
-    showConfirmation("Are you sure you want to add this note?", async () => {
-      try {
-        setUiState((prev) => ({ ...prev, isLoading: true }));
+    showConfirmation(
+      words["Are you sure you want to add this note?"],
+      async () => {
+        try {
+          setUiState((prev) => ({ ...prev, isLoading: true }));
 
-        const response = await dispatch(
-          updateEntity({
-            endpoint: "tkt/add-note",
-            id: ticketId,
-            data: {
-              text: note,
-              addedBy: "KAP:" + user.name,
-            },
-          })
-        ).unwrap();
+          const response = await dispatch(
+            updateEntity({
+              endpoint: "tkt/add-note",
+              id: ticketId,
+              data: {
+                text: note,
+                addedBy: "KAP:" + user.name,
+              },
+            })
+          ).unwrap();
 
-        if (response.success) {
-          showToast("Note added successfully", "success");
-          // Close the note modal
-          setModals((prev) => ({
-            ...prev,
-            addNoteModal: {
-              isOpen: false,
-              ticketId: null,
-              note: "",
-            },
-          }));
-          // Refresh the ticket data
-          await fetchData();
-          // Re-open the ticket details modal to show updated notes
-          if (selectedTicket) {
-            setIsFollowupModalOpen(true);
+          if (response.success) {
+            showToast("Note added successfully", "success");
+            // Close the note modal
+            setModals((prev) => ({
+              ...prev,
+              addNoteModal: {
+                isOpen: false,
+                ticketId: null,
+                note: "",
+              },
+            }));
+            // Refresh the ticket data
+            await fetchData();
+            // Re-open the ticket details modal to show updated notes
+            if (selectedTicket) {
+              setIsFollowupModalOpen(true);
+            }
+          } else {
+            throw new Error(response.message || "Failed to add note");
           }
-        } else {
-          throw new Error(response.message || "Failed to add note");
+        } catch (error) {
+          showToast(error.message || "Failed to add note", "error");
+        } finally {
+          setUiState((prev) => ({ ...prev, isLoading: false }));
         }
-      } catch (error) {
-        showToast(error.message || "Failed to add note", "error");
-      } finally {
-        setUiState((prev) => ({ ...prev, isLoading: false }));
       }
-    });
+    );
   };
 
   const handleCloseTicket = async () => {
     showConfirmation(
-      "Are you sure you want to close this ticket?",
+      words["Are you sure you want to close this ticket?"],
       async () => {
         try {
           setUiState((prev) => ({ ...prev, isLoading: true }));
@@ -332,7 +335,7 @@ const TrackKapTicketPage = () => {
         </div>
       ) : (
         <DataTable
-          heading= {words ["Tickets"]}
+          heading={words["Tickets"]}
           tableHeader={tableHeaders}
           tableData={tableData}
           headerBgColor="bg-gray-200"
@@ -345,7 +348,9 @@ const TrackKapTicketPage = () => {
       <Modal
         isOpen={isFollowupModalOpen}
         onClose={() => setIsFollowupModalOpen(false)}
-        title={`Ticket Details - ${selectedTicket?.ticketNumber || ""}`}
+        title={`${words["Ticket Details"]} - ${
+          selectedTicket?.ticketNumber || ""
+        }`}
         size="md"
       >
         {selectedTicket && (
@@ -353,33 +358,47 @@ const TrackKapTicketPage = () => {
             <div id="print-content" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="detail-row">
-                  <span className="detail-label">Request Type:</span>
+                  <span className="detail-label">
+                    {words["Request Type"] + ":"}
+                  </span>
                   <span>{selectedTicket.requestType}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Location:</span>
+                  <span className="detail-label">
+                    {words["Location"] + ":"}
+                  </span>
                   <span>{selectedTicket.location}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Operator:</span>
+                  <span className="detail-label">
+                    {words["Operator"] + ":"}
+                  </span>
                   <span>{selectedTicket.operator}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Requestor:</span>
+                  <span className="detail-label">
+                    {words["Requestor"] + ":"}
+                  </span>
                   <span>{selectedTicket.requestor}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Ticket Number:</span>
+                  <span className="detail-label">
+                    {words["Ticket Number"] + ":"}
+                  </span>
                   <span>{selectedTicket.ticketNumber}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Created At:</span>
+                  <span className="detail-label">
+                    {words["Created At"] + ":"}
+                  </span>
                   <span>
                     {new Date(selectedTicket.createdAt).toLocaleString()}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Expected Completion:</span>
+                  <span className="detail-label">
+                    {words["Expected Completion"] + ":"}
+                  </span>
                   <span>
                     {selectedTicket.expectedCompletionDate
                       ? new Date(
@@ -389,15 +408,19 @@ const TrackKapTicketPage = () => {
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Status:</span>
+                  <span className="detail-label">{words["Status"] + ":"}</span>
                   <span>{selectedTicket.status}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">TicketBuilder:</span>
+                  <span className="detail-label">
+                    {words["TicketBuilder"] + ":"}
+                  </span>
                   <span>{selectedTicket.ticketBuilder}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">TicketRecienpt:</span>
+                  <span className="detail-label">
+                    {words["TicketRecienpt"] + ":"}
+                  </span>
                   <span>
                     {selectedTicket.ticketReciept
                       ? selectedTicket.ticketReciept
@@ -408,7 +431,7 @@ const TrackKapTicketPage = () => {
 
               <div className="mt-6">
                 <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
-                  Progress History
+                  {words["Progress History"]}
                 </h3>
                 {selectedTicket.progress?.length > 0 ? (
                   <div className="space-y-2">
@@ -430,7 +453,7 @@ const TrackKapTicketPage = () => {
                     ))}
                   </div>
                 ) : (
-                  <p>No progress updates yet</p>
+                  <p>{words["No progress updates yet"]}</p>
                 )}
               </div>
 
@@ -456,7 +479,9 @@ const TrackKapTicketPage = () => {
                       ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 italic">No notes available</p>
+                  <p className="text-gray-500 italic">
+                    {words["No notes available"]}
+                  </p>
                 )}
               </div>
             </div>
@@ -516,7 +541,7 @@ const TrackKapTicketPage = () => {
             },
           }))
         }
-        title="Add Note"
+        title={words["Add Note"]}
       >
         <div className="space-y-4">
           <InputField

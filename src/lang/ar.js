@@ -8,7 +8,8 @@ export const ar = {
   KAP: "KAP",
   "Username cannot be empty": "اسم المستخدم لا يمكن أن يكون فارغاً",
   "Password cannot be empty": "كلمة المرور لا يمكن أن تكون فارغة",
-  "Something went wrong. Please try again.": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+  "Something went wrong. Please try again.":
+    "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
   "Login to Your Account": "تسجيل الدخول إلى حسابك",
   "Enter your username": "أدخل اسم المستخدم",
   "Enter your password": "أدخل كلمة المرور",
@@ -79,7 +80,8 @@ export const ar = {
   "Creating...": "جاري الإنشاء...",
   "Updating...": "جاري التحديث...",
   "Full Name": "الاسم الكامل",
-  "Enter new password (min 8 characters)": "أدخل كلمة مرور جديدة (8 أحرف على الأقل)",
+  "Enter new password (min 8 characters)":
+    "أدخل كلمة مرور جديدة (8 أحرف على الأقل)",
   "Confirm new password": "تأكيد كلمة المرور الجديدة",
   "Enter employee's full name": "أدخل الاسم الكامل للموظف",
   "+9665XXXXXXXX": "+9665XXXXXXXX",
@@ -139,8 +141,23 @@ export const ar = {
   "Track Tickets": "طلب الوقت",
   "Manage Tickets": "إدارة التذاكر",
   "Kap Employee Dashboard": "لوحة معلومات موظفي كاب",
-  "Save":"يحفظ",
-  "Reset Password":"إعادة تعيين كلمة المرور",
+  Save: "يحفظ",
+  "Reset Password": "إعادة تعيين كلمة المرور",
+  "Ticket Details": "تفاصيل التذكرة",
+  "Created At": "أنشئت في",
+  Status: "الحالة",
+  TicketBuilder: "منشئ التذاكر",
+  TicketRecienpt: "إيصال التذكرة",
+  "Progress History": "تاريخ التقدم",
+  "Add Note": "إضافة ملاحظة",
+  Note: "ملحوظة",
+  "Are you sure you want to send a thank you letter?":
+    "هل أنت متأكد أنك تريد إرسال خطاب شكر؟",
+  "Added by": "أضيفت بواسطة",
+  "Are you sure you want to add this note?":
+    "هل أنت متأكد أنك تريد إضافة هذه الملاحظة؟",
+  "Are you sure you want to close this ticket?":
+    "هل أنت متأكد أنك تريد إغلاق هذه التذكرة؟",
 };
 
 export default ar;
