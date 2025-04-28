@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 const GovEmployeeHomePage = () => {
   const navigate = useNavigate();
   const { data } = useSelector((state) => state.auth);
+ const words = useSelector((state) => state.lang.words);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -29,18 +30,18 @@ const GovEmployeeHomePage = () => {
             </h4>
             {data?.role && (
               <p className="text-sm text-gray-500 mt-1">
-                Government Employee Dashboard
+                {words["Government Employee Dashboard"]}
               </p>
             )}
           </div>
         </div>
         <Button
-          text="All Tickets"
+          text={words["All Tickets"]}
           onClick={() => handleNavigation("/gov-employee-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />
         <Button
-          text="My Assigned Tickets"
+          text={words["My Assigned Tickets"]}
           onClick={() => handleNavigation("/manage-gov-employee-tickets")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 shadow"
         />

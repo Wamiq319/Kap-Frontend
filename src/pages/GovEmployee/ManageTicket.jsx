@@ -15,6 +15,7 @@ const ManageGovTicketsEmployeePage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
+  const words = useSelector((state) => state.lang.words);
 
   const [uiState, setUiState] = useState({
     showToast: false,
@@ -34,26 +35,26 @@ const ManageGovTicketsEmployeePage = () => {
   });
 
   const tableHeaders = [
-    { key: "index", label: "#" },
-    { key: "requestType", label: "Request Type" },
-    { key: "ticketNumber", label: "Ticket Number" },
-    { key: "location", label: "Location" },
-    { key: "requestor", label: "Requestor" },
-    { key: "expectedCompletionDate", label: "Expected Completion" },
+    { key: "index", label: words["#"] },
+    { key: "requestType", label: words["Request Type"] },
+    { key: "ticketNumber", label: words["Ticket Number"] },
+    { key: "location", label: words["Location"] },
+    { key: "requestor", label: words["Requestor"] },
+    { key: "expectedCompletionDate", label: words["Expected Completion"] },
   ];
 
   const progressHeaders = [
-    { key: "index", label: "#" },
-    { key: "percentage", label: "Progress" },
-    { key: "date", label: "Date" },
-    { key: "observation", label: "Observation" },
+    { key: "index", label: words["#"] },
+    { key: "percentage", label: words["Progress"] },
+    { key: "date", label: words["Date"] },
+    { key: "observation", label: words["Observation"] },
   ];
 
   const notesHeaders = [
-    { key: "index", label: "#" },
-    { key: "date", label: "Date" },
-    { key: "addedBy", label: "Added By" },
-    { key: "note", label: "Note" },
+    { key: "index", label: words["#"] },
+    { key: "date", label: words["Date"] },
+    { key: "addedBy", label: words["Added By"] },
+    { key: "note", label: words["Note"] },
   ];
 
   const fetchData = async () => {
@@ -232,7 +233,7 @@ const ManageGovTicketsEmployeePage = () => {
             viewProgress: { ...prev.viewProgress, isOpen: false },
           }))
         }
-        title="Progress History"
+        title={words["Progress History"]}
         size="lg"
       >
         {modals.viewProgress.ticket && (
@@ -242,14 +243,14 @@ const ManageGovTicketsEmployeePage = () => {
               tableData={formatProgressData(
                 modals.viewProgress.ticket.progress
               )}
-              emptyMessage="No progress history available"
+              emptyMessage={words["No progress history available"]}
               className="shadow-sm"
               headerBgColor="bg-gray-100"
               rowsPerPage={5}
             />
             <div className="flex justify-end">
               <Button
-                text="Close"
+                text={words["Close"]}
                 onClick={() =>
                   setModals((prev) => ({
                     ...prev,
@@ -272,7 +273,7 @@ const ManageGovTicketsEmployeePage = () => {
             viewNotes: { ...prev.viewNotes, isOpen: false },
           }))
         }
-        title="Ticket Notes"
+        title={words["Ticket Notes"]}
         size="lg"
       >
         {modals.viewNotes.ticket && (
@@ -280,14 +281,14 @@ const ManageGovTicketsEmployeePage = () => {
             <DataTable
               tableHeader={notesHeaders}
               tableData={formatNotesData(modals.viewNotes.ticket.notes)}
-              emptyMessage="No notes available"
+              emptyMessage={words["No notes available"]}
               className="shadow-sm"
               headerBgColor="bg-gray-100"
               rowsPerPage={5}
             />
             <div className="flex justify-end">
               <Button
-                text="Close"
+                text={words["Close"]}
                 onClick={() =>
                   setModals((prev) => ({
                     ...prev,
@@ -310,12 +311,12 @@ const ManageGovTicketsEmployeePage = () => {
             addNote: { ...prev.addNote, isOpen: false },
           }))
         }
-        title="Add Note"
+        title={words["Add Note"]}
       >
         {modals.addNote.ticket && (
           <form onSubmit={handleNoteSubmit} className="space-y-4">
             <InputField
-              label="Note"
+              label={words["Note"]}
               type="textarea"
               name="textarea"
               rows={5}
@@ -329,7 +330,7 @@ const ManageGovTicketsEmployeePage = () => {
                   },
                 }))
               }
-              placeholder="Enter your note here..."
+              placeholder={words["Enter your note here..."]}
               required
             />
 
@@ -342,12 +343,12 @@ const ManageGovTicketsEmployeePage = () => {
                     addNote: { ...prev.addNote, isOpen: false },
                   }))
                 }
-                text="Cancel"
+                text={words["Cancel"]}
                 className="bg-gray-500 hover:bg-gray-600 px-6 py-2"
               />
               <Button
                 type="submit"
-                text={uiState.isLoading ? "Saving..." : "Save Note"}
+                text={uiState.isLoading ? words["Saving..."] : words["Save Note"]}
                 className="bg-blue-600 hover:bg-blue-700 px-6 py-2"
                 disabled={uiState.isLoading}
               />
@@ -372,26 +373,26 @@ const ManageGovTicketsEmployeePage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Your Assigned Tickets"
+          heading={words["Your Assigned Tickets"]}
           tableHeader={tableHeaders}
           tableData={formatTableData()}
           headerBgColor="bg-green-200"
           rowHoverEffect={true}
           buttons={[
             {
-              text: "View Progress",
+              text: words["View Progress"],
               icon: <FaEye className="text-blue-500" />,
               className: "bg-blue-100 hover:bg-blue-200",
               onClick: handleViewProgress,
             },
             {
-              text: "View Notes",
+              text: words["View Notes"],
               icon: <FaStickyNote className="text-green-500" />,
               className: "bg-green-100 hover:bg-green-200",
               onClick: handleViewNotes,
             },
             {
-              text: "Add Note",
+              text: words["Add Note"],
               icon: <FaRegStickyNote className="text-purple-500" />,
               className: "bg-purple-100 hover:bg-purple-200",
               onClick: handleAddNote,

@@ -8,6 +8,7 @@ const AllGovTicketsPage = () => {
   const dispatch = useDispatch();
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
+ const words = useSelector((state) => state.lang.words);
 
   const [uiState, setUiState] = useState({
     isLoading: false,
@@ -19,21 +20,21 @@ const AllGovTicketsPage = () => {
   });
 
   const tableHeaders = [
-    { key: "index", label: "#" },
-    { key: "requestType", label: "Request Type" },
-    { key: "ticketNumber", label: "Ticket Number" },
-    { key: "location", label: "Location" },
-    { key: "requestor", label: "Requestor" },
-    { key: "status", label: "Status" },
-    { key: "assignedTo", label: "Assigned To" },
+    { key: "index", label: words["#"] },
+    { key: "requestType", label: words["Request Type"] },
+    { key: "ticketNumber", label: words["Ticket Number"] },
+    { key: "location", label: words["Location"] },
+    { key: "requestor", label: words["Requestor"] },
+    { key: "status", label: words["Status"] },
+    { key: "assignedTo", label: words["Assigned To"] },
 
     {
       key: "completionPercentage",
-      label: "Completion %",
+      label: words["Completion %"],
       showProgressBar: true,
     },
 
-    { key: "followup", label: "Details" },
+    { key: "followup", label: words["Details"] },
   ];
   console.log(user);
   const fetchData = async () => {
@@ -106,19 +107,19 @@ const AllGovTicketsPage = () => {
             {/* Ticket Summary Card */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <p className="font-semibold text-gray-600">Request Type</p>
+                <p className="font-semibold text-gray-600">{words["Request Type"]}</p>
                 <p className="text-lg font-medium">
                   {ticketDetails.ticket.requestType}
                 </p>
               </div>
 
               <div>
-                <p className="font-semibold text-gray-600">Status</p>
+                <p className="font-semibold text-gray-600">{words["Status"]}</p>
                 <p
                   className={`text-lg font-medium ${
-                    ticketDetails.ticket.status === "Completed"
+                    ticketDetails.ticket.status === words["Completed"]
                       ? "text-green-600"
-                      : ticketDetails.ticket.status === "Open"
+                      : ticketDetails.ticket.status === words["Open"]
                       ? "text-red-600"
                       : "text-blue-600"
                   }`}
@@ -129,7 +130,7 @@ const AllGovTicketsPage = () => {
 
               <div>
                 <p className="font-semibold text-gray-600">
-                  Expected Completion
+                  {words["Expected Completion"]}
                 </p>
                 <p className="text-lg font-medium">
                   {formatDate(ticketDetails.ticket.expectedCompletionDate)}
@@ -140,7 +141,7 @@ const AllGovTicketsPage = () => {
             {/* Progress History */}
             <div className="p-4 bg-white rounded-lg shadow-sm">
               <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
-                Progress History
+                {words["Progress History"]}
               </h3>
               {ticketDetails.ticket.progress?.length > 0 ? (
                 <div className="space-y-3">
@@ -169,7 +170,7 @@ const AllGovTicketsPage = () => {
                 </div>
               ) : (
                 <p className="text-gray-500 italic">
-                  No progress history available
+                  {words["No progress history available"]}
                 </p>
               )}
             </div>
@@ -177,7 +178,7 @@ const AllGovTicketsPage = () => {
             {/* Notes Section */}
             <div className="p-4 bg-white rounded-lg shadow-sm">
               <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
-                Notes
+                {words["Notes"]}
               </h3>
               {ticketDetails.ticket.notes?.length > 0 ? (
                 <div className="space-y-3">
@@ -201,7 +202,7 @@ const AllGovTicketsPage = () => {
                     ))}
                 </div>
               ) : (
-                <p className="text-gray-500 italic">No notes available</p>
+                <p className="text-gray-500 italic">{words["No notes available"]}</p>
               )}
             </div>
           </div>
@@ -215,7 +216,7 @@ const AllGovTicketsPage = () => {
         </div>
       ) : (
         <DataTable
-          heading="Tickets Assigned to your Company"
+          heading={words["Tickets Assigned to your Sector"]}
           tableHeader={tableHeaders}
           tableData={formatTableData()}
           headerBgColor="bg-gray-200"
