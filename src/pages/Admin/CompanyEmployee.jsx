@@ -62,12 +62,11 @@ const AddOpEmployeePage = () => {
 
   const tableHeader = [
     { key: "index", label: words["#"] },
-    { key: "image", label: words["Company"] },
-    { key: "company", label: words["Company Name"] },
     { key: "name", label: words["Manager Name"] },
-    { key: "mobile", label: words["Mobile No"] },
+    { key: "company", label: words["Company Name"] },
     { key: "username", label: words["Username"] },
     { key: "password", label: words["Password"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchUsers = async () => {
@@ -400,16 +399,7 @@ const AddOpEmployeePage = () => {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
-                <InputField
-                  label={words["Mobile Number"]}
-                  name="mobile"
-                  type="tel"
-                  placeholder="+9665XXXXXXXX"
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                  }
-                />
+        
                 <InputField
                   label={words["Username"]}
                   name="username"
@@ -420,6 +410,16 @@ const AddOpEmployeePage = () => {
                       ...prev,
                       username: e.target.value,
                     }))
+                  }
+                />
+                 <InputField
+                  label={words["Mobile Number"]}
+                  name="mobile"
+                  type="tel"
+                  placeholder="+9665XXXXXXXX"
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
                   }
                 />
                 <Dropdown

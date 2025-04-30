@@ -92,7 +92,7 @@ export const ar = {
   Yes: "نعم",
   "Remove Selected": "إزالة المحدد",
   "Operating Company": "شركة التشغيل",
-  "Add Operating Company": "شركة رقم التشغيل",
+  "Add Operating Company":"إضافة شركة مشغلة",
   "Company added successfully": "أضافت الشركة ستة أضعاف",
   "Company Name": "اسم الشركة",
   "Enter Company Name": "أدخل اسم الشركة",
@@ -103,7 +103,7 @@ export const ar = {
   "Manage Company Managers": "إدارة مديري الشركات",
   "Manage Company Employees": "إدارة موظفي الشركات",
   "Add Government Manager": "إضافة مدير حكومي",
-  "Manager Name": "اسم المدير",
+  "Manager Name": "اسم الموظف",
   "Gov Managers": "مدراء الحكومة",
   Sector: "قطاع",
   "Confirm Password": "تأكيد كلمة المرور",
@@ -112,7 +112,7 @@ export const ar = {
   Company: "شركة",
   "Add Company Manager": "إضافة مدير شركة",
   "Company Managers": "مدراء الشركة",
-  "Add Company Employee": "أضف شركة موظف",
+  "Add Company Employee":"إضافة موظف شركة",
   "Company Employees": "موظفي الشركة",
   "Deleted Successfully": "تم الحذف بنجاح",
   Deleted: "تم الحذف",
@@ -138,7 +138,7 @@ export const ar = {
   "Enter your note...": "أدخل ملاحظتك...",
   "Thank You": "شكرًا لك",
   "Request Time": "طلب الوقت",
-  "Track Tickets": "طلب الوقت",
+  "Track Tickets": "متابعة التذاكر",
   "Manage Tickets": "إدارة التذاكر",
   "Kap Employee Dashboard": "لوحة معلومات موظفي كاب",
   Save: "يحفظ",
@@ -154,10 +154,8 @@ export const ar = {
   "Are you sure you want to send a thank you letter?":
     "هل أنت متأكد أنك تريد إرسال خطاب شكر؟",
   "Added by": "أضيفت بواسطة",
-  "Are you sure you want to add this note?":
-    "هل أنت متأكد أنك تريد إضافة هذه الملاحظة؟",
-  "Are you sure you want to close this ticket?":
-    "هل أنت متأكد أنك تريد إغلاق هذه التذكرة؟",
+  "Are you sure you want to add this note?":"تأكيد إضافة ملاحظة",
+  "Are you sure you want to close this ticket?":"تأكيد اغلاق التذكرة",
     "Follow Up":"متابعة",
     "Tickets Assigned to your Company":"التذاكر المخصصة لشركتك",
     "Mark Complete":"وضع علامة كاملة",
@@ -208,6 +206,8 @@ export const ar = {
 "Completed":"مكتمل",
 "Open":"يفتح",
 "View Details":"عرض التفاصيل",
+"Gov Sector":"قطاع الحكومة",
+
 
 };
 

@@ -46,12 +46,12 @@ const AddGovSectorPage = () => {
 
   const tableHeader = [
     { key: "index", label: words["#"] || "#" },
+    { key: "image", label: words["Logo"] || "Logo" },
+    { key: "adminName", label: words["Admin Name"] || "Admin Name" },
     {
       key: "govSector",
       label: words["Government Sector"] || "Government Sector",
     },
-    { key: "image", label: words["Logo"] || "Logo" },
-    { key: "adminName", label: words["Admin Name"] || "Admin Name" },
     { key: "mobile", label: words["Mobile No"] || "Mobile No" },
   ];
 
@@ -255,19 +255,6 @@ const AddGovSectorPage = () => {
             className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
             <InputField
-              label={words["Government Sector"] || "Government Sector"}
-              name="govSector"
-              placeholder={words["Enter sector name"] || "Enter sector name"}
-              value={formData.govSector}
-              onChange={handleChange}
-            />
-            <ImageInput
-              label={words["Logo Image"] || "Logo Image"}
-              name="logoImage"
-              onChange={handleImageChange}
-              required={true}
-            />
-            <InputField
               label={words["Admin Name"] || "Admin Name"}
               name="adminName"
               placeholder={
@@ -277,6 +264,14 @@ const AddGovSectorPage = () => {
               onChange={handleChange}
             />
             <InputField
+              label={words["Government Sector"] || "Government Sector"}
+              name="govSector"
+              placeholder={words["Enter sector name"] || "Enter sector name"}
+              value={formData.govSector}
+              onChange={handleChange}
+            />
+          
+            <InputField
               label={words["Mobile Number"] || "Mobile Number"}
               name="mobile"
               placeholder="+9665XXXXXXXX"
@@ -285,6 +280,13 @@ const AddGovSectorPage = () => {
               onChange={handleChange}
             />
 
+            <ImageInput
+              label={words["Logo Image"] || "Logo Image"}
+              name="logoImage"
+              onChange={handleImageChange}
+              required={true}
+            />
+    
             {uiState.errorMessage && (
               <p className="text-red-500 text-sm col-span-2">
                 {uiState.errorMessage}

@@ -229,6 +229,7 @@ export const eng = {
 "Completed":"Completed",
 "Open":"Open",
 "View Details":"View Details",
+"Gov Sector":"Gov Sector",
 
 };
 

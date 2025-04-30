@@ -62,10 +62,10 @@ const words = useSelector((state) => state.lang.words);
   const tableHeader = [
     { key: "index", label: words["#"] },
     { key: "name", label: words["Manager Name"] },
-    { key: "mobile", label: words["Mobile No"] },
-    { key: "username", label: words["Username"] },
     { key: "company", label: words["Company"] },
+    { key: "username", label: words["Username"] },
     { key: "password", label: words["Password"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchUsers = async () => {
@@ -385,16 +385,6 @@ const words = useSelector((state) => state.lang.words);
                   }
                 />
                 <InputField
-                   label={words["Mobile Number"]}
-                  name="mobile"
-                  type="tel"
-                  placeholder="+9665XXXXXXXX"
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                  }
-                />
-                <InputField
                    label={words["Username"]}
                   name="username"
                   placeholder={words["Choose a username"]}
@@ -404,6 +394,16 @@ const words = useSelector((state) => state.lang.words);
                       ...prev,
                       username: e.target.value,
                     }))
+                  }
+                />
+                <InputField
+                   label={words["Mobile Number"]}
+                  name="mobile"
+                  type="tel"
+                  placeholder="+9665XXXXXXXX"
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
                   }
                 />
                 <Dropdown
