@@ -46,9 +46,9 @@ const AddOperatingCompanyPage = () => {
 
   const tableHeader = [
     { key: "index", label: words["#"] },
-    { key: "opCompany", label: words["Operating Company"] },
     { key: "image", label: words["Logo"] },
     { key: "adminName", label: words["Admin Name"] },
+    { key: "opCompany", label: words["Operating Company"] },
     { key: "mobile", label: words["Mobile No"] },
   ];
 
@@ -238,22 +238,17 @@ const AddOperatingCompanyPage = () => {
             className="md:grid md:grid-cols-2 flex flex-wrap gap-4"
           >
             <InputField
-              label={words["Company Name"]}
-              name="opCompany"
-              placeholder={words["Enter Company Name"]}
-              value={formData.opCompany}
-              onChange={handleChange}
-            />
-            <ImageInput
-              label={words["Logo Image"]}
-              name="logoImage"
-              onChange={handleImageChange}
-            />
-            <InputField
               label={words["Admin Name"]}
               name="adminName"
               placeholder={words["Enter admin full name"]}
               value={formData.adminName}
+              onChange={handleChange}
+            />
+            <InputField
+              label={words["Company Name"]}
+              name="opCompany"
+              placeholder={words["Enter Company Name"]}
+              value={formData.opCompany}
               onChange={handleChange}
             />
             <InputField
@@ -264,6 +259,12 @@ const AddOperatingCompanyPage = () => {
               value={formData.mobile}
               onChange={handleChange}
             />
+            <ImageInput
+              label={words["Logo Image"]}
+              name="logoImage"
+              onChange={handleImageChange}
+            />
+
 
             {uiState.errorMessage && (
               <p className="text-red-500 text-sm col-span-2">

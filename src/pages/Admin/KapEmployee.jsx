@@ -65,9 +65,9 @@ const AddKapEmployeePage = () => {
     { key: "index", label: words["#"] },
     { key: "name", label: words["Employee Name"] },
     { key: "jobTitle", label: words["Job Title"] },
-    { key: "mobile", label: words["Mobile No"] },
     { key: "username", label: words["Username"] },
     { key: "password", label: words["Password"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchUsers = async () => {
@@ -402,16 +402,7 @@ const AddKapEmployeePage = () => {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
-                <InputField
-                  label={words["Mobile Number"]}
-                  name="mobile"
-                  type="tel"
-                  placeholder="+9665XXXXXXXX"
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                  }
-                />
+               
                 <InputField
                   label={words["Username"]}
                   name="username"
@@ -422,6 +413,16 @@ const AddKapEmployeePage = () => {
                       ...prev,
                       username: e.target.value,
                     }))
+                  }
+                />
+                 <InputField
+                  label={words["Mobile Number"]}
+                  name="mobile"
+                  type="tel"
+                  placeholder="+9665XXXXXXXX"
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
                   }
                 />
                 <Dropdown

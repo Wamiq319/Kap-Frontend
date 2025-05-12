@@ -61,12 +61,11 @@ const AddGovernmentEmployeePage = () => {
 
   const tableHeader = [
     { key: "index", label: words["#"] },
-    { key: "image", label: words["Sector"] },
-    { key: "sector", label: words["Gov Sector"] },
     { key: "name", label: words["Employee Name"] },
-    { key: "mobile", label: words["Mobile No"] },
+    { key: "sector", label: words["Gov Sector"] },
     { key: "username", label: words["Username"] },
     { key: "password", label: words["Password"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchUsers = async () => {
@@ -408,16 +407,7 @@ const AddGovernmentEmployeePage = () => {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
-                <InputField
-                  label={words["Mobile Number"]}
-                  name="mobile"
-                  placeholder="+9665XXXXXXXX"
-                  type="tel"
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                  }
-                />
+              
                 <InputField
                  label={words["Username"]}
                   name="username"
@@ -428,6 +418,16 @@ const AddGovernmentEmployeePage = () => {
                       ...prev,
                       username: e.target.value,
                     }))
+                  }
+                />
+                 <InputField
+                  label={words["Mobile Number"]}
+                  name="mobile"
+                  placeholder="+9665XXXXXXXX"
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
                   }
                 />
                 <Dropdown

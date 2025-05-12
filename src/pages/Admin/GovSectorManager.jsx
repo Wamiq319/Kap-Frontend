@@ -62,10 +62,10 @@ const AddGovManagerPage = () => {
   const tableHeader = [
     { key: "index", label: "#" },
     { key: "name", label: words["Manager Name"] },
-    { key: "mobile", label: words["Mobile No"] },
-    { key: "username", label: words["Username"] },
     { key: "sector", label: words["Gov Sector"] },
+    { key: "username", label: words["Username"] },
     { key: "password", label: words["Password"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchUsers = async () => {
@@ -393,16 +393,6 @@ const AddGovManagerPage = () => {
                   }
                 />
                 <InputField
-                  label={words["Mobile Number"]}
-                  name="mobile"
-                  placeholder="+9665XXXXXXXX"
-                  type="tel"
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                  }
-                />
-                <InputField
                   label={words["Username"]}
                   name="username"
                   placeholder={words["Choose a username"]}
@@ -414,6 +404,17 @@ const AddGovManagerPage = () => {
                     }))
                   }
                 />
+                <InputField
+                  label={words["Mobile Number"]}
+                  name="mobile"
+                  placeholder="+9665XXXXXXXX"
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                  }
+                />
+          
                 <Dropdown
                   label={words["Sector"]}
                   options={options}

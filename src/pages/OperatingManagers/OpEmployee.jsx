@@ -58,9 +58,9 @@ const AddCompanyEmployeePage = () => {
   const tableHeader = [
     { key: "index", label: words["#"] },
     { key: "name", label: words["Employee Name"] },
-    { key: "mobile", label: words["Mobile No"] },
     { key: "username", label: words["Username"] },
     { key: "password", label: words["Password"] },
+    { key: "mobile", label: words["Mobile No"] },
   ];
 
   const fetchUsers = async () => {
@@ -371,17 +371,7 @@ const AddCompanyEmployeePage = () => {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                 />
-                <InputField
-                  label={words["Mobile Number"]}
-                  name="mobile"
-                  type="tel"
-                  placeholder={words["Enter mobile number"]}
-                  value={formData.mobile}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                  }
-                />
-                <InputField
+                 <InputField
                   label={words["Username"]}
                   name="username"
                   placeholder={words["Choose a username"]}
@@ -393,8 +383,7 @@ const AddCompanyEmployeePage = () => {
                     }))
                   }
                 />
-
-                <InputField
+                 <InputField
                   label={words["Password"]}
                   name="password"
                   type="password"
@@ -405,6 +394,16 @@ const AddCompanyEmployeePage = () => {
                       ...prev,
                       password: e.target.value,
                     }))
+                  }
+                />
+                <InputField
+                  label={words["Mobile Number"]}
+                  name="mobile"
+                  type="tel"
+                  placeholder={words["Enter mobile number"]}
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
                   }
                 />
               </>
