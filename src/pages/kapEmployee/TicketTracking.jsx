@@ -14,6 +14,7 @@ import {
   InputField,
   ConfirmationModal,
 } from "../../components";
+import { FaBell } from "react-icons/fa";
 
 const TrackKapTicketPage = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ const TrackKapTicketPage = () => {
     toastMessage: "",
     toastType: "success",
     isLoading: false,
+    isSendingReminder: false,
   });
 
   const [modals, setModals] = useState({
@@ -44,11 +46,14 @@ const TrackKapTicketPage = () => {
       message: "",
       onConfirm: null,
     },
+    reminderModal: {
+      isOpen: false,
+      ticketId: null,
+    },
   });
 
   const tableHeaders = [
     { key: "index", label: words["#"] },
-    { key: "requestTime", label: words["Request Time"] },
     { key: "ticketNumber", label: words["Ticket Number"] },
     { key: "location", label: words["Location"] },
     { key: "operator", label: words["Operator"] },
@@ -176,7 +181,6 @@ const TrackKapTicketPage = () => {
         try {
           setUiState((prev) => ({ ...prev, isLoading: true }));
 
-          // Send thank you letter via API
           const thankYouResponse = await dispatch(
             updateEntity({
               endpoint: "tkt/send-thank-you",
@@ -191,7 +195,6 @@ const TrackKapTicketPage = () => {
             throw new Error("Failed to send thank you letter");
           }
 
-          // Close the ticket
           const closeResponse = await dispatch(
             updateEntity({
               endpoint: "tkt/status",
@@ -257,7 +260,6 @@ const TrackKapTicketPage = () => {
 
           if (response.success) {
             showToast("Note added successfully", "success");
-            // Close the note modal
             setModals((prev) => ({
               ...prev,
               addNoteModal: {
@@ -266,9 +268,7 @@ const TrackKapTicketPage = () => {
                 note: "",
               },
             }));
-            // Refresh the ticket data
             await fetchData();
-            // Re-open the ticket details modal to show updated notes
             if (selectedTicket) {
               setIsFollowupModalOpen(true);
             }
@@ -319,6 +319,51 @@ const TrackKapTicketPage = () => {
     );
   };
 
+  const handleSendReminder = (ticket) => {
+    setSelectedTicket(ticket);
+    setModals((prev) => ({
+      ...prev,
+      reminderModal: {
+        isOpen: true,
+        ticketId: ticket.id,
+      },
+    }));
+  };
+
+  const confirmSendReminder = async () => {
+    try {
+      setUiState((prev) => ({ ...prev, isSendingReminder: true }));
+
+      const response = await dispatch(
+        updateEntity({
+          endpoint: "tkt/send-reminder",
+          id: selectedTicket._id,
+          data: {
+            sentBy: user.name,
+          },
+        })
+      ).unwrap();
+
+      if (response.success) {
+        showToast("Reminder sent successfully", "success");
+      } else {
+        throw new Error(response.message || "Failed to send reminder");
+      }
+    } catch (error) {
+      showToast(error.message || "Failed to send reminder", "error");
+    } finally {
+      setUiState((prev) => ({ ...prev, isSendingReminder: false }));
+      setModals((prev) => ({
+        ...prev,
+        reminderModal: {
+          isOpen: false,
+          ticketId: null,
+        },
+      }));
+      fetchData();
+    }
+  };
+
   return (
     <div className="p-4">
       {uiState.showToast && (
@@ -341,10 +386,36 @@ const TrackKapTicketPage = () => {
           headerBgColor="bg-gray-200"
           rowHoverEffect={true}
           showProgressBar={true}
+          buttons={[
+            {
+              text: "Send Reminder",
+              icon: <FaBell className="text-yellow-500" />,
+              className: "bg-yellow-100 hover:bg-yellow-200",
+              onClick: (row) => handleSendReminder(row),
+            },
+          ]}
         />
       )}
 
-      {/* Ticket Details Modal */}
+      <ConfirmationModal
+        isOpen={modals.reminderModal.isOpen}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            reminderModal: {
+              isOpen: false,
+              ticketId: null,
+            },
+          }))
+        }
+        onConfirm={confirmSendReminder}
+        title="Send Reminder"
+        message={`Are you sure you want to send a reminder for ticket #${selectedTicket?.ticketNumber}?`}
+        confirmText={uiState.isSendingReminder ? "Sending..." : "Send Reminder"}
+        confirmButtonClass="bg-yellow-500 hover:bg-yellow-600"
+        icon={<FaBell className="text-yellow-500 mr-2" />}
+      />
+
       <Modal
         isOpen={isFollowupModalOpen}
         onClose={() => setIsFollowupModalOpen(false)}
@@ -510,6 +581,7 @@ const TrackKapTicketPage = () => {
                 className="bg-purple-600 hover:bg-purple-700 flex-1 min-w-[150px]"
                 onClick={handlePrint}
               />
+
               <Button
                 text={words["Close Ticket"]}
                 className={`flex-1 min-w-[150px] ${
@@ -528,7 +600,6 @@ const TrackKapTicketPage = () => {
         )}
       </Modal>
 
-      {/* Add Note Modal */}
       <Modal
         isOpen={modals.addNoteModal?.isOpen || false}
         onClose={() =>
@@ -588,7 +659,6 @@ const TrackKapTicketPage = () => {
         </div>
       </Modal>
 
-      {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={modals.confirmAction.isOpen}
         onClose={() =>

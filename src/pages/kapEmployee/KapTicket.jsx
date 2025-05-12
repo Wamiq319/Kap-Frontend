@@ -22,7 +22,6 @@ const ManageKapTicketPage = () => {
   const { entities } = useSelector((state) => state.adminCrud);
   const user = JSON.parse(localStorage.getItem("user"));
   const words = useSelector((state) => state.lang.words);
-   
 
   const [requestors, setRequestors] = useState([]);
   const [operators, setOperators] = useState([]);
@@ -226,7 +225,7 @@ const ManageKapTicketPage = () => {
       <Modal
         isOpen={uiState.isModalOpen}
         onClose={closeModal}
-        title= {words["Create Ticket"]}
+        title={words["Create Ticket"]}
       >
         <form
           onSubmit={handleSubmit}
@@ -297,7 +296,9 @@ const ManageKapTicketPage = () => {
               className="bg-gray-500 hover:bg-gray-700"
             />
             <Button
-              text={uiState.isLoading ? words["Submitting..."] : words["Submit"]}
+              text={
+                uiState.isLoading ? words["Submitting..."] : words["Submit"]
+              }
               type="submit"
               className="bg-green-600 hover:bg-green-700"
               disabled={uiState.isLoading}

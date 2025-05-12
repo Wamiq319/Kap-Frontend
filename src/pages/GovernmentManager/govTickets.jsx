@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaExchangeAlt } from "react-icons/fa";
+import { FaExchangeAlt, FaEye } from "react-icons/fa";
 import { fetchEntities, updateEntity } from "../../redux/slices/adminCrudSlice";
 import { getUsers } from "../../redux/slices/authSlice";
 import {
@@ -18,7 +18,7 @@ const ManageTicketsGovPage = () => {
   const { entities } = useSelector((state) => state.adminCrud);
   const { users } = useSelector((state) => state.auth);
   const user = JSON.parse(localStorage.getItem("user"));
- const words = useSelector((state) => state.lang.words);
+  const words = useSelector((state) => state.lang.words);
 
   const [uiState, setUiState] = useState({
     showToast: false,
@@ -33,6 +33,11 @@ const ManageTicketsGovPage = () => {
       ticketId: null,
       employeeId: "",
       currentAssignee: null,
+      ticketStatus: null,
+    },
+    ticketDetails: {
+      isOpen: false,
+      ticket: null,
     },
   });
 
@@ -43,15 +48,15 @@ const ManageTicketsGovPage = () => {
     data: null,
   });
 
-  // Main tickets table headers
   const tableHeaders = [
     { key: "index", label: words["#"] },
     { key: "requestType", label: words["Request Type"] },
     { key: "ticketNumber", label: words["Ticket Number"] },
     { key: "location", label: words["Location"] },
-    { key: "operator", label: words["Operator"] },
+    { key: "requestor", label: words["Requestor"] },
     { key: "expectedCompletionDate", label: words["Expected Completion"] },
-    { key: "status", label: words["Ticket Status"] },
+    { key: "completionPercentage", label: words["Completion %"] },
+    { key: "followup", label: words["Follow Up"] },
   ];
 
   const fetchData = async () => {
@@ -94,31 +99,49 @@ const ManageTicketsGovPage = () => {
   }, [dispatch]);
 
   const formatTableData = () => {
-    return entities?.map((item, index) => ({
-      index: index + 1,
-      id: item._id,
-      requestType: item.requestType,
-      ticketNumber: item.ticketNumber,
-      location: item.location,
-      operator: item.operator,
-      expectedCompletionDate: item.expectedCompletionDate
-        ? new Date(item.expectedCompletionDate).toLocaleDateString()
-        : "",
-      status: item.status,
-    }));
-  };
+    return entities?.map((item, index) => {
+      const percentage =
+        item.progress?.length > 0
+          ? Math.max(...item.progress.map((p) => p.percentage))
+          : 0;
 
-  const showConfirmation = (message, onConfirm, data = null) => {
-    setConfirmAction({
-      isOpen: true,
-      message,
-      onConfirm,
-      data,
+      return {
+        index: index + 1,
+        id: item._id,
+        requestType: item.requestType,
+        ticketNumber: item.ticketNumber,
+        location: item.location,
+        requestor: item.requestor,
+        expectedCompletionDate: item.expectedCompletionDate
+          ? new Date(item.expectedCompletionDate).toLocaleDateString()
+          : "",
+        completionPercentage: {
+          percentage,
+          label: `${percentage}%`,
+        },
+        followup: {
+          onClick: () => {
+            setModals((prev) => ({
+              ...prev,
+              ticketDetails: {
+                isOpen: true,
+                ticket: item,
+              },
+            }));
+          },
+        },
+        opTransferReq: item.opTransferReq,
+      };
     });
   };
 
   const handleAssign = (ticket) => {
     const fullTicket = entities.find((e) => e._id === ticket.id);
+
+    if (fullTicket.status === "Completed") {
+      showToast("Cannot assign completed ticket", "error");
+      return;
+    }
 
     setModals((prev) => ({
       ...prev,
@@ -127,6 +150,8 @@ const ManageTicketsGovPage = () => {
         ticketId: ticket.id,
         employeeId: fullTicket?.assignedTo?._id || "",
         currentAssignee: fullTicket?.assignedTo || null,
+        ticketStatus: fullTicket.status,
+        opTransferRequest: fullTicket.opTransferReq,
       },
     }));
   };
@@ -143,13 +168,6 @@ const ManageTicketsGovPage = () => {
       "Are you sure you want to assign this ticket?",
       async () => {
         try {
-          setModals((prev) => ({
-            ...prev,
-            assign: {
-              ...prev.assign,
-              isOpen: false,
-            },
-          }));
           setUiState((prev) => ({ ...prev, isLoading: true }));
           const response = await dispatch(
             updateEntity({
@@ -172,6 +190,7 @@ const ManageTicketsGovPage = () => {
                 ticketId: null,
                 employeeId: "",
                 currentAssignee: null,
+                ticketStatus: null,
               },
             }));
           }
@@ -193,6 +212,21 @@ const ManageTicketsGovPage = () => {
     }));
   };
 
+  const showConfirmation = (message, onConfirm, data = null) => {
+    setConfirmAction({
+      isOpen: true,
+      message,
+      onConfirm,
+      data,
+    });
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+  };
+
   const employeeOptions =
     users?.map((user) => ({
       value: user.id,
@@ -204,7 +238,7 @@ const ManageTicketsGovPage = () => {
       {/* Assign Modal */}
       <Modal
         isOpen={modals.assign.isOpen}
-        onClose={() =>
+        onClose={() => {
           setModals((prev) => ({
             ...prev,
             assign: {
@@ -212,12 +246,20 @@ const ManageTicketsGovPage = () => {
               ticketId: null,
               employeeId: "",
               currentAssignee: null,
+              ticketStatus: null,
             },
-          }))
-        }
-        title={words["Assign Ticket"]}
+          }));
+        }}
+        title={words["Transfer Ticket"]}
       >
-        <form onSubmit={handleAssignSubmit} className="space-y-4 ">
+        <form onSubmit={handleAssignSubmit} className="space-y-4">
+          {modals.assign?.opTransferRequest && (
+            <div className="mb-4 p-3 bg-red-50 rounded border border-red-200">
+              <h3 className="font-semibold text-red-700">
+                Transfer Request: {modals.assign.opTransferRequest}
+              </h3>
+            </div>
+          )}
           {modals.assign.currentAssignee && (
             <div className="mb-4 p-3 bg-gray-100 rounded">
               <h3 className="font-semibold">
@@ -227,7 +269,11 @@ const ManageTicketsGovPage = () => {
           )}
 
           <Dropdown
-            label={modals.assign.currentAssignee ? words["Reassign to"] : words["Assign to"]}
+            label={
+              modals.assign.currentAssignee
+                ? words["Reassign to"]
+                : words["Assign to"]
+            }
             options={employeeOptions}
             selectedValue={modals.assign.employeeId}
             onChange={(value) =>
@@ -250,19 +296,139 @@ const ManageTicketsGovPage = () => {
                     ticketId: null,
                     employeeId: "",
                     currentAssignee: null,
+                    ticketStatus: null,
                   },
                 }))
               }
               className="bg-gray-500 hover:bg-gray-700"
             />
             <Button
-              text={uiState.isLoading ? words["Processing..."] : words["Confirm Assignment"]}
+              text={
+                uiState.isLoading
+                  ? words["Processing..."]
+                  : words["Confirm Assignment"]
+              }
               type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={uiState.isLoading}
             />
           </div>
         </form>
+      </Modal>
+
+      {/* Ticket Details Modal */}
+      <Modal
+        isOpen={modals.ticketDetails.isOpen}
+        onClose={() =>
+          setModals((prev) => ({
+            ...prev,
+            ticketDetails: { ...prev.ticketDetails, isOpen: false },
+          }))
+        }
+        title={`Ticket #${modals.ticketDetails.ticket?.ticketNumber || ""}`}
+        size="lg"
+      >
+        {modals.ticketDetails.ticket && (
+          <div className="space-y-6">
+            {/* Ticket Summary Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div>
+                <p className="font-semibold text-gray-600">Request Type</p>
+                <p className="text-lg font-medium">
+                  {modals.ticketDetails.ticket.requestType}
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-600">Ticket Number</p>
+                <p className="text-lg font-medium">
+                  {modals.ticketDetails.ticket.ticketNumber}
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-600">Status</p>
+                <p
+                  className={`text-lg font-medium ${
+                    modals.ticketDetails.ticket.status === "Completed"
+                      ? "text-green-600"
+                      : modals.ticketDetails.ticket.status === "Open"
+                      ? "text-red-600"
+                      : "text-blue-600"
+                  }`}
+                >
+                  {modals.ticketDetails.ticket.status}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress History */}
+            <div className="p-4 bg-white rounded-lg shadow-sm">
+              <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
+                {words["Progress History"]}
+              </h3>
+              {modals.ticketDetails.ticket.progress?.length > 0 ? (
+                <div className="space-y-3">
+                  {[...modals.ticketDetails.ticket.progress]
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map((item, index) => (
+                      <div
+                        key={index}
+                        className="border-b pb-3 last:border-b-0"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">
+                              {item.percentage}% - {item.observation}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Updated by: {item.addedBy || "System"}
+                            </p>
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(item.date)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">
+                  No progress history available
+                </p>
+              )}
+            </div>
+
+            {/* Notes Section */}
+            <div className="p-4 bg-white rounded-lg shadow-sm">
+              <h3 className="font-semibold text-lg mb-3 text-gray-700 border-b pb-2">
+                {words["Notes"]}
+              </h3>
+              {modals.ticketDetails.ticket.notes?.length > 0 ? (
+                <div className="space-y-3">
+                  {[...modals.ticketDetails.ticket.notes]
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map((note, index) => (
+                      <div
+                        key={index}
+                        className="border-b pb-3 last:border-b-0"
+                      >
+                        <p className="text-gray-800">{note.text}</p>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-sm text-gray-500">
+                            <em>{note.addedBy}</em>
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {formatDate(note.date)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No notes available</p>
+              )}
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Confirmation Modal */}
@@ -296,13 +462,21 @@ const ManageTicketsGovPage = () => {
           heading={words["Tickets Assigned to your Sector"]}
           tableHeader={tableHeaders}
           tableData={formatTableData()}
-          headerBgColor="bg-green-200"
+          headerBgColor="bg-gray-200"
           rowHoverEffect={true}
+          showProgressBar={true}
           buttons={[
             {
-              text: words["Transfer Ticket"],
-              icon: <FaExchangeAlt className="text-orange-500" />,
-              className: "bg-orange-100 hover:bg-orange-200",
+              text: words["Transfer"],
+              icon: (row) => (
+                <div className="relative">
+                  <FaExchangeAlt className="text-orange-500" />
+                  {row.opTransferReq && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+                  )}
+                </div>
+              ),
+              className: "bg-orange-100 hover:bg-orange-200 relative",
               onClick: handleAssign,
             },
           ]}
